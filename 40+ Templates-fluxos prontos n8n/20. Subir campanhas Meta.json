@@ -1,0 +1,2378 @@
+{
+  "name": "Aula 2",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Buscar Conta de Anuncio\n\nAqui buscamos todos as contas de anuncio\natravés de nosso token de acesso\n\n1. Adicione as fields que quer buscar",
+        "height": 315.4013816757224,
+        "width": 700.1679531388581,
+        "color": 7
+      },
+      "id": "f7d67ec4-3cf8-4fb0-87a3-42963ea50b5a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Adimage (Imagem)\n\nAqui é onde nós subimos a imagem para dentro de um \ncontainer dentro do Meta\n\nPassos:\n1. Adicione o ID da conta de anuncio na URL\n2. Adicione a imagem via binary\n3. Completo os dados da body confirme\nOrientação",
+        "height": 315.4013816757224,
+        "width": 696.3357272274461,
+        "color": 7
+      },
+      "id": "852933ac-349a-434b-822c-7112c7dd7426",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        1840
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## AdCreatives (Criativo do Anúncio)\n\nAqui é onde vamos definir o conteúdo visual\ne textual do anúncio utilizando a imagem\nque subimos no passo _adimage_\n\nPassos:\n1. Adicione o ID da conta de anuncio na URL\n2. Completo os dados da body confirme\nOrientação",
+        "height": 315.4013816757224,
+        "width": 922.6862921907581,
+        "color": 7
+      },
+      "id": "cddac6e4-ea3f-4ab0-bf80-9876f60a82ef",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        2180
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Buscar Paginas por BM\n\nAqui buscamos todas as paginas vinculadas\nao BM\n\n1. Adicione o id do BM na URL\n2. Adicione as fields que quer buscar",
+        "height": 315.4013816757224,
+        "width": 700.1679531388581,
+        "color": 7
+      },
+      "id": "a9deaaec-60b8-40ad-b49e-825fd74d0aa1",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        1500
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://graph.facebook.com/v21.0/238566977811392/owned_pages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": \"id,name\"\n}",
+        "options": {}
+      },
+      "id": "b54aecac-3f94-4aa8-bdc2-4f4c9e7918fe",
+      "name": "Buscar Paginas por BM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        1600
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Buscar Instagram Business Account\n\nAqui buscamos todas os instagrans vinculados\nao BM\n\n1. Adicione o id do BM na URL\n2. Adicione as fields que quer buscar\n\n\nOBS: para subir campanha usar esse ID \nde instagram",
+        "height": 315.4013816757224,
+        "width": 700.1679531388581,
+        "color": 7
+      },
+      "id": "5f168bd2-1abc-4b76-9ed7-16b84aba89e9",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        1840
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://graph.facebook.com/v21.0/238566977811392/instagram_business_accounts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={\n  \"fields\": \"username, profile_pic\"\n}",
+        "options": {}
+      },
+      "id": "e07bbd05-df29-4b9e-ac28-0b86dfebbdd1",
+      "name": "Buscar Instagram Business Account",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        1920
+      ],
+      "alwaysOutputData": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Buscar dados do Instagram\n\nAqui buscamos os dados do instagrans\n\n1. Adicione o id do instagram na URL\n2. Adicione as fields que quer buscar",
+        "height": 315.4013816757224,
+        "width": 700.1679531388581,
+        "color": 7
+      },
+      "id": "cf7600b7-2635-4d4d-bb82-a67bec9650b1",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        2180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_{id_conta_de_anuncio}/adimages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "bytes",
+              "value": "=imagem_binary"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "da45d7c2-7661-407a-86ef-c0679a535104",
+      "name": "Adimage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        1940
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Campaigns (Criar campanha)\n\nAqui é onde criamos a campanha com o objetivo \nde purchase\n\nPassos:\n1. Adicione o ID da conta de anuncio na URL\n2. Completo os dados da body confirme\nOrientação",
+        "height": 315.4013816757224,
+        "width": 695.3922222276317,
+        "color": 7
+      },
+      "id": "c80a2fca-ceb7-4664-a4f0-73d448ee9f1e",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Adset (Criar conjunto de anuncio)\n\nAqui é onde criamos o conjunto de anuncio\n\nPassos:\n1. Adicione o ID da conta de anuncio na URL\n2. Completo os dados da body confirme\nOrientação",
+        "height": 315.4013816757224,
+        "width": 695.3922222276317,
+        "color": 7
+      },
+      "id": "4b5d9015-3728-4bdc-893c-3f97a851612f",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_{id_conta_de_anuncio}/campaigns",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"<NOME DA CAMPANHA>\",\n  \"objective\": \"OUTCOME_SALES\",\n  \"status\": \"ACTIVE\",\n  \"special_ad_categories\": []\n}",
+        "options": {}
+      },
+      "id": "407c1da6-b67a-435f-9929-d32fad165309",
+      "name": "Campaigns",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        920
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_{id_conta_de_anuncio}/adsets",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"<NOME DO CONJUNTO DE ANUNCIO>\",\n  \"campaign_id\": \"<ID DA CAMPANHA>\",\n  \"optimization_goal\": \"OFFSITE_CONVERSIONS\",\n  \"billing_event\": \"IMPRESSIONS\",\n  \"bid_strategy\": \"LOWEST_COST_WITHOUT_CAP\",\n  \"daily_budget\": \"1000\",\n  \"targeting\": { \n    \"facebook_positions\": [\n      \"feed\", \"story\"\n    ],\n    \"geo_locations\": { \"countries\": [\"BR\"] },\n    \"genders\": [1, 2],\n    \"age_max\": 45,\n    \"age_min\": 20,\n    \"publisher_platforms\": [\n      \"instagram\"\n    ],\n    \"instagram_positions\": [\n      \"stream\",\n      \"explore\",\n      \"explore_home\",\n      \"story\"\n      ] \n   },\n  \"promoted_object\": {\n    \"pixel_id\": \"1504294676866652\",\n    \"custom_event_type\": \"PURCHASE\"\n  },\n  \"status\": \"ACTIVE\"\n}",
+        "options": {}
+      },
+      "id": "bf771371-2483-4c27-9dde-c0f07f50102d",
+      "name": "Adset",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        1260
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_{id_conta_de_anuncio}/ads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\": \"<NOME DO ANUNCIO>\",\n    \"adset_id\": \"<ID DO CONJUNTO DE ANUNCIO>\",\n    \"creative\": {\n        \"creative_id\": \"<ID DO ADCREATIVE>\"\n    },\n    \"status\": \"ACTIVE\"\n}\n",
+        "options": {}
+      },
+      "id": "1cfe0683-5aef-4348-8949-0d3b42d757e3",
+      "name": "Ad",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        2620
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://graph.facebook.com/v21.0/{id_do_instagram}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "id,username"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"fields\": \"id,username\"\n}",
+        "options": {}
+      },
+      "id": "f6636ecd-2b1f-4e40-9be0-eafe5507b33a",
+      "name": "Buscar dados do Instagram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        2280
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_{id_conta_de_anuncio}/adcreatives",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json,text/*;q=0.99"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\": \"<NOME DO CRIATIVO>\",\n    \"object_story_spec\": {\n        \"page_id\": \"<ID DA PAGINA>\",\n        \"instagram_user_id\": \"<ID DO INSTAGRAM>\",  \n        \"link_data\": {\n            \"image_hash\": \"<HASH DA IMAGEM>\",\n            \"link\": \"<LINK DESTINO DO ANUNCIO>\",\n            \"message\": \"<DESCRICAO DO ANUNCIO>\",\n            \"name\": \"<TITULO DO ANUNCIO>\",\n            \"description\": \"A solução definitiva para automação de marketing e vendas.\",\n            \"call_to_action\": {\n                \"type\": \"LEARN MORE\",\n                \"value\": { \"link\": \"<LINK DO BOTAO>\" }\n            }\n        }\n    }\n}",
+        "options": {}
+      },
+      "id": "73233ba4-fa74-432c-80a1-74afe4e5abcf",
+      "name": "Adcreatives (image_hash)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        360,
+        2280
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_{id_conta_de_anuncio}/adcreatives",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json,text/*;q=0.99"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\":\"<NOME DO CRIATIVO>\",\n    \"object_story_spec\":{\n        \"page_id\": \"<ID DA PAGINA>\",\n        \"link_data\": {\n            \"picture\": \"<URL PUBLICA DA IMAGEM>\", \n            \"link\": \"<LINK DESTINO>\", \n        \"call_to_action\": {\n            \"type\":\"LEARN_MORE\",\n        \"value\":{ \"link\":\"<LINK DESTINO>\" }\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "a71f934b-f9ae-4766-8723-f49a3ef1c609",
+      "name": "AdCreative (imagem_url)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        2280
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://graph.facebook.com/v21.0/me/adaccounts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "id,name,account_status"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "804d4ce0-8943-4bf4-bce4-0e23767fdca5",
+      "name": "Buscar AdAccount",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        1260
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Buscar BM\n\nAqui buscamos todos os BM\natravés de nosso token de acesso\n\n1. Adicione as fields que quer buscar",
+        "height": 315.4013816757224,
+        "width": 700.1679531388581,
+        "color": 7
+      },
+      "id": "0748582f-4b2a-43dc-95a9-a28b853c2a00",
+      "name": "Sticky Note26",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://graph.facebook.com/v21.0/me/businesses",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "id,name,account_status"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ec56f883-cc91-4eec-9b36-d232fb01077b",
+      "name": "Buscar BM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        920
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Ad (Criar anuncio)\n\nAqui é onde criamos o anuncio\n\nPassos:\n1. Adicione o ID da conta de anuncio na URL\n2. Completo os dados da body confirme\nOrientação",
+        "height": 315.4013816757224,
+        "width": 695.3922222276317,
+        "color": 7
+      },
+      "id": "f03a3a46-e3b8-4fab-aa9f-fafffd796725",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        2520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/campaigns",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Campanha 1\",\n  \"objective\": \"OUTCOME_SALES\",\n  \"status\": \"ACTIVE\",\n  \"special_ad_categories\": []\n}",
+        "options": {}
+      },
+      "id": "82a1964f-7fe3-4e58-9bd4-dd3ac5c54914",
+      "name": "Campaigns1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        978
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adsets",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Conjunto 1\",\n  \"campaign_id\": \"{{ $json.id }}\",\n  \"optimization_goal\": \"OFFSITE_CONVERSIONS\",\n  \"billing_event\": \"IMPRESSIONS\",\n  \"bid_strategy\": \"LOWEST_COST_WITHOUT_CAP\",\n  \"daily_budget\": \"1000\",\n  \"targeting\": { \n    \"facebook_positions\": [\n      \"feed\", \"story\"\n    ],\n    \"geo_locations\": { \"countries\": [\"BR\"] },\n    \"genders\": [1, 2],\n    \"age_max\": 45,\n    \"age_min\": 20,\n    \"publisher_platforms\": [\n      \"instagram\"\n    ],\n    \"instagram_positions\": [\n      \"stream\",\n      \"explore\",\n      \"explore_home\",\n      \"story\"\n      ] \n   },\n  \"promoted_object\": {\n    \"pixel_id\": \"1504294676866652\",\n    \"custom_event_type\": \"PURCHASE\"\n  },\n  \"status\": \"ACTIVE\"\n}",
+        "options": {}
+      },
+      "id": "9fa90f5e-5c9a-45ed-a8df-e6edc7f1c51c",
+      "name": "Adset1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        978
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adimages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "bytes",
+              "value": "={{ $json.data }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "7e696212-d301-40e8-bf13-62cc8631d89e",
+      "name": "Adimage1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1900,
+        978
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adcreatives",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json,text/*;q=0.99"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\": \"Meu Criativo com Hash\",\n    \"object_story_spec\": {\n        \"page_id\": \"412010781993324\",\n        \"instagram_user_id\": \"17841469163050445\",  \n        \"link_data\": {\n            \"image_hash\": \"{{ $json.images.bytes.hash }}\",\n            \"link\": \"https://fluxautomate.com.br/\",\n            \"message\": \"Automatize seus processos com a Flux Automate!\",\n            \"name\": \"Flux Automate - Escale Seu Negócio\",\n            \"description\": \"A solução definitiva para automação de marketing e vendas.\",\n            \"call_to_action\": {\n                \"type\": \"LEARN_MORE\",\n                \"value\": { \"link\": \"https://fluxautomate.com.br/\" }\n            }\n        }\n    }\n}",
+        "options": {}
+      },
+      "id": "d8091692-4781-4d3e-b85d-78e400f4dea4",
+      "name": "Adcreatives (image_hash)1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2100,
+        978
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/ads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\": \"Anuncio 1\",\n    \"adset_id\": \"{{ $('Adset1').item.json.id }}\",\n    \"creative\": {\n        \"creative_id\": \"{{ $json.id }}\"\n    },\n    \"status\": \"ACTIVE\"\n}\n",
+        "options": {}
+      },
+      "id": "a9a32e47-31a5-45cd-8c93-b073e5887eb0",
+      "name": "Ad1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2300,
+        978
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "df84c06c-8d51-4d12-8180-64a2104c8505",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        800,
+        2900
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/act_790676155385306/advideos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file_url",
+              "value": "=LINK DE DOWNLOAD DO VIDEO"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "ae837e7e-cecf-48a4-ba04-bb3c7cd3df28",
+      "name": "Advideos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        1600
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/campaigns",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Campanha 2\",\n  \"objective\": \"OUTCOME_SALES\",\n  \"status\": \"ACTIVE\",\n  \"special_ad_categories\": []\n}",
+        "options": {}
+      },
+      "id": "997073ab-ea0f-471f-bb56-5266610c5a21",
+      "name": "Campaigns2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        1238
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adsets",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Conjunto 2\",\n  \"campaign_id\": \"{{ $json.id }}\",\n  \"optimization_goal\": \"OFFSITE_CONVERSIONS\",\n  \"billing_event\": \"IMPRESSIONS\",\n  \"bid_strategy\": \"LOWEST_COST_WITHOUT_CAP\",\n  \"daily_budget\": \"1000\",\n  \"targeting\": { \n    \"facebook_positions\": [\n      \"feed\", \"story\"\n    ],\n    \"geo_locations\": { \"countries\": [\"BR\"] },\n    \"genders\": [1, 2],\n    \"age_max\": 45,\n    \"age_min\": 20,\n    \"publisher_platforms\": [\n      \"instagram\"\n    ],\n    \"instagram_positions\": [\n      \"stream\",\n      \"explore\",\n      \"explore_home\",\n      \"story\"\n      ] \n   },\n  \"promoted_object\": {\n    \"pixel_id\": \"1504294676866652\",\n    \"custom_event_type\": \"PURCHASE\"\n  },\n  \"status\": \"ACTIVE\"\n}",
+        "options": {}
+      },
+      "id": "d71d947a-3833-46a6-9346-a50eace2019c",
+      "name": "Adset2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        1238
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/act_790676155385306/advideos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file_url",
+              "value": "=https://drive.google.com/uc?id=17qxqU2apqdFUmHKyHGiYLMwtj1CL0V-P&export=download"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "3a394313-ae57-4f19-adde-3bfe7a9d2638",
+      "name": "Advideos1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        1238
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adcreatives",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json,text/*;q=0.99"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Meu Criativo de Vídeo\",\n  \"object_story_spec\": {\n    \"page_id\": \"104938309029384\",\n    \"instagram_user_id\": \"17841407114431495\",\n    \"video_data\": {\n      \"image_url\": \"https://lh3.googleusercontent.com/drive-storage/AJQWtBO3Rg1ovNE2EnV0zMKFrNYf4Qo3swJ9oSBe_BDs5XSsePPXoEeo_zLSWP47mHgc35-gLbrBedgBYE-YYbzidXmb-Bta9fLm_g4ZS7nyOfZPdXA\",\n      \"video_id\": \"{{ $json.id }}\",\n      \"title\": \"Flux Automate - Escale Seu Negócio\",\n      \"message\": \"Automatize seus processos com a Flux Automate!\",\n      \"call_to_action\": {\n        \"type\": \"LEARN_MORE\",\n        \"value\": {\n          \"link\": \"https://fluxautomate.com.br/\"\n        }\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "0f205a74-dfcf-4321-b4f7-c7ad61ad7816",
+      "name": "Adcriative (Videos)1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1700,
+        1238
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/ads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\": \"Anuncio 1\",\n    \"adset_id\": \"{{ $('Adset2').item.json.id }}\",\n    \"creative\": {\n        \"creative_id\": \"{{ $json.id }}\"\n    },\n    \"status\": \"ACTIVE\"\n}\n",
+        "options": {}
+      },
+      "id": "cc81e0a2-0acf-45d8-b228-e62bbac1f3d7",
+      "name": "Ad2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1900,
+        1238
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adcreatives",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json,text/*;q=0.99"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Meu Criativo de Vídeo\",\n  \"object_story_spec\": {\n    \"page_id\": \"104938309029384\",\n    \"instagram_user_id\": \"17841407114431495\",\n    \"video_data\": {\n      \"image_url\": \"https://lh3.googleusercontent.com/drive-storage/AJQWtBNtAqhk3vjpIqGJDWPaV-_KR2V-NrkIJBJVh9HTmajJEYeY462l0mXKsxzPpMq8lhc8JqKnfGtnjmmBqLngxW6BLPW1MkptCYAL8YaoAt1qDQ\",\n      \"video_id\": \"{{ $item(\"0\").$node[\"Criar Video1\"].json[\"id\"] }}\",\n      \"title\": \"Flux Automate - Escale Seu Negócio\",\n      \"message\": \"Automatize seus processos com a Flux Automate!\",\n      \"call_to_action\": {\n        \"type\": \"LEARN_MORE\",\n        \"value\": {\n          \"link\": \"https://fluxautomate.com.br/\"\n        }\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "db4034b4-35e2-4ff9-abd6-2a7f1f4ac315",
+      "name": "Adcriative (Videos_id)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        740,
+        2280
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Adimage (Video)\n\nAqui é onde nós subimos o video para dentro de um \ncontainer dentro do Meta\n\nPassos:\n1. Adicione o ID da conta de anuncio na URL\n2. Adicione a url de download do video\n3. Completo os dados da body confirme\nOrientação",
+        "height": 315.4013816757224,
+        "width": 696.3357272274461,
+        "color": 7
+      },
+      "id": "f55c59f8-ed8a-4172-bd4e-0e1608e66109",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        1500
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://drive.google.com/uc?id=1YgvYk4aDc72kpGaTw8bQVnejRhojhLry&export=download",
+        "options": {}
+      },
+      "id": "b8a6fe17-4a07-48f1-8455-562c7723fb2e",
+      "name": "Baixar a Imagem",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        978
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "id": "e7c6d12a-ebbd-43c9-8a58-5efcfbdc484a",
+      "name": "Converter em Base64",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        978
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Campanha de Conversão",
+        "height": 656.4748110725973,
+        "width": 1536.6316856121211,
+        "color": 7
+      },
+      "id": "0025a2be-ed52-4ffb-b50d-6515f622e64f",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        980,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Campanha de Conversão com imagem",
+        "height": 236.8968887464332,
+        "width": 1419.8814140762556,
+        "color": 7
+      },
+      "id": "5ff9a321-56cf-4423-ad6f-e052b7bbeae6",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1048,
+        918
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Campanha de Conversão com video",
+        "height": 236.8968887464332,
+        "width": 1419.3128156097464,
+        "color": 7
+      },
+      "id": "8ee7fc3f-2744-4202-ae81-827bb9c3344b",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1049,
+        1178
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_2160070887522358/campaigns",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Campanha de Conversão - Flux Automate\",\n  \"objective\": \"OUTCOME_SALES\",\n  \"status\": \"ACTIVE\",\n  \"special_ad_categories\": []\n}",
+        "options": {}
+      },
+      "id": "617b7585-c852-4880-b01c-c69ff7e48c65",
+      "name": "Criar Campanha2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        1600
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_2160070887522358/adsets",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Conjunto de Anúncios WhatsApp\",\n  \"campaign_id\": \"{{ $json.id }}\",\n  \"daily_budget\": 1000,\n  \"billing_event\": \"IMPRESSIONS\",\n  \"bid_strategy\": \"LOWEST_COST_WITHOUT_CAP\",\n  \"optimization_goal\": \"CONVERSATIONS\",\n  \"destination_type\": \"WHATSAPP\",\n  \"promoted_object\": {\n    \"pixel_id\": \"539241854811862\",\n    \"custom_event_type\": \"PURCHASE\",\n    \"page_id\": \"107939272222961\"\n  },\n  \"targeting\": {\n    \"geo_locations\": {\n      \"countries\": [\"BR\"]\n    },\n    \"age_min\": 18,\n    \"age_max\": 65,\n    \"genders\": [0],\n    \"publisher_platforms\": [\"facebook\", \"instagram\", \"messenger\"],\n    \"facebook_positions\": [\"feed\"],\n    \"instagram_positions\": [\"stream\"],\n    \"device_platforms\": [\"mobile\"]\n  },\n  \"status\": \"ACTIVE\"\n}\n",
+        "options": {}
+      },
+      "id": "2e18ee56-7817-4053-9561-5e310bb09008",
+      "name": "Criar Conjunto2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        1600
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_2160070887522358/ads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\": \"Anúncio Flux Automate\",\n    \"adset_id\": \"{{ $item(\"0\").$node[\"Criar Conjunto2\"].json[\"id\"] }}\",\n    \"creative\": {\n        \"creative_id\": \"{{ $('Criar Criativo2').item.json.id }}\"\n    },\n    \"status\": \"ACTIVE\"\n}\n",
+        "options": {}
+      },
+      "id": "5a0ecaf5-9efa-4084-a3eb-dd8306748bb8",
+      "name": "Criar Anuncio2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2300,
+        1600
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_2160070887522358/adcreatives",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json,text/*;q=0.99"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Meu Criativo com Hash\",\n  \"object_story_spec\": {\n    \"page_id\": \"107939272222961\",\n    \"instagram_user_id\": \"17841400876365589\",  \n    \"link_data\": {\n      \"image_hash\": \"2e2c4e3db6d6a7c4e2daa8906753d72f\",\n      \"message\": \"Automatize seus processos com a Flux Automate!\",\n      \"name\": \"Flux Automate - Escale Seu Negócio\",\n      \"description\": \"A solução definitiva para automação de marketing e vendas.\",\n      \"call_to_action\": {\n        \"type\": \"WHATSAPP_MESSAGE\",\n        \"value\": {\n          \"app_destination\": \"WHATSAPP\"\n        }\n      },\n      \"link\": \"https://api.whatsapp.com/send\",\n      \"page_welcome_message\": {\n        \"type\": \"VISUAL_EDITOR\",\n        \"version\": 2,\n        \"landing_screen_type\": \"ctwa_call_prompt\",\n        \"media_type\": \"text\",\n        \"text_format\": {\n          \"message\": {\n            \"text\": \"Olá, tudo bem?\",\n            \"call_prompt_data\": {\n              \"call_prompt_message\": \"Gostaria de saber mais\"\n            }\n          }\n        },\n        \"user_edit\": false\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "7338f079-c78b-404c-9232-f0c71c0daa45",
+      "name": "Criar Criativo2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2100,
+        1600
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adimages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "bytes",
+              "value": "={{ $json.data }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "b9e5b308-44ca-4925-9664-03baf5ed14ac",
+      "name": "Adimage3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1900,
+        1600
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "id": "922249cb-88e6-4bc2-b3ec-ba589f292443",
+      "name": "Converter em Base1",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        1600
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://drive.google.com/uc?id=1YgvYk4aDc72kpGaTw8bQVnejRhojhLry&export=download",
+        "options": {}
+      },
+      "id": "83240e55-3e07-4f74-8040-059839be72ed",
+      "name": "Baixar a Imagem2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        1600
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Campanha de Whatsapp",
+        "height": 313.2684951897358,
+        "width": 1536.6316856121211,
+        "color": 7
+      },
+      "id": "64b90e51-7c72-49b0-ba67-3a189b8d7dcc",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        980,
+        1500
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Campanha de Reconhecimento",
+        "height": 313.2684951897358,
+        "width": 1536.6316856121211,
+        "color": 7
+      },
+      "id": "481a1aae-040e-44bf-994f-0dd7860ead9c",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        980,
+        1840
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/campaigns",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Campanha de Conversão - Flux Automate\",\n  \"objective\": \"OUTCOME_AWARENESS\",\n  \"status\": \"ACTIVE\",\n  \"special_ad_categories\": []\n}",
+        "options": {}
+      },
+      "id": "fcdf062f-cecd-4c2b-abac-aa61c10566b1",
+      "name": "Criar Campanha3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        1940
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adsets",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Conjunto de Anúncios WhatsApp\",\n  \"campaign_id\": \"{{ $json.id }}\",\n  \"daily_budget\": 1000,\n  \"billing_event\": \"IMPRESSIONS\",\n  \"bid_strategy\": \"LOWEST_COST_WITHOUT_CAP\",\n  \"optimization_goal\": \"IMPRESSIONS\",\n  \"promoted_object\": {\n    \"page_id\": \"104938309029384\"\n  },\n  \"targeting\": {\n    \"geo_locations\": {\n      \"countries\": [\"BR\"]\n    },\n    \"age_min\": 18,\n    \"age_max\": 65,\n    \"genders\": [0],\n    \"publisher_platforms\": [\"facebook\", \"instagram\", \"messenger\"],\n    \"facebook_positions\": [\"feed\"],\n    \"instagram_positions\": [\"stream\"],\n    \"device_platforms\": [\"mobile\"]\n  },\n  \"status\": \"PAUSED\"\n}\n",
+        "options": {}
+      },
+      "id": "e35e0851-22c8-4455-8e06-34689e230b9f",
+      "name": "Criar Conjunto3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        1940
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/ads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\": \"Anúncio Flux Automate\",\n    \"adset_id\": \"{{ $('Criar Conjunto3').item.json.id }}\",\n    \"creative\": {\n        \"creative_id\": \"{{ $('Criar Criativo3').item.json.id }}\"\n    },\n    \"status\": \"ACTIVE\"\n}\n",
+        "options": {}
+      },
+      "id": "d94372a1-32aa-4f12-91dc-1a8ffb8f1df4",
+      "name": "Criar Anuncio3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2300,
+        1940
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adcreatives",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json,text/*;q=0.99"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\": \"Meu Criativo com Hash\",\n    \"object_story_spec\": {\n        \"page_id\": \"104938309029384\",\n        \"instagram_user_id\": \"17841407114431495\",  \n        \"link_data\": {\n            \"image_hash\": \"e3429a8c3f7a583acb94403b8c5a59ef\",\n            \"link\": \"https://fluxautomate.com.br/\",\n            \"message\": \"Automatize seus processos com a Flux Automate!\",\n            \"name\": \"Flux Automate - Escale Seu Negócio\",\n            \"description\": \"A solução definitiva para automação de marketing e vendas.\",\n            \"call_to_action\": {\n                \"type\": \"LEARN_MORE\",\n                \"value\": { \"link\": \"https://fluxautomate.com.br/\" }\n            }\n        }\n    }\n}",
+        "options": {}
+      },
+      "id": "7f806409-f075-49ff-b901-4ab7b152a618",
+      "name": "Criar Criativo3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2100,
+        1940
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adimages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "bytes",
+              "value": "={{ $json.data }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "4abef12a-580e-4f79-ac32-abce5cda836b",
+      "name": "Adimage4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1900,
+        1940
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "id": "a937d2f2-01bd-4e5c-90bf-9c02af8b9b16",
+      "name": "Converter em Base",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        1940
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://drive.google.com/uc?id=1YgvYk4aDc72kpGaTw8bQVnejRhojhLry&export=download",
+        "options": {}
+      },
+      "id": "0a023d3f-dbb4-4afd-a49b-056ebd2510ec",
+      "name": "Baixar a Imagem3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        1940
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Campanha de Engajamento",
+        "height": 313.2684951897358,
+        "width": 1536.6316856121211,
+        "color": 7
+      },
+      "id": "d4ee9b3e-2cb0-4c87-9771-37262f7b19d1",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        980,
+        2180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/campaigns",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Campanha de Conversão - Flux Automate\",\n  \"objective\": \"OUTCOME_ENGAGEMENT\",\n  \"status\": \"ACTIVE\",\n  \"special_ad_categories\": []\n}",
+        "options": {}
+      },
+      "id": "6f6bab4d-0e66-4d71-aefc-197c883bc783",
+      "name": "Criar Campanha4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        2280
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adsets",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Conjunto de Anúncios WhatsApp\",\n  \"campaign_id\": \"{{ $json.id }}\",\n  \"daily_budget\": 1000,\n  \"billing_event\": \"IMPRESSIONS\",\n  \"bid_strategy\": \"LOWEST_COST_WITHOUT_CAP\",\n  \"destination_type\": \"ON_POST\",\n  \"optimization_goal\": \"POST_ENGAGEMENT\",\n  \"promoted_object\": {\n    \"page_id\": \"104938309029384\"\n  },\n  \"targeting\": {\n    \"geo_locations\": {\n      \"countries\": [\"BR\"]\n    },\n    \"age_min\": 18,\n    \"age_max\": 65,\n    \"genders\": [0],\n    \"publisher_platforms\": [\"facebook\", \"instagram\", \"messenger\"],\n    \"facebook_positions\": [\"feed\"],\n    \"instagram_positions\": [\"stream\"],\n    \"device_platforms\": [\"mobile\"]\n  },\n  \"status\": \"PAUSED\"\n}\n",
+        "options": {}
+      },
+      "id": "317a394d-17e3-4fa8-a0cc-91774da99c67",
+      "name": "Criar Conjunto4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        2280
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/ads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\": \"Anúncio Flux Automate\",\n    \"adset_id\": \"{{ $('Criar Conjunto4').item.json.id }}\",\n    \"creative\": {\n        \"creative_id\": \"{{ $('Criar Criativo4').item.json.id }}\"\n    },\n    \"status\": \"ACTIVE\"\n}\n",
+        "options": {}
+      },
+      "id": "9d9236ce-3bd9-4260-ace8-fa62892265b3",
+      "name": "Criar Anuncio4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2300,
+        2280
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adcreatives",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json,text/*;q=0.99"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\": \"Meu Criativo com Hash\",\n    \"object_story_spec\": {\n        \"page_id\": \"104938309029384\",\n        \"instagram_user_id\": \"17841407114431495\",  \n        \"link_data\": {\n            \"image_hash\": \"e3429a8c3f7a583acb94403b8c5a59ef\",\n            \"link\": \"https://fluxautomate.com.br/\",\n            \"message\": \"Automatize seus processos com a Flux Automate!\",\n            \"name\": \"Flux Automate - Escale Seu Negócio\",\n            \"description\": \"A solução definitiva para automação de marketing e vendas.\",\n            \"call_to_action\": {\n                \"type\": \"LEARN_MORE\",\n                \"value\": { \"link\": \"https://fluxautomate.com.br/\" }\n            }\n        }\n    }\n}",
+        "options": {}
+      },
+      "id": "c9992ce0-55a0-4501-a652-5aa5f2215c15",
+      "name": "Criar Criativo4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2100,
+        2280
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adimages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "bytes",
+              "value": "={{ $json.data }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "fbffe0a3-df11-4945-a282-a6b016d0a776",
+      "name": "Adimage5",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1900,
+        2280
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "id": "31ba1bc8-7992-4f42-8046-b4644df2f1ae",
+      "name": "Converter em Base2",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        2280
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://drive.google.com/uc?id=1YgvYk4aDc72kpGaTw8bQVnejRhojhLry&export=download",
+        "options": {}
+      },
+      "id": "1d788c87-4881-4593-bfa4-e3e5706529a3",
+      "name": "Baixar a Imagem4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        2280
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_2160070887522358/campaigns",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Campanha de Conversão - Flux Automate\",\n  \"objective\": \"OUTCOME_ENGAGEMENT\",\n  \"status\": \"ACTIVE\",\n  \"special_ad_categories\": []\n}",
+        "options": {}
+      },
+      "id": "41b66568-b57e-4937-92a1-af106258f9b8",
+      "name": "Criar Campanha5",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        2620
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_2160070887522358/adsets",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Conjunto de Anúncios WhatsApp\",\n  \"campaign_id\": \"{{ $json.id }}\",\n  \"daily_budget\": 1000,\n  \"billing_event\": \"IMPRESSIONS\",\n  \"bid_strategy\": \"LOWEST_COST_WITHOUT_CAP\",\n  \"optimization_goal\": \"CONVERSATIONS\",\n  \"destination_type\": \"WHATSAPP\",\n  \"promoted_object\": {\n    \"page_id\": \"107939272222961\"\n  },\n  \"targeting\": {\n    \"geo_locations\": {\n      \"countries\": [\"BR\"]\n    },\n    \"age_min\": 18,\n    \"age_max\": 65,\n    \"genders\": [0],\n    \"publisher_platforms\": [\"facebook\", \"instagram\", \"messenger\"],\n    \"facebook_positions\": [\"feed\"],\n    \"instagram_positions\": [\"stream\"],\n    \"device_platforms\": [\"mobile\"]\n  },\n  \"status\": \"PAUSED\"\n}",
+        "options": {}
+      },
+      "id": "6aa7b89a-4ecb-4b37-9c95-124f5d5d2861",
+      "name": "Criar Conjunto5",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        2620
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_2160070887522358/ads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\": \"Anúncio Flux Automate\",\n    \"adset_id\": \"{{ $('Criar Conjunto5').item.json.id }}\",\n    \"creative\": {\n        \"creative_id\": \"{{ $('Criar Criativo5').item.json.id }}\"\n    },\n    \"status\": \"ACTIVE\"\n}\n",
+        "options": {}
+      },
+      "id": "6ed6ea15-6900-4a75-acf3-d628be20b35a",
+      "name": "Criar Anuncio5",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2300,
+        2620
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_2160070887522358/adcreatives",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json,text/*;q=0.99"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Meu Criativo com Hash\",\n  \"object_story_spec\": {\n    \"page_id\": \"107939272222961\",\n    \"instagram_user_id\": \"17841400876365589\",  \n    \"link_data\": {\n      \"image_hash\": \"2e2c4e3db6d6a7c4e2daa8906753d72f\",\n      \"message\": \"Automatize seus processos com a Flux Automate!\",\n      \"name\": \"Flux Automate - Escale Seu Negócio\",\n      \"description\": \"A solução definitiva para automação de marketing e vendas.\",\n      \"call_to_action\": {\n        \"type\": \"WHATSAPP_MESSAGE\",\n        \"value\": {\n          \"app_destination\": \"WHATSAPP\"\n        }\n      },\n      \"link\": \"https://api.whatsapp.com/send\",\n      \"page_welcome_message\": {\n        \"type\": \"VISUAL_EDITOR\",\n        \"version\": 2,\n        \"landing_screen_type\": \"ctwa_call_prompt\",\n        \"media_type\": \"text\",\n        \"text_format\": {\n          \"message\": {\n            \"text\": \"Olá, tudo bem?\",\n            \"call_prompt_data\": {\n              \"call_prompt_message\": \"Gostaria de saber mais\"\n            }\n          }\n        },\n        \"user_edit\": false\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "d50dab9e-e49c-451e-9e22-d7a52198ffef",
+      "name": "Criar Criativo5",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2100,
+        2620
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Campanha de Engajamento com destino Whatsapp",
+        "height": 313.2684951897358,
+        "width": 1536.6316856121211,
+        "color": 7
+      },
+      "id": "e27fa16d-4261-435d-bdfa-8eb36440a449",
+      "name": "Sticky Note16",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        980,
+        2520
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://drive.google.com/uc?id=1YgvYk4aDc72kpGaTw8bQVnejRhojhLry&export=download",
+        "options": {}
+      },
+      "id": "8bffd04b-2547-454f-9477-0fd4a91bec2a",
+      "name": "Baixar a Imagem5",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        2620
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "id": "52dd5492-c2b9-4a48-af7a-eb8e1b6ce508",
+      "name": "Converter em Base3",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        2620
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_790676155385306/adimages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "bytes",
+              "value": "={{ $json.data }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "3a83c6c6-5289-41b2-8af1-97c08cf46494",
+      "name": "Adimage6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1900,
+        2620
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/act_2160070887522358/advideos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file_url",
+              "value": "=https://drive.google.com/uc?id=17qxqU2apqdFUmHKyHGiYLMwtj1CL0V-P&export=download"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "9927295c-c5ae-4dd4-a3e8-d1d209950d15",
+      "name": "Advideos2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        2900
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_2160070887522358/adcreatives",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json,text/*;q=0.99"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Meu Criativo de Vídeo\",\n  \"object_story_spec\": {\n    \"page_id\": \"104938309029384\",\n    \"instagram_user_id\": \"17841407114431495\",\n    \"video_data\": {\n      \"image_url\": \"https://lh3.googleusercontent.com/drive-storage/AJQWtBPxIkgE16_g-sxbJn1gxXafUNo2K2aM_NVAhIuZqe8THtrpoo4NXIXa9BqkK5qsnlyYkhNxBz5N4tr_KaMToYSoUR7Qu41_vsiEjSi-ulZSYQ\",\n      \"video_id\": \"{{ $json.id }}\",\n      \"title\": \"Flux Automate - Escale Seu Negócio\",\n      \"message\": \"Automatize seus processos com a Flux Automate!\",\n      \"call_to_action\": {\n        \"type\": \"LEARN_MORE\",\n        \"value\": {\n          \"link\": \"https://fluxautomate.com.br/\"\n        }\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "91e15905-f7a2-4917-a230-dddfc9e98402",
+      "name": "Adcriative (Videos)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1700,
+        2900
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_2160070887522358/campaigns",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Campanha de Conversão - Flux Automate\",\n  \"objective\": \"OUTCOME_ENGAGEMENT\",\n  \"status\": \"ACTIVE\",\n  \"special_ad_categories\": []\n}",
+        "options": {}
+      },
+      "id": "78e3d638-8b2f-4117-a579-5cbbed1ea1c3",
+      "name": "Criar Campanha",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        2900
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_2160070887522358/adsets",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Conjunto de Anúncios WhatsApp\",\n  \"campaign_id\": \"{{ $json.id }}\",\n  \"daily_budget\": 1000,\n  \"billing_event\": \"IMPRESSIONS\",\n  \"bid_strategy\": \"LOWEST_COST_WITHOUT_CAP\",\n  \"optimization_goal\": \"CONVERSATIONS\",\n  \"destination_type\": \"WHATSAPP\",\n  \"promoted_object\": {\n    \"page_id\": \"107939272222961\"\n  },\n  \"targeting\": {\n    \"geo_locations\": {\n      \"countries\": [\"BR\"]\n    },\n    \"age_min\": 18,\n    \"age_max\": 65,\n    \"genders\": [0],\n    \"publisher_platforms\": [\"facebook\", \"instagram\", \"messenger\"],\n    \"facebook_positions\": [\"feed\"],\n    \"instagram_positions\": [\"stream\"],\n    \"device_platforms\": [\"mobile\"]\n  },\n  \"status\": \"PAUSED\"\n}",
+        "options": {}
+      },
+      "id": "c74d41ba-f1db-4919-9bc8-8f498a1c97a2",
+      "name": "Criar Conjunto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        2900
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/act_2160070887522358/ads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"name\": \"Anúncio Flux Automate\",\n    \"adset_id\": \"{{ $('Criar Conjunto').item.json.id }}\",\n    \"creative\": {\n        \"creative_id\": \"{{ $json.id }}\"\n    },\n    \"status\": \"ACTIVE\"\n}\n",
+        "options": {}
+      },
+      "id": "67babba5-7e14-46ec-9b40-33b80377d08d",
+      "name": "Criar Anuncio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1900,
+        2900
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tEIFRoMcWeqDFTSE",
+          "name": "Meta API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 187.99227628806102,
+        "width": 758.9337373402079,
+        "color": 5
+      },
+      "id": "bc87777f-ec7c-4339-a0c1-3392c72ca440",
+      "name": "Sticky Note17",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1460,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 187.99227628806102,
+        "width": 379.9613814403052,
+        "color": 5
+      },
+      "id": "36b65c82-653e-4b3f-bbf6-59b97aecf52b",
+      "name": "Sticky Note18",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1460,
+        1220
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Campaigns1": {
+      "main": [
+        [
+          {
+            "node": "Adset1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adimage1": {
+      "main": [
+        [
+          {
+            "node": "Adcreatives (image_hash)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adset1": {
+      "main": [
+        [
+          {
+            "node": "Baixar a Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adcreatives (image_hash)1": {
+      "main": [
+        [
+          {
+            "node": "Ad1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campaigns2": {
+      "main": [
+        [
+          {
+            "node": "Adset2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adset2": {
+      "main": [
+        [
+          {
+            "node": "Advideos1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advideos1": {
+      "main": [
+        [
+          {
+            "node": "Adcriative (Videos)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adcriative (Videos)1": {
+      "main": [
+        [
+          {
+            "node": "Ad2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar a Imagem": {
+      "main": [
+        [
+          {
+            "node": "Converter em Base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converter em Base64": {
+      "main": [
+        [
+          {
+            "node": "Adimage1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Campanha2": {
+      "main": [
+        [
+          {
+            "node": "Criar Conjunto2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Conjunto2": {
+      "main": [
+        [
+          {
+            "node": "Baixar a Imagem2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Criativo2": {
+      "main": [
+        [
+          {
+            "node": "Criar Anuncio2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converter em Base1": {
+      "main": [
+        [
+          {
+            "node": "Adimage3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar a Imagem2": {
+      "main": [
+        [
+          {
+            "node": "Converter em Base1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adimage3": {
+      "main": [
+        [
+          {
+            "node": "Criar Criativo2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Campanha3": {
+      "main": [
+        [
+          {
+            "node": "Criar Conjunto3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Conjunto3": {
+      "main": [
+        [
+          {
+            "node": "Baixar a Imagem3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Criativo3": {
+      "main": [
+        [
+          {
+            "node": "Criar Anuncio3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converter em Base": {
+      "main": [
+        [
+          {
+            "node": "Adimage4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar a Imagem3": {
+      "main": [
+        [
+          {
+            "node": "Converter em Base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adimage4": {
+      "main": [
+        [
+          {
+            "node": "Criar Criativo3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Campanha4": {
+      "main": [
+        [
+          {
+            "node": "Criar Conjunto4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Conjunto4": {
+      "main": [
+        [
+          {
+            "node": "Baixar a Imagem4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Criativo4": {
+      "main": [
+        [
+          {
+            "node": "Criar Anuncio4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converter em Base2": {
+      "main": [
+        [
+          {
+            "node": "Adimage5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar a Imagem4": {
+      "main": [
+        [
+          {
+            "node": "Converter em Base2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adimage5": {
+      "main": [
+        [
+          {
+            "node": "Criar Criativo4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Campanha5": {
+      "main": [
+        [
+          {
+            "node": "Criar Conjunto5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Conjunto5": {
+      "main": [
+        [
+          {
+            "node": "Baixar a Imagem5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Criativo5": {
+      "main": [
+        [
+          {
+            "node": "Criar Anuncio5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar a Imagem5": {
+      "main": [
+        [
+          {
+            "node": "Converter em Base3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converter em Base3": {
+      "main": [
+        [
+          {
+            "node": "Adimage6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adimage6": {
+      "main": [
+        [
+          {
+            "node": "Criar Criativo5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advideos2": {
+      "main": [
+        [
+          {
+            "node": "Adcriative (Videos)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Campanha": {
+      "main": [
+        [
+          {
+            "node": "Criar Conjunto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Conjunto": {
+      "main": [
+        [
+          {
+            "node": "Advideos2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adcriative (Videos)": {
+      "main": [
+        [
+          {
+            "node": "Criar Anuncio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "a69e0145-ce68-4ae8-b3fe-0906307d1f98",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "oWUePNzMdh6M7IaW",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

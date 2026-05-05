@@ -1,0 +1,392 @@
+{
+  "name": "P13 | Html para Criar Credenciais Evolution",
+  "nodes": [
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Gerador de QR Code</title>\n    <style>\n        body {\n            font-family: Arial, sans-serif;\n            display: flex;\n            justify-content: center;\n            align-items: center;\n            height: 100vh;\n            margin: 0;\n            background-color: #f0f0f0;\n        }\n        .container {\n            background-color: white;\n            padding: 2rem;\n            border-radius: 8px;\n            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n            text-align: center;\n        }\n        input {\n            width: 100%;\n            padding: 0.5rem;\n            margin-bottom: 1rem;\n            border: 1px solid #ccc;\n            border-radius: 4px;\n        }\n        button {\n            background-color: #4CAF50;\n            color: white;\n            border: none;\n            padding: 0.5rem 1rem;\n            border-radius: 4px;\n            cursor: pointer;\n        }\n        button:hover {\n            background-color: #45a049;\n        }\n        button:disabled {\n            background-color: #cccccc;\n            cursor: not-allowed;\n        }\n        #qrcode {\n            margin-top: 1rem;\n        }\n        #timer {\n            margin-top: 1rem;\n            font-weight: bold;\n        }\n        .loader {\n            border: 5px solid #f3f3f3;\n            border-top: 5px solid #3498db;\n            border-radius: 50%;\n            width: 50px;\n            height: 50px;\n            animation: spin 1s linear infinite;\n            margin: 20px auto;\n            display: none;\n        }\n        @keyframes spin {\n            0% { transform: rotate(0deg); }\n            100% { transform: rotate(360deg); }\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <h1>Gerador de QR Code</h1>\n        <input type=\"text\" id=\"instanceName\" placeholder=\"Nome da instância\">\n        <button id=\"generateButton\" onclick=\"generateQRCode()\">Gerar QR Code</button>\n        <div id=\"loader\" class=\"loader\"></div>\n        <div id=\"qrcode\"></div>\n        <div id=\"timer\"></div>\n    </div>\n\n    <script>\n        let timerInterval;\n        let timeLeft = 30;\n        let currentInstanceName = '';\n\n        async function generateQRCode() {\n            const instanceName = document.getElementById('instanceName').value.trim();\n            if (!instanceName) {\n                alert('Por favor, insira o nome da instância.');\n                return;\n            }\n\n            currentInstanceName = instanceName;\n            await fetchAndDisplayQRCode(instanceName, true);\n\n            // Reset and start the timer\n            clearInterval(timerInterval);\n            timeLeft = 30;\n            updateTimer();\n            timerInterval = setInterval(updateTimer, 1000);\n        }\n\n        async function fetchAndDisplayQRCode(instanceName, isInitial = false) {\n            const loader = document.getElementById('loader');\n            const generateButton = document.getElementById('generateButton');\n            const qrcodeElement = document.getElementById('qrcode');\n\n            loader.style.display = 'block';\n            generateButton.disabled = true;\n            qrcodeElement.innerHTML = '';\n\n            try {\n                const endpoint = isInitial \n                    ? 'https://n8n.fluxautomate.com.br/webhook-test/criar-instancia-evolution'\n                    : 'https://n8n.fluxautomate.com.br/webhook-test/atualizar-qr-code';\n\n                const response = await fetch(endpoint, {\n                    method: 'POST',\n                    headers: {\n                        'Content-Type': 'application/json',\n                    },\n                    body: JSON.stringify({ instanceName: instanceName }),\n                });\n\n                if (!response.ok) {\n                    throw new Error(`Erro ${response.status}: ${response.statusText}`);\n                }\n\n                const contentType = response.headers.get('content-type');\n                let imgSrc;\n\n                if (contentType && contentType.includes('application/json')) {\n                    const data = await response.json();\n                    if (data.qrCodeBase64) {\n                        imgSrc = `data:image/png;base64,${data.qrCodeBase64}`;\n                    } else {\n                        throw new Error('A resposta do servidor não contém o campo qrCodeBase64.');\n                    }\n                } else {\n                    const blob = await response.blob();\n                    imgSrc = URL.createObjectURL(blob);\n                }\n\n                qrcodeElement.innerHTML = `<img src=\"${imgSrc}\" alt=\"QR Code\">`;\n            } catch (error) {\n                console.error('Erro ao gerar QR Code:', error);\n                alert(`Erro ao gerar QR Code: ${error.message}`);\n            } finally {\n                loader.style.display = 'none';\n                generateButton.disabled = false;\n            }\n        }\n\n        async function updateQRCode() {\n            if (currentInstanceName) {\n                await fetchAndDisplayQRCode(currentInstanceName);\n            }\n        }\n\n        function updateTimer() {\n            const timerElement = document.getElementById('timer');\n            timerElement.textContent = `Novo QR Code em: ${timeLeft}s`;\n\n            if (timeLeft === 0) {\n                clearInterval(timerInterval);\n                updateQRCode();\n                timeLeft = 30;\n                timerInterval = setInterval(updateTimer, 1000);\n            } else {\n                timeLeft--;\n            }\n        }\n    </script>\n</body>\n</html>\n"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1140,
+        380
+      ],
+      "id": "1bb12232-19dd-4cba-9de4-e92f216c9ebe",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        380
+      ],
+      "id": "dc9f7d39-2b2a-4fe7-bca5-73dacf28d13b",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolution.fluxautomate.com.br/instance/create",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "MarcoTulio040686@M"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "instanceName",
+              "value": "={{ $json.body.instanceName }}"
+            },
+            {
+              "name": "qrcode",
+              "value": true
+            },
+            {
+              "name": "integration",
+              "value": "WHATSAPP-BAILEYS"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1140,
+        580
+      ],
+      "id": "6abc231d-d0d4-479f-b325-cafbcee1aa1e",
+      "name": "Criar instancia evolution"
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "responseDataSource": "set",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1720,
+        580
+      ],
+      "id": "84ae83e6-d470-4e61-99d5-e65d09a2f875",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "responseDataSource": "set",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1720,
+        780
+      ],
+      "id": "1bda0fce-3e55-4e81-8bff-59500eaf0e05",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "url": "=https://evolution.fluxautomate.com.br/instance/connect/{{ $json.body.instanceName }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "MarcoTulio040686@M"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1140,
+        780
+      ],
+      "id": "d556c422-bb39-43f1-aa07-b8885c372231",
+      "name": "Criar instancia evolution1"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1500,
+        580
+      ],
+      "id": "9b43ffd8-5ef1-41b7-a61a-91bd1bced89c",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7997d699-2380-48aa-8dc3-b1eac974e16e",
+              "name": "base64",
+              "value": "={{ $json.qrcode.base64.split(',').last() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1320,
+        580
+      ],
+      "id": "28f80a82-90e2-4d75-be28-b641b76e1cf6",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1500,
+        780
+      ],
+      "id": "d8a6fc04-8511-4c58-bd02-0d3a934f518f",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7997d699-2380-48aa-8dc3-b1eac974e16e",
+              "name": "base64",
+              "value": "={{ $json.base64.split(',').last() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1320,
+        780
+      ],
+      "id": "1256a2f0-0f32-4f63-8878-e4e603000276",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "criar-instancia-evolution",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        920,
+        580
+      ],
+      "id": "b6bedf2d-ff11-40f2-a474-f91b7a5dc118",
+      "name": "criar-instancia-evolution",
+      "webhookId": "f3988766-f52b-4be0-b0bd-254e485671a3"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "atualizar-qr-code",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        920,
+        780
+      ],
+      "id": "9bc75e84-6091-40bf-a2e6-1cb003c50c70",
+      "name": "Atualiza qr code",
+      "webhookId": "f3988766-f52b-4be0-b0bd-254e485671a3"
+    },
+    {
+      "parameters": {
+        "path": "instanciaevolution",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        920,
+        380
+      ],
+      "id": "8fcf4985-29ca-4b61-ae43-f7520d46fd9f",
+      "name": "Pagina do QR code",
+      "webhookId": "cce5e6b5-f99a-48a3-8b18-cf524f03c4ce"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar instancia evolution": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar instancia evolution1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "criar-instancia-evolution": {
+      "main": [
+        [
+          {
+            "node": "Criar instancia evolution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualiza qr code": {
+      "main": [
+        [
+          {
+            "node": "Criar instancia evolution1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pagina do QR code": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9f670abc-25b1-40d4-8c5d-a47f5efefcfa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "EZZ59cRCUBrUNFw5",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

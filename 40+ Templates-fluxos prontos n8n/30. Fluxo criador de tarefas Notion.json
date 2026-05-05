@@ -1,0 +1,475 @@
+{
+  "name": "30. Fluxo criador de tarefas Notion",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.data.message.conversation }}",
+        "options": {
+          "systemMessage": "=<Papel>\nvocê é meu assistente pessoal que cuida das do meu clickup, seu papel é adicionar novas tasks ao clickup<Papel>\n\n<ao adicionaruma task para um usuario>\nO campo do responsável deve ser preenchido com o ID do usuário ao invés do nome, use a tool {Pega todos os usuarios} para pegar os usuários e seus ID's\n<ao adicionaruma task para um usuario>\n\n<data atual>\nhoje é {{ $now }}\n<data atual>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -300,
+        -80
+      ],
+      "id": "fc6a0c43-c780-460a-98be-4b9c7f617d1d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        300
+      ],
+      "id": "5d968bf8-7083-48a9-98d7-e731167795da",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "teste01",
+        "contextWindowLength": 0
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        -380,
+        300
+      ],
+      "id": "f8996418-ecc5-40b4-8bbe-e5a29555c7be",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node['Webhook'].json.body.server_url }}/message/sendText/{{ $node['Webhook'].json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $node['Webhook'].json.body.apikey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $node['Webhook'].json.body.data.key.remoteJid }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{ $node['Webhook'].json.body.data.message.audioMessage ? Math.min(Math.trunc($node['Webhook'].json.body.data.message.audioMessage.seconds * 1000), 15000) : Math.min(Math.trunc($json.output.length / 10 * 1000), 15000) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "44d5b59d-93ed-4196-921d-91e8eb9eadd1",
+      "name": "Resposta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        840,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output",
+        "options": {}
+      },
+      "id": "1779e897-31ce-4ae8-a107-2e55ca79e8a2",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        620,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "cb723e83-db8b-4fa9-8983-f89a9c4ce42e",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        620,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "939acbed-02e9-424e-86f7-1761089d247e",
+              "name": "=output",
+              "value": "={{ $json.message.content.mensagem }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e5d80474-3023-4c90-afd3-e317e2b5b1f8",
+      "name": "Transforma Output em Array",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0cdb1c63-c4a4-4941-9de9-b15a86719ab2",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d245c1ab-b858-46cc-a47c-42b76707a54d",
+      "name": "Remove Vazios",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ff7188ec-a352-423a-83a8-6bb255db1d2f",
+        "options": {}
+      },
+      "id": "b69180d2-29df-4a47-b45f-64d0779b78ec",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -820,
+        -80
+      ],
+      "webhookId": "45925e52-c1c7-4a23-94bd-157027c5260c"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.output }}"
+            },
+            {
+              "content": "retorne uma resposta estruturada em json onde os textos precisam estar em uma array 'mensagem'"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        80,
+        -80
+      ],
+      "id": "2d7f41c8-67e6-4ac2-b1f6-53fba677632d",
+      "name": "Resposta estruturada"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.data.key.remoteJid }}",
+                    "rightValue": "ID DO NUMERO OU DO GRUPO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -580,
+        -80
+      ],
+      "id": "71608331-f86a-44f7-bdb9-9a5a5ba5b776",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "1376e25b-bb6c-8030-ae3e-dac48a78b88d",
+          "mode": "list",
+          "cachedResultName": "TaskList",
+          "cachedResultUrl": "https://www.notion.so/1376e25bbb6c8030ae3edac48a78b88d"
+        },
+        "title": "={{ $fromAI(\"nome_da_tarefa\", \"literalmente o nome da tarefa a ser feita\") }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|status",
+              "statusValue": "Not started"
+            },
+            {
+              "key": "Person|people",
+              "peopleValue": "={{ $fromAI(\"responsavel\", \"use a tool para ver todos os usuários que podem ser inseridos aqui, não é possivel por o nome, apenas o id do usuário\") }}"
+            },
+            {
+              "key": "prazo|date",
+              "includeTime": false,
+              "date": "={{ $fromAI(\"data_prazo\", \"data para entrega da tarefa no formato 2024-11-08 00:00:00\") }}",
+              "timezone": "America/Sao_Paulo"
+            },
+            {
+              "key": "Description|rich_text",
+              "textContent": "={{ $fromAI(\"descricao_task\", \"se não for informada uma descrição, pode deixar em branco\") }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        -220,
+        300
+      ],
+      "id": "61a583d1-acc3-4fdf-8f96-d6da127c769e",
+      "name": "Cria_Task"
+    },
+    {
+      "parameters": {
+        "resource": "user",
+        "operation": "getAll"
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        -40,
+        300
+      ],
+      "id": "17713f30-f9a0-4811-b6d5-58e258cf5016",
+      "name": "Pega todos os usuarios"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resposta": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Remove Vazios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Resposta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transforma Output em Array": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Vazios": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Resposta estruturada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resposta estruturada": {
+      "main": [
+        [
+          {
+            "node": "Transforma Output em Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cria_Task": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pega todos os usuarios": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6e9ffdbd-6b0b-4a8e-beb8-1dd151cf71d1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "385c06b6bbed00452a824dd157a142ab661dedbca13fb1106183d4d0295a4f6e"
+  },
+  "id": "8OAElqirM1rh8P8s",
+  "tags": []
+}

@@ -1,0 +1,1056 @@
+{
+  "name": "40. Fluxo Completo Amazon",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "18380c3c-20d0-4618-a961-bea3ac85d8fe",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -820,
+        -180
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "url_produto",
+              "value": "https://www.amazon.com.br/Trator-Giant-Escavator-Roma-Multicor/dp/B078HQ7FK1/ref=asc_df_B078HQ7FK1/?tag=googleshopp00-20&linkCode=df0&hvadid=379715629362&hvpos=&hvnetw=g&hvrand=13356722320918444047&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9074209&hvtargid=pla-810032701419&psc=1&mcid=248a890699e83a7dbfc47b7a100a3ba6"
+            },
+            {
+              "name": "url_botao",
+              "value": "https://www.amazon.com.br/Trator-Giant-Escavator-Roma-Multicor/dp/B078HQ7FK1/ref=asc_df_B078HQ7FK1/?tag=googleshopp00-20&linkCode=df0&hvadid=379715629362&hvpos=&hvnetw=g&hvrand=13356722320918444047&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9074209&hvtargid=pla-810032701419&psc=1&mcid=248a890699e83a7dbfc47b7a100a3ba6"
+            },
+            {
+              "name": "url_site",
+              "value": "https://blog.iaacademy.com.br"
+            },
+            {
+              "name": "repeticoes",
+              "value": "4"
+            },
+            {
+              "name": "numero_img1",
+              "value": "1"
+            },
+            {
+              "name": "numero_img2",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "70211fa9-ff6f-4922-b253-b26bef40f4ea",
+      "name": "Variáveis",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "title": "={{ $('Título').item.json[\"choices\"][0][\"message\"][\"content\"] }}",
+        "additionalFields": {
+          "authorId": 1,
+          "content": "={{ $('Link Texto').item.json[\"html\"] }}\n{{ $node[\"Code botao\"].json.html }}\n\n\n",
+          "status": "draft",
+          "format": "standard",
+          "categories": []
+        }
+      },
+      "id": "9c261e35-9459-4db9-b561-e5ccbb95d0f0",
+      "name": "Wordpress",
+      "type": "n8n-nodes-base.wordpress",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json[\"url_produto\"] }}",
+        "options": {}
+      },
+      "id": "7d959c0a-86b2-4b0f-abae-f3accc065c74",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -360,
+        -180
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-3.5-turbo-16k-0613",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "=Sou um profissional especialista em copywriting com 15 anos de experiência nessa área, capaz de produzir artigos com SEO aprimorado que rankeiam conteúdo de posts Review de produtos nas primeiras posições do google. \n\nPor favor, Crie o conteúdo para um artigo Review, que seja bem detalhado e extenso, sobre este produto: \"{{ $('HTML info').item.json[\"Titulo\"] }}\" com pelo menos 1800 palavras, contendo todas as informações sobre o produto, ATENÇÃO ao desenvolver o conteúdo Review do post nos detalhes do produto, que estão nessa pagina de venda do produto: {{$('Variáveis').item.json[\"url_produto\"]}}\n\nPor favor siga exatamente essa estrutura com as Tags do HTML, e também o tema escrito em cada subtítulo nessas 7 Outlines para escrever o conteúdo desse post Review:\n\n<h2>Detalhes sobre o Produto</h2>\n9 Parágrafos com texto persuasivo  \n\n<h2>Recursos Importantes</h2>\n9 Parágrafos com texto persuasivo\n\n<h2>Sugestoes de uso e utilidades</h2>\n9 Parágrafos com texto persuasivo    \n\n<h3>Prós</h3>\n9 Parágrafos com texto persuasivo  \n\n<h3>Contras</h3> \n9 Parágrafos com texto persuasivo  \n\n<h3>Nota Geral do Produto</h3> \nUse exclusivamente essa informação de forma bem organizada: \"{{ $('HTML info').item.json[\"Nota\"]}}\" e crie um texto detalhado e informativo sobre as notas do produto,  use a tag html <strong> + bullet points para destacar onde constar cada nota de avaliação do produto, escreva uma nota abaixo da outra. Avise também que essa nota pode mudar de acordo com as novas avaliações.\n\n<h2>Conclusão Final e Opinião da Nossa Equipe</h2>\n10 Parágrafos com texto persuasivo, mas sincero \n\n1. Ao redigir os parágrafos, utilize um tom e linguagem persuasivo, evitando o uso da voz passiva;\n\n2. Além disso, reescreva o texto de forma mais humanizada, fluida e legível, utilizando frases de transição apropriadas;\n\n3. Inclua palavras de introdução no início dos parágrafos e seções. Use palavras de continuação para conectar ideias relacionadas;\n\n4. Insira palavras de tempo onde for relevante para sequenciar eventos ou etapas. Utilize palavras de semelhança e comparação para comparar conceitos;\n\n5. Adicione palavras de conclusão para finalizar ideias e parágrafos;\n\n6. Incorpore termos de transição gerais onde couber para suavizar a transição entre tópicos e conceitos;\n\n7. Sempre Retorne o texto deste post Review utilizando no conteúdo as tags corretas de estrutura HTML, como: p, strong, itálico, ul, li, h2, h3; \n\n8. Utilize também Hightlight HTML para destacar o conteúdo;\n\n9. Nunca Retorne o Titulo do artigo na página, vou usar em outro lugar;\n\n10. Sempre numere os Prós e Contras;\n\n11. Sempre que você utilizar alguma numeração no post use a tag do html <strong></strong> para que os números fiquem destacados;\n\n12. Sempre inclua em todo contexto do conteúdo deste Post Review, em todas as Outlines o Nome 100% Completo e Original do Produto, sem nenhum tipo de corte ou alteração, este nome:\"{{ $('HTML info').item.json[\"Titulo\"] }}\";\n\n13. Mantenha este nome 100% completo: \"{{ $('HTML info').item.json[\"Titulo\"] }}\" e sempre CITE este nome 100% completo \"{{ $('HTML info').item.json[\"Titulo\"] }}\" sem nenhum tipo de alteração ou corte, pelo menos uma vez em cada conteúdo dos subtítulos das Outlines;\n\n14. Considere readability com 71 – 85 de escore e 7th grade;"
+            }
+          ]
+        },
+        "simplifyOutput": false,
+        "options": {
+          "temperature": 0.5
+        },
+        "requestOptions": {}
+      },
+      "id": "8a27d0bb-0d1d-4629-b345-4e19a78f8b42",
+      "name": "ChatGPT",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        1220,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "Titulo",
+              "cssSelector": "#productTitle",
+              "returnValue": "=text"
+            },
+            {
+              "key": "Itens",
+              "cssSelector": ".a-spacing-mini",
+              "returnArray": true
+            },
+            {
+              "key": "Imagem",
+              "cssSelector": "#altImages img[src*=\"_AC_\"]",
+              "returnValue": "attribute",
+              "attribute": "src",
+              "returnArray": true
+            },
+            {
+              "key": "Nota",
+              "cssSelector": ".cr-widget-TitleRatingsHistogram",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c1e76aec-095d-490c-bc39-d4284820a433",
+      "name": "HTML info",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-3.5-turbo-16k-0613",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "=Sou um profissional especialista em copywriting com 15 anos de experiência, capaz de produzir Títulos com SEO aprimorado que rankeiam Títulos de posts Review de produtos nas primeiras posições do google. \n\nCrie um Titulo para um post Review sobre este produto {{ $('HTML info').item.json[\"Titulo\"] }} , que seja um titulo humanizado e com um ótimo SEO para o google, que também seja atraente e envolvente para o consumidor.\n\nPor favor, sempre siga essas regras:\n0. Não retorne aspas (\")\n1. NÃO Retorne o novo Titulo deste Post Review na página, vou usar em outro lugar;\n2. No máximo 65 caracteres de quantidade total na criação do titulo;\n3. Somente use o novo Titulo deste Post Review no Título do Artigo, não use no texto do Post Review; \n4. Considere readability com 71 – 85 de escore e 7th grade;"
+            },
+            {
+              "content": "="
+            }
+          ]
+        },
+        "simplifyOutput": false,
+        "options": {
+          "temperature": 0.5
+        },
+        "requestOptions": {}
+      },
+      "id": "86d27959-a899-4351-b291-60b00759d4c6",
+      "name": "Título",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        980,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Variáveis').item.json[\"url_site\"] }}/wp-json/wp/v2/media/",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            },
+            {
+              "name": "content-disposition",
+              "value": "=attachment; filename={{ $binary.data.fileName }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "f36a1cbb-bbda-453d-aba3-ac4c4f403ec1",
+      "name": "Salvar imagem em mídia",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Replace imagem').item.json[\"imagem\"] }}",
+        "options": {}
+      },
+      "id": "7f97d221-2acd-4226-9408-368a1f6eb287",
+      "name": "Baixar a imagem",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1920,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Variáveis').item.json[\"url_site\"] }}/wp-json/wp/v2/posts/{{ $('Wordpress').item.json[\"id\"] }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "featured_media",
+              "value": "={{ $('Salvar imagem em mídia').item.json[\"id\"] }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "64bed1fa-e6b7-468b-96f2-b49a0ac08388",
+      "name": "Atualizar Post com a imagem",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2280,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 15,
+        "unit": "seconds"
+      },
+      "id": "e833556f-458f-40fb-8952-452066e6bc7f",
+      "name": "Aguarde",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        2460,
+        300
+      ],
+      "webhookId": "e1daf730-6c89-4fee-a715-a5dc641a92c2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obter dados dos nodes anteriores\nconst urlAfiliado = $node[\"Variáveis\"].json.url_produto;\nconst titulo = $node[\"HTML info\"].json[\"Titulo\"];\nlet conteudo = $node['Artigo com imagem'].json['conteudo'];  \nconst repeticoes = $node[\"Variáveis\"].json.repeticoes;\n\n// Obter URLs das imagens\nconst imagem1 = $node[\"Salvar imagem em mídia1\"].json[\"source_url\"];\nconst imagem2 = $node[\"Salvar imagem em mídia2\"].json[\"source_url\"];  \n\n// Verificar se obteve o título\nif (!titulo) {\n  return { error: \"Título não obtido\" }; \n}\n\n// Função para inserir links automáticos\nfunction inserirLinksAutomaticamente(conteudo, titulo, url, repeticoes) {\n  \n  let contador = 0;\n  let palavrasTitulo = titulo.split(\" \");\n  let palavrasDeLigacao = [\"de\", \"o\", \"a\", \"os\", \"as\", \"um\", \"uns\", \"uma\", \"umas\", \"do\", \"dos\", \"da\", \"das\", \"no\", \"nos\", \"na\", \"nas\", \"pelo\", \"pelos\", \"pela\", \"pelas\", \"em\", \"por\", \"com\", \"para\", \"que\", \"e\"];\n\n  let novoConteudo = conteudo.replace(/(<h[23]>.*<\\/h[23]>)(\\s*[\\s\\S]*?)(?=<h[23]>|$)/g, function(match, p1, p2) {\n\n    if (contador < repeticoes) {\n      if (p2.includes(titulo)) {\n        p2 = p2.replace(titulo, `<a href=\"${url}\" target=\"_blank\">${titulo}</a>`);\n        contador++;\n      } else {\n        for (let palavra of palavrasTitulo) {\n          if (p2.includes(palavra) && !palavrasDeLigacao.includes(palavra.toLowerCase()) && isNaN(palavra)) {\n            p2 = p2.replace(palavra, `<a href=\"${url}\" target=\"_blank\">${palavra}</a>`);\n            contador++;\n            break;\n          }\n        }\n      }\n    }\n\n    return p1 + p2;\n\n  });\n\n  return novoConteudo;\n\n}\n\n// Função para inserir imagens\nfunction inserirImagens(conteudo, imagem1, imagem2, urlAfiliado, titulo) {\n\n  conteudo = conteudo.replace(\n    /<h2>Recursos Importantes<\\/h2>/g,\n    `<h2>Recursos Importantes</h2>\\n` +\n    `<div align=\"center\">\\n` +\n    `<a href=\"${urlAfiliado}\" target=\"_blank\">\\n` +   \n    `<img src=\"${imagem1}\" alt=\"${titulo}\" style=\"width: 600px; height: auto;\" />\\n` +\n    `</a>\\n` +\n    `</div>`\n  );\n\n  conteudo = conteudo.replace(\n    /<h2>Conclusão Final e Opinião da Nossa Equipe<\\/h2>/,  \n    `<h2>Conclusão Final e Opinião da Nossa Equipe</h2>\\n` +\n    `<div align=\"center\">\\n` +\n    `<a href=\"${urlAfiliado}\" target=\"_blank\">\\n` +\n    `<img src=\"${imagem2}\" alt=\"${titulo}\" style=\"width: 600px; height: auto;\" />\\n` +\n    `</a>\\n` +\n    `</div>`\n  );\n\n  return conteudo;\n\n}\n\n// Aplicar funções\nlet conteudoComLinks = inserirLinksAutomaticamente(conteudo, titulo, urlAfiliado, repeticoes);\n\nlet conteudoFinal = inserirImagens(conteudoComLinks, imagem1, imagem2, urlAfiliado, titulo);\n\n// Retornar HTML final \nreturn { html: conteudoFinal }"
+      },
+      "id": "93802b16-d800-4a56-a854-19cf8b1c5e17",
+      "name": "Link Texto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const urlProduto = $node[\"Variáveis\"].json.url_produto; \n\nlet urlImagem = $('HTML info').item.json[\"Imagem\"][0];\n\n// Verifique se urlImagem é uma string e substitua o final da URL\nif (typeof urlImagem === 'string') {\n  urlImagem = urlImagem.replace(/(AC).*/, \"$1_SL1200_.jpg\"); \n}\n\nreturn {\n  imagem: urlImagem\n};\n"
+      },
+      "id": "c50dde67-cd30-4de0-aa41-d5d3d1b6028c",
+      "name": "Replace imagem",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        100,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const urlProduto = $node[\"Variáveis\"].json.url_produto;\nconst urlBotao = $node[\"Variáveis\"].json.url_botao;\n\nconst html = `\n  <div align=\"center\">\n    <a href=\"${urlProduto}\" target=\"_blank\">\n      <img src=\"${urlBotao}\">\n    </a>\n  </div>\n`;\n\nreturn { html };"
+      },
+      "id": "ba52ca84-df8b-4f23-a960-cf93414a1a46",
+      "name": "Code botao",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Replace imagem1').item.json[\"imagem\"] }}",
+        "options": {}
+      },
+      "id": "eb2bb37f-beb7-4291-9bc1-1dc147cf4afd",
+      "name": "Baixar a imagem1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Variáveis').item.json[\"url_site\"] }}/wp-json/wp/v2/media/",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            },
+            {
+              "name": "content-disposition",
+              "value": "=attachment; filename={{ $binary.data.fileName }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "58d857eb-5872-408f-b2dd-39999b6c111f",
+      "name": "Salvar imagem em mídia1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        280,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const urlProduto = $node[\"Variáveis\"].json.url_produto; \nconst numero_img1 = $node[\"Variáveis\"].json.numero_img1; // Adicione esta linha\n\nlet urlImagem = $('HTML info').item.json[\"Imagem\"][numero_img1]; // Substitua 1 por numero_img1\n\n// Verifique se urlImagem é uma string e substitua o final da URL\nif (typeof urlImagem === 'string') {\n  urlImagem = urlImagem.replace(/(AC).*/, \"$1_SL1200_.jpg\"); \n}\n\nreturn {\n  imagem: urlImagem\n}\n"
+      },
+      "id": "b7f5356a-97d7-4a7a-b3c4-7b54dbbe7f6e",
+      "name": "Replace imagem1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "conteudo",
+              "value": "={{ $('ChatGPT').item.json[\"choices\"][0][\"message\"][\"content\"].replaceAll(\"\\\\n\",\"<br />\").replaceAll(\"\\\\n\\\\n\",\"<br /><br />\").replaceAll(\"\\\\n\\\\n\\\\n\",\"<br /><br /><br />\").replaceAll(\"\\\\\\n\",\"<br />\").replaceAll(\"\\\\\\n\\\\n\",\"<br /><br />\")}}"
+            },
+            {
+              "name": "Img1",
+              "value": "=<a href='{{ $('Variáveis').item.json[\"url_produto\"] }}' target='_blank'><img src='{{ $('Salvar imagem em mídia1').item.json[\"source_url\"] }}' alt='{{ $('HTML info').item.json[\"Titulo\"] }}' title='{{ $('HTML info').item.json[\"Titulo\"] }}'/></a>"
+            },
+            {
+              "name": "Img2",
+              "value": "=<a href='{{ $('Variáveis').item.json[\"url_produto\"] }}' target='_blank'><img src='{{ $('Salvar imagem em mídia2').item.json[\"source_url\"] }}' alt='{{ $('HTML info').item.json[\"Titulo\"] }}' title='{{ $('HTML info').item.json[\"Titulo\"] }}'/></a>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b9caa9f6-b293-49c7-8571-8d8d6ab48e60",
+      "name": "Artigo com imagem",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const urlProduto = $node[\"Variáveis\"].json.url_produto; \nconst numero_img2 = $node[\"Variáveis\"].json.numero_img2; // Adicione esta linha\n\nlet urlImagem = $('HTML info').item.json[\"Imagem\"][numero_img2]; // Substitua 1 por numero_img1\n\n// Verifique se urlImagem é uma string e substitua o final da URL\nif (typeof urlImagem === 'string') {\n  urlImagem = urlImagem.replace(/(AC).*/, \"$1_SL1200_.jpg\"); \n}\n\nreturn {\n  imagem: urlImagem\n}\n"
+      },
+      "id": "528e5698-2672-4506-81f1-c189254f81bf",
+      "name": "Replace imagem2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Replace imagem2').item.json[\"imagem\"] }}",
+        "options": {}
+      },
+      "id": "cd4aaf81-77c8-44bf-bcc5-0b9a30bef96e",
+      "name": "Baixar a imagem2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 10,
+        "unit": "seconds"
+      },
+      "id": "c1374c80-247c-4752-ae51-04aac0e11525",
+      "name": "Aguarde2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ],
+      "webhookId": "e1daf730-6c89-4fee-a715-a5dc641a92c2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Variáveis').item.json[\"url_site\"] }}/wp-json/wp/v2/media/",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            },
+            {
+              "name": "content-disposition",
+              "value": "=attachment; filename={{ $binary.data.fileName }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "42e32dd0-9f65-409b-a0ff-a81a6e149f70",
+      "name": "Salvar imagem em mídia2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 10,
+        "unit": "seconds"
+      },
+      "id": "9356334a-6cca-4194-9234-a3623973bd24",
+      "name": "Aguarde3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1720,
+        300
+      ],
+      "webhookId": "e1daf730-6c89-4fee-a715-a5dc641a92c2"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "conteudo",
+              "value": "={{ $('ChatGPT').item.json[\"choices\"][0][\"message\"][\"content\"].replaceAll(\"\\\\n\",\"<br />\").replaceAll(\"\\\\n\\\\n\",\"<br /><br />\").replaceAll(\"\\\\n\\\\n\\\\n\",\"<br /><br /><br />\").replaceAll(\"\\\\\\n\",\"<br />\").replaceAll(\"\\\\\\n\\\\n\",\"<br /><br />\")}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d58e4991-9ff7-46ed-8491-d3eb80ca48c8",
+      "name": "Artigo sem imagem",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        140,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obter dados dos nodes anteriores\nconst urlAfiliado = $node[\"Variáveis\"].json.url_produto;\nconst titulo = $node[\"HTML info\"].json[\"Titulo\"];\nlet conteudo = $node['Artigo sem imagem'].json['conteudo'];  \nconst repeticoes = $node[\"Variáveis\"].json.repeticoes;\n\n// Verificar se obteve o título\nif (!titulo) {\n  return { error: \"Título não obtido\" }; \n}\n\n// Função para inserir links automáticos\nfunction inserirLinksAutomaticamente(conteudo, titulo, url, repeticoes) {\n  \n  let contador = 0;\n  let palavrasTitulo = titulo.split(\" \");\n  let palavrasDeLigacao = [\"de\", \"o\", \"a\", \"os\", \"as\", \"um\", \"uns\", \"uma\", \"umas\", \"do\", \"dos\", \"da\", \"das\", \"no\", \"nos\", \"na\", \"nas\", \"pelo\", \"pelos\", \"pela\", \"pelas\", \"em\", \"por\", \"com\", \"para\", \"que\", \"e\"];\n\n  let novoConteudo = conteudo.replace(/(<h[23]>.*<\\/h[23]>)(\\s*[\\s\\S]*?)(?=<h[23]>|$)/g, function(match, p1, p2) {\n\n    if (contador < repeticoes) {\n      if (p2.includes(titulo)) {\n        p2 = p2.replace(titulo, `<a href=\"${url}\" target=\"_blank\">${titulo}</a>`);\n        contador++;\n      } else {\n        for (let palavra of palavrasTitulo) {\n          if (p2.includes(palavra) && !palavrasDeLigacao.includes(palavra.toLowerCase()) && isNaN(palavra)) {\n            p2 = p2.replace(palavra, `<a href=\"${url}\" target=\"_blank\">${palavra}</a>`);\n            contador++;\n            break;\n          }\n        }\n      }\n    }\n\n    return p1 + p2;\n\n  });\n\n  return novoConteudo;\n\n}\n\n// Aplicar funções\nlet conteudoComLinks = inserirLinksAutomaticamente(conteudo, titulo, urlAfiliado, repeticoes);\n\n// Retornar HTML final \nreturn { html: conteudoComLinks };"
+      },
+      "id": "ba675a9c-0829-47e1-8287-0325ced465e2",
+      "name": "Link Texto2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "title": "={{ $('Título').item.json[\"choices\"][0][\"message\"][\"content\"] }}",
+        "additionalFields": {
+          "authorId": 1,
+          "content": "={{ $('Link Texto2').item.json[\"html\"] }}\n{{ $node[\"Code botao\"].json.html }}\n\n",
+          "status": "draft",
+          "format": "standard"
+        }
+      },
+      "id": "6e2157ca-066e-4c7c-80ef-d6d750be4f12",
+      "name": "Wordpress sem Imagem",
+      "type": "n8n-nodes-base.wordpress",
+      "typeVersion": 1,
+      "position": [
+        660,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Replace imagem').item.json[\"imagem\"] }}",
+        "options": {}
+      },
+      "id": "dcbde700-0fa5-4986-9d16-8da87c4dcd40",
+      "name": "Baixar a imagem3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1160,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Variáveis').item.json[\"url_site\"] }}/wp-json/wp/v2/media/",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "cache-control",
+              "value": "no-cache"
+            },
+            {
+              "name": "content-disposition",
+              "value": "=attachment; filename={{ $binary.data.fileName }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "c94e8844-1d41-4174-82cd-92af95e52801",
+      "name": "Salvar imagem em mídia3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1400,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 15,
+        "unit": "seconds"
+      },
+      "id": "012426a4-e33d-4401-9b1b-996a3336d9d8",
+      "name": "Aguarde1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        80
+      ],
+      "webhookId": "e1daf730-6c89-4fee-a715-a5dc641a92c2"
+    },
+    {
+      "parameters": {
+        "amount": 10,
+        "unit": "seconds"
+      },
+      "id": "a0e9fc1a-2050-4153-bda9-5873b77faa56",
+      "name": "Aguarde4",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        900,
+        80
+      ],
+      "webhookId": "e1daf730-6c89-4fee-a715-a5dc641a92c2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Variáveis').item.json[\"url_site\"] }}/wp-json/wp/v2/posts/{{ $('Wordpress sem Imagem').item.json[\"id\"] }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "featured_media",
+              "value": "={{ $('Salvar imagem em mídia3').item.json[\"id\"] }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "f9f7c608-91f7-4772-bd2f-727c3d12b727",
+      "name": "Atualizar Post com a imagem2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1680,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Variáveis').item.json[\"numero_img1\"] }}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{ $('Variáveis').item.json[\"numero_img2\"] }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        },
+        "combineOperation": "any"
+      },
+      "id": "4455e22f-91e3-46dc-bfc0-f1a348e74f8e",
+      "name": "Com Imagem ou sem",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        120
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Variáveis": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTML info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ChatGPT": {
+      "main": [
+        [
+          {
+            "node": "Com Imagem ou sem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Título": {
+      "main": [
+        [
+          {
+            "node": "ChatGPT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar a imagem": {
+      "main": [
+        [
+          {
+            "node": "Salvar imagem em mídia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar imagem em mídia": {
+      "main": [
+        [
+          {
+            "node": "Atualizar Post com a imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar Post com a imagem": {
+      "main": [
+        [
+          {
+            "node": "Aguarde",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace imagem": {
+      "main": [
+        [
+          {
+            "node": "Replace imagem1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code botao": {
+      "main": [
+        [
+          {
+            "node": "Título",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wordpress": {
+      "main": [
+        [
+          {
+            "node": "Aguarde3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar a imagem1": {
+      "main": [
+        [
+          {
+            "node": "Salvar imagem em mídia1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace imagem1": {
+      "main": [
+        [
+          {
+            "node": "Replace imagem2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar imagem em mídia1": {
+      "main": [
+        [
+          {
+            "node": "Aguarde2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Artigo com imagem": {
+      "main": [
+        [
+          {
+            "node": "Link Texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace imagem2": {
+      "main": [
+        [
+          {
+            "node": "Code botao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar a imagem2": {
+      "main": [
+        [
+          {
+            "node": "Salvar imagem em mídia2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aguarde2": {
+      "main": [
+        [
+          {
+            "node": "Baixar a imagem2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar imagem em mídia2": {
+      "main": [
+        [
+          {
+            "node": "Artigo com imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aguarde3": {
+      "main": [
+        [
+          {
+            "node": "Baixar a imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Link Texto": {
+      "main": [
+        [
+          {
+            "node": "Wordpress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Artigo sem imagem": {
+      "main": [
+        [
+          {
+            "node": "Link Texto2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wordpress sem Imagem": {
+      "main": [
+        [
+          {
+            "node": "Aguarde4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Link Texto2": {
+      "main": [
+        [
+          {
+            "node": "Wordpress sem Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar a imagem3": {
+      "main": [
+        [
+          {
+            "node": "Salvar imagem em mídia3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar imagem em mídia3": {
+      "main": [
+        [
+          {
+            "node": "Atualizar Post com a imagem2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aguarde4": {
+      "main": [
+        [
+          {
+            "node": "Baixar a imagem3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar Post com a imagem2": {
+      "main": [
+        [
+          {
+            "node": "Aguarde1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Com Imagem ou sem": {
+      "main": [
+        [
+          {
+            "node": "Baixar a imagem1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Artigo sem imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML info": {
+      "main": [
+        [
+          {
+            "node": "Replace imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Variáveis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6e18c267-5a45-4dd9-84b8-c5d9fc74a5ed",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "385c06b6bbed00452a824dd157a142ab661dedbca13fb1106183d4d0295a4f6e"
+  },
+  "id": "8OAElqirM1rh8P8s",
+  "tags": []
+}

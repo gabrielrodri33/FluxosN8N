@@ -1,0 +1,931 @@
+{
+  "name": "P12 | Meta - Verificar saldo na conta + Evolution",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "dbb1e998-d6b3-4119-b9dc-b5781d905683",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1040,
+        280
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "923e743f-5ce9-4b03-9320-74af3a1889e5",
+      "name": "Replace Me",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2460,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "326d00e6-de29-45c5-aa51-11787e25e994",
+              "leftValue": "={{ $json.is_prepay_account }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "999cb7f5-0b74-4cfa-b2f0-20f25055fc98",
+      "name": "É Pre-Pago?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1380,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Forma de Pagamentos em Boleto ou Pix",
+        "height": 267.04738058784125,
+        "width": 876.5712065079082
+      },
+      "id": "c5053ae3-774a-4a0d-8e42-689e832647c1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Forma de Pagamentos em Cartão",
+        "height": 267.04738058784125,
+        "width": 882.6566361699477
+      },
+      "id": "579fdf3a-2089-40f7-a67e-9fbf101a0bc8",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "12AHPMNeMtwHYX3Zp8st3FJonZskQyTo4PG0IJvqBPHU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12AHPMNeMtwHYX3Zp8st3FJonZskQyTo4PG0IJvqBPHU/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Ativo",
+              "lookupValue": "Sim"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "47af3068-a902-457d-982b-f109c30fd029",
+      "name": "Base de Clientes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        880,
+        280
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v20.0/act_{{ $json[\"Conta de Anuncio\"] }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "=amount_spent,balance,currency,disable_reason,spend_cap,default_dsa_payor,default_dsa_beneficiary,account_status, age,business_name,is_prepay_account"
+            },
+            {
+              "name": "access_token",
+              "value": "EAAPMHTVQ8OwBO50aq4LmWHWzeVpjypiqPSy6NEe1MU55PK6dmm5cKVL9ZBOQCeGWhjENPmVyfgwZBKpAIQYG4ZAT2GfSiR4m45z8bAaZB5RM4Mie9fIxXgZBBnu5cmbGLomcOErVVHZCDSF4mJvA09vsazByrxcFc4HzdNySAKaiaXKPWzP5UbRljk"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c0aadd06-b059-46a5-9eda-c61ada98a54b",
+      "name": "Meta Ads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1240,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6556f567-e834-4bc4-856f-b687b12ffc88",
+              "leftValue": "={{ ($json.spend_cap - $json.amount_spent)/100 }}",
+              "rightValue": "={{ $('Loop Over Items').item.json[\"Valor Base\"] }}",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9aa1fca2-2df8-4d7a-80ac-7b99fd7ae993",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1580,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6556f567-e834-4bc4-856f-b687b12ffc88",
+              "leftValue": "={{ $json.balance/100 }}",
+              "rightValue": "={{ $('Loop Over Items').item.json[\"Valor Base\"] }}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ef0d1e59-3b4d-40bc-a24d-01c88e6d0e35",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1580,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "12AHPMNeMtwHYX3Zp8st3FJonZskQyTo4PG0IJvqBPHU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12AHPMNeMtwHYX3Zp8st3FJonZskQyTo4PG0IJvqBPHU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Loop Over Items').item.json.row_number }}",
+            "Saldo na Conta": "={{ $('Meta Ads').item.json.balance/100 }}",
+            "Última Atualização": "={{$today.toFormat('dd-MM-yyyy')}}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Conta de Anuncio",
+              "displayName": "Conta de Anuncio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Contato do cliente",
+              "displayName": "Contato do cliente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Metodo de Pagamento",
+              "displayName": "Metodo de Pagamento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Valor Base",
+              "displayName": "Valor Base",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Saldo na Conta",
+              "displayName": "Saldo na Conta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Última Atualização",
+              "displayName": "Última Atualização",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Ativo",
+              "displayName": "Ativo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Quando que a automação será ativada?",
+              "displayName": "Quando que a automação será ativada?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1ff8af87-5089-4624-88b0-c1687243e2af",
+      "name": "Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1760,
+        500
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "12AHPMNeMtwHYX3Zp8st3FJonZskQyTo4PG0IJvqBPHU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12AHPMNeMtwHYX3Zp8st3FJonZskQyTo4PG0IJvqBPHU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Loop Over Items').item.json.row_number }}",
+            "Saldo na Conta": "={{ ($('Meta Ads').item.json.spend_cap - $('Meta Ads').item.json.amount_spent )/100 }}",
+            "Última Atualização": "={{$today.toFormat('dd-MM-yyyy')}}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Conta de Anuncio",
+              "displayName": "Conta de Anuncio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Contato do cliente",
+              "displayName": "Contato do cliente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Metodo de Pagamento",
+              "displayName": "Metodo de Pagamento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Valor Base",
+              "displayName": "Valor Base",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Saldo na Conta",
+              "displayName": "Saldo na Conta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Última Atualização",
+              "displayName": "Última Atualização",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Ativo",
+              "displayName": "Ativo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Quando que a automação será ativada?",
+              "displayName": "Quando que a automação será ativada?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2fbe5e7c-a8bc-467b-9c4c-215b7e9e4a80",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1760,
+        200
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "fcd9220e-18e9-4672-a701-cb20cdd33617",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        560,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Loop Over Items').item.json[\"Email\"] }}",
+        "subject": "Saldo Conta Meta Ads",
+        "emailType": "text",
+        "message": "=💳🚨 Aviso Importante:\n\nA conta {{ $('Loop Over Items').item.json.Cliente }}!\nEstá com saldo abaixo de R${{ $('Google Sheets').item.json['Saldo na Conta'] }}\n\nNessitamos de uma recarga para garantir que os anúncios continuem sendo veiculados.\n\nPosso gerar um novo boleto para te enviar?",
+        "options": {
+          "senderName": "Flux Automate"
+        }
+      },
+      "id": "2241786b-bce5-4676-854b-7914e536e791",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2200,
+        200
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uF4RSZEql4HvXrV3",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Loop Over Items').item.json[\"Email\"] }}",
+        "subject": "Saldo Conta Meta Ads",
+        "emailType": "text",
+        "message": "=💳🚨 Aviso Importante:\n\nA conta *{{ $('Loop Over Items').item.json.Cliente }}!\nEstá perto da próxima cobrança.\n\njá foram investidos R${{ $('Loop Over Items').item.json.Cliente }}\n\nVerifique seu cartão para que não falte saldo para o pagamento.\n\nEstamos juntos nessa jornada de crescimento! 🚀",
+        "options": {
+          "senderName": "Flux Automate"
+        }
+      },
+      "id": "f7bb66f6-7187-442e-9e7b-3ac88f3836ec",
+      "name": "Gmail1",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2200,
+        500
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uF4RSZEql4HvXrV3",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "id": "f6aae463-7d4f-42bd-b816-2a0cce75cd0e",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2580,
+        640
+      ],
+      "webhookId": "3acc4c73-af8c-4116-90bf-4b0f2c611742"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $item(\"0\").$node[\"Dados\"].json[\"url_evolution\"] }}/message/sendText/{{ $item(\"0\").$node[\"Dados\"].json[\"instancia\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $item(\"0\").$node[\"Dados\"].json[\"token\"] }}"
+            },
+            {
+              "name": "content_type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('Loop Over Items').item.json['Contato do cliente'] }}\",\n    \"text\": \"💳🚨 *Aviso Importante:*\\n\\nA conta *{{ $('Loop Over Items').item.json.Cliente }}*!\\nEstá com saldo abaixo de *R${{ $json['Saldo na Conta'] }}*\\n\\nNessitamos de uma recarga para garantir que os anúncios continuem sendo veiculados.\\n\\nPosso gerar um novo boleto para te enviar?\"\n}",
+        "options": {}
+      },
+      "id": "df8b2e9e-8895-47f3-8a50-0e7707efc4eb",
+      "name": "Evolution 2.1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "030e2b8b-180b-4753-8ec2-2a70101aefb1",
+              "name": "url_evolution",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "81419d30-620a-4705-8816-03327870beab",
+              "name": "instancia",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "ceeffd46-2654-4d6d-8c69-2914ee1fff93",
+              "name": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "125fface-1e1f-4cc6-81f2-d0107e46b33d",
+      "name": "Dados",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $item(\"0\").$node[\"Dados\"].json[\"url_evolution\"] }}/message/sendText/{{ $item(\"0\").$node[\"Dados\"].json[\"instancia\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $item(\"0\").$node[\"Dados\"].json[\"token\"] }}"
+            },
+            {
+              "name": "content_type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('Loop Over Items').item.json['Contato do cliente'] }}\",\n    \"text\": \"💳🚨 *Aviso Importante:*\\n\\nA conta *{{ $('Loop Over Items').item.json.Cliente }}*!\\nEstá perto da próxima cobrança, \njá foram investidos *R${{ $json['Saldo na Conta'] }}*\\n\\nVerifique seu *cartão* para que não falte saldo para o pagamento.\\n\\nEstamos juntos nessa jornada de crescimento! 🚀\"\n}",
+        "options": {}
+      },
+      "id": "1e2f8d79-9cd7-4943-a508-1b163e33b759",
+      "name": "Evolution 1.9",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        500
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Meta Ads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "É Pre-Pago?": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base de Clientes": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Ads": {
+      "main": [
+        [
+          {
+            "node": "É Pre-Pago?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Evolution 1.9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Evolution 2.1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail1": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados": {
+      "main": [
+        [
+          {
+            "node": "Base de Clientes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution 2.1": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution 1.9": {
+      "main": [
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "d7a34802-cf27-458b-ae21-9189c4177e64",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "NxZSyFyK44JVKxES",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

@@ -1,0 +1,1303 @@
+{
+  "name": "34. Fluxo Follow-up - Vendedor IA",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "520a9e0d-6ebd-4520-8766-8f364cd6f0fc",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1900,
+        -1840
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "Follow_up-VendedorIA",
+        "returnAll": true
+      },
+      "id": "976e020d-d2f2-4b03-94b0-3a2d51a4ce0b",
+      "name": "Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1660,
+        -1840
+      ]
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "remotejid",
+        "options": {}
+      },
+      "id": "b256761c-d9d5-4c91-81ca-8209c3eeb36f",
+      "name": "Remove Duplicates",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 1.1,
+      "position": [
+        -1460,
+        -1840
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "keys",
+        "keyPattern": "={{ $node['Loop Over Items2'].json.remotejid }}_FollowUp"
+      },
+      "id": "0457f5a1-ea1f-46f4-8e88-0edee3f86928",
+      "name": "Redis1",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        -1880
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $node['Remove Duplicates'].json.session_id }}_FollowUp"
+      },
+      "id": "c2cfc523-0b15-4d46-bc7e-25f299ac5f84",
+      "name": "Redis2",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -820,
+        -2140
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $node['Loop Over Items2'].json.remotejid }}_FollowUp",
+        "value": "1"
+      },
+      "id": "2ae75f9c-5acf-4e72-85d1-3db67749916a",
+      "name": "Redis3",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        -1860
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "f98d261a-f934-4cea-a6c8-f219272d4539",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -2060
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f877fd16-2da5-46cb-aa70-4f1b871d4617",
+      "name": "Loop Over Items2",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1240,
+        -1840
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.growthlinks.com.br/message/sendText/aula",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $node['Loop Over Items2'].json.remotejid }}"
+            },
+            {
+              "name": "text",
+              "value": "=Opa, ainda está aí?"
+            },
+            {
+              "name": "delay",
+              "value": "={{ 1200 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b8b42b6f-0202-430b-98a8-91df54a1545e",
+      "name": "Follow-up  1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        -1860
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "Follow_up-VendedorIA",
+        "returnAll": true
+      },
+      "id": "fbdd8acf-3d46-45e0-90f4-2c3a8dcd042f",
+      "name": "Supabase1",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1680,
+        -1040
+      ]
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "=remotejid",
+        "options": {}
+      },
+      "id": "a5e596a7-09d7-4525-9c01-b379da434eb3",
+      "name": "Remove Duplicates1",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 1.1,
+      "position": [
+        -1460,
+        -1040
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "keys",
+        "keyPattern": "={{ $node['Loop Over Items'].json.remotejid }}_FollowUp"
+      },
+      "id": "c18151dd-6639-40a1-a01b-9ca3f872807d",
+      "name": "Redis5",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        -1080
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $node['Remove Duplicates1'].json.session_id }}_FollowUp"
+      },
+      "id": "5d46133d-ee93-4984-84e5-e7d523b28b9f",
+      "name": "Redis6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -700,
+        -1500
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "id": "d4141c3c-c423-4494-ae59-05c1f45a6a69",
+      "name": "No Operation, do nothing1",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -1260
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "d480cf5d-e23f-44d4-b2ff-6dc5a26cc333",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1240,
+        -1040
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $node['Loop Over Items'].json.remotejid }}_FollowUp",
+        "value": "3"
+      },
+      "id": "9d8dc980-7696-4185-9887-e7a7f94e7eae",
+      "name": "Redis8",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        -960
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "Follow_up-VendedorIA",
+        "returnAll": true
+      },
+      "id": "e7532f37-9f2a-4a33-ab0e-5f5359713833",
+      "name": "Supabase2",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1640,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "remotejid",
+        "options": {}
+      },
+      "id": "4a2fed37-7d81-450e-878c-25a8ffc2972e",
+      "name": "Remove Duplicates2",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 1.1,
+      "position": [
+        -1420,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "keys",
+        "keyPattern": "={{ $node['Loop Over Items1'].json.remotejid }}_FollowUp"
+      },
+      "id": "69a3528e-9305-4f46-a09b-d9e30c45efa2",
+      "name": "Redis7",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -860,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $node['Remove Duplicates2'].json.session_id }}_FollowUp"
+      },
+      "id": "f0fd8641-1132-413d-9791-8da34bbd1cb8",
+      "name": "Redis9",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -780,
+        -740
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "id": "cc884aee-3b4d-4aef-bf85-1e29d2bed58c",
+      "name": "No Operation, do nothing2",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -540
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "c0a6141d-8b17-4a6b-a495-4314bd099928",
+      "name": "Loop Over Items1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1200,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $node['Loop Over Items1'].json.remotejid }}_FollowUp",
+        "value": "4"
+      },
+      "id": "0ff77822-f323-486d-bca6-a79300d586c8",
+      "name": "Redis10",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "nda"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "328d2d07-0bb7-4bc0-9e71-2828fe4027f8",
+                    "leftValue": "={{ $json.values()[0] }}",
+                    "rightValue": "2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "2"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "923551af-a4f5-4a4d-b70d-d1822c65744e",
+      "name": "Switch1",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -700,
+        -1080
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 10
+            }
+          ]
+        }
+      },
+      "id": "e830d8e5-c7cd-48d4-8dad-7d2f1433af89",
+      "name": "1h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1900,
+        -1040
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "8de6ac46-2762-4c44-8cab-ee24c32e56e7",
+      "name": "4h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1900,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.growthlinks.com.br/message/sendText/aula",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $node['Loop Over Items'].json.remotejid }}"
+            },
+            {
+              "name": "text",
+              "value": "=Aguardando sua resposta ainda..."
+            },
+            {
+              "name": "delay",
+              "value": "={{ 1200 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3b19aa43-806a-445d-ad94-85bd057303d2",
+      "name": "Follow-up  2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        -960
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.growthlinks.com.br/message/sendText/aula",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $node['Loop Over Items1'].json.remotejid }}"
+            },
+            {
+              "name": "text",
+              "value": "=Aguardando sua resposta ainda..."
+            },
+            {
+              "name": "delay",
+              "value": "={{ 1200 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e6af81f6-60d5-4638-8800-2bf78e8313e0",
+      "name": "Follow-up 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "nda"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "43d2b42c-1f7f-4143-9c25-569064b7a4a7",
+                    "leftValue": "={{ $json.values()[0] }}",
+                    "rightValue": "1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1689adb3-1d2a-4296-b01e-7def8fe7a1a2",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -700,
+        -1880
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "nda"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "328d2d07-0bb7-4bc0-9e71-2828fe4027f8",
+                    "leftValue": "={{ $json.values()[0] }}",
+                    "rightValue": "3",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ded4a140-5005-4f09-9af9-df874f166afb",
+      "name": "Switch2",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -660,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "Follow_up-VendedorIA",
+        "returnAll": true
+      },
+      "id": "3db13d34-a674-411f-8753-ea4a4f4013f8",
+      "name": "Supabase3",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1640,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "remotejid",
+        "options": {}
+      },
+      "id": "63c11a3b-4976-40b4-9915-fd0eabe30f0d",
+      "name": "Remove Duplicates3",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 1.1,
+      "position": [
+        -1420,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "keys",
+        "keyPattern": "={{ $node['Loop Over Items3'].json.remotejid }}_FollowUp"
+      },
+      "id": "ae73afbe-78a6-477a-ac13-f28ff9410778",
+      "name": "Redis",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -860,
+        180
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "fddd1642-a390-417e-b21d-862668949bff",
+      "name": "No Operation, do nothing3",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "98d25e65-88c5-4b0c-8117-2eb99475be99",
+      "name": "Loop Over Items3",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1200,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $node['Loop Over Items3'].json.remotejid }}_FollowUp",
+        "value": "0"
+      },
+      "id": "4feca7a9-5280-43b7-9454-176d3b66aab4",
+      "name": "Redis11",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 20
+            }
+          ]
+        }
+      },
+      "id": "69648966-92bd-4653-8d46-3c5a4cba417f",
+      "name": "4h1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1900,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.growthlinks.com.br/message/sendText/aula",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $node['Loop Over Items3'].json.remotejid }}"
+            },
+            {
+              "name": "text",
+              "value": "=tudo bem, não vou mandar mais mensagens, qualquer coisa me responder aí."
+            },
+            {
+              "name": "delay",
+              "value": "={{ 1200 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b346c02f-63aa-48e7-9da9-539186ee05c9",
+      "name": "Follow-up ",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "nda"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "328d2d07-0bb7-4bc0-9e71-2828fe4027f8",
+                    "leftValue": "={{ $json.values()[0] }}",
+                    "rightValue": "4",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "4"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "34df2269-22ff-4a19-a03a-14065ae1fcbc",
+      "name": "Switch3",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -660,
+        180
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Redis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-up  1": {
+      "main": [
+        [
+          {
+            "node": "Redis3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase1": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis5": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Redis5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis8": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase2": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis7": {
+      "main": [
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Redis7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis10": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Follow-up  2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1h": {
+      "main": [
+        [
+          {
+            "node": "Supabase1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4h": {
+      "main": [
+        [
+          {
+            "node": "Supabase2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-up  2": {
+      "main": [
+        [
+          {
+            "node": "Redis8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-up 3": {
+      "main": [
+        [
+          {
+            "node": "Redis10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Follow-up  1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Follow-up 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase3": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "Switch3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items3": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis11": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4h1": {
+      "main": [
+        [
+          {
+            "node": "Supabase3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-up ": {
+      "main": [
+        [
+          {
+            "node": "Redis11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch3": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Follow-up ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "95907dab-b7d5-44d8-bd1d-9249dfdf76d4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "385c06b6bbed00452a824dd157a142ab661dedbca13fb1106183d4d0295a4f6e"
+  },
+  "id": "8OAElqirM1rh8P8s",
+  "tags": []
+}

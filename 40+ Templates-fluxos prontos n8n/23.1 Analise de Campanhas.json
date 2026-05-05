@@ -1,0 +1,92 @@
+{
+  "name": "P2 | Gestor de Trafego | Insights de Trafego V1 | 2. Pagina Html",
+  "nodes": [
+    {
+      "parameters": {
+        "html": "\n<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Análise de Campanha - Marketing Digital</title>\n    <link href=\"https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css\" rel=\"stylesheet\">\n    <link href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css\" rel=\"stylesheet\">\n</head>\n<body class=\"bg-gray-100 min-h-screen\">\n    <!-- Cabeçalho -->\n    <header class=\"bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg\">\n        <div class=\"container mx-auto px-4 py-6\">\n            <h1 class=\"text-3xl font-bold\">Análise de Campanha</h1>\n            <p class=\"text-lg opacity-90\">Relatório de Performance - Marketing Digital</p>\n        </div>\n    </header>\n\n    <!-- Conteúdo Principal -->\n    <main class=\"container mx-auto px-4 py-8\">\n        <!-- Form de Upload -->\n        <div class=\"bg-white rounded-lg shadow-xl p-6 mb-8\">\n            <form id=\"uploadForm\" class=\"flex items-center space-x-4\">\n                <div class=\"flex-1\">\n                    <label class=\"block text-sm font-medium text-gray-700 mb-2\">\n                        Selecione o arquivo XLS para análise\n                    </label>\n                    <input type=\"file\" \n                           id=\"fileInput\" \n                           accept=\".xls,.jpg,.jpeg,.png\"\n                           class=\"block w-full text-sm text-gray-500\n                                  file:mr-4 file:py-2 file:px-4\n                                  file:rounded-md file:border-0\n                                  file:text-sm file:font-semibold\n                                  file:bg-blue-50 file:text-blue-700\n                                  hover:file:bg-blue-100\">\n                </div>\n                <button type=\"submit\" \n                        class=\"px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mt-6\">\n                    Analisar\n                </button>\n            </form>\n        </div>\n\n        <!-- Card Principal -->\n        <div class=\"bg-white rounded-lg shadow-xl p-6 mb-8\" id=\"resultadoAnalise\" style=\"display: none;\">\n            <div class=\"flex items-center mb-4\">\n                <i class=\"fas fa-chart-line text-2xl text-blue-600 mr-3\"></i>\n                <h2 class=\"text-2xl font-semibold\">Análise do Gestor</h2>\n            </div>\n            <p class=\"text-gray-600 mb-4\" id=\"dataAnalise\"></p>\n        </div>\n\n        <!-- Grid de Análises -->\n        <div class=\"grid md:grid-cols-3 gap-6\" id=\"gridAnalise\" style=\"display: none;\">\n            <!-- Pontos Positivos -->\n            <div class=\"bg-white rounded-lg shadow-lg p-6\">\n                <div class=\"flex items-center mb-4\">\n                    <div class=\"w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3\">\n                        <i class=\"fas fa-plus text-green-600\"></i>\n                    </div>\n                    <h3 class=\"text-xl font-semibold text-green-600\">Pontos Positivos</h3>\n                </div>\n                <div class=\"space-y-3 text-gray-700\" id=\"pontosPositivos\">\n                </div>\n            </div>\n\n            <!-- Pontos Negativos -->\n            <div class=\"bg-white rounded-lg shadow-lg p-6\">\n                <div class=\"flex items-center mb-4\">\n                    <div class=\"w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3\">\n                        <i class=\"fas fa-minus text-red-600\"></i>\n                    </div>\n                    <h3 class=\"text-xl font-semibold text-red-600\">Pontos Negativos</h3>\n                </div>\n                <div class=\"space-y-3 text-gray-700\" id=\"pontosNegativos\">\n                </div>\n            </div>\n\n            <!-- Sugestões -->\n            <div class=\"bg-white rounded-lg shadow-lg p-6\">\n                <div class=\"flex items-center mb-4\">\n                    <div class=\"w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3\">\n                        <i class=\"fas fa-lightbulb text-blue-600\"></i>\n                    </div>\n                    <h3 class=\"text-xl font-semibold text-blue-600\">Sugestões</h3>\n                </div>\n                <div class=\"space-y-3 text-gray-700\" id=\"sugestoes\">\n                </div>\n            </div>\n        </div>\n    </main>\n\n    <!-- Rodapé -->\n    <footer class=\"bg-gray-800 text-white mt-12\">\n        <div class=\"container mx-auto px-4 py-6\">\n            <p class=\"text-center\">&copy; 2024 Sua Agência de Marketing Digital. Todos os direitos reservados.</p>\n        </div>\n    </footer>\n\n    <script>\n        document.getElementById('uploadForm').addEventListener('submit', async (e) => {\n            e.preventDefault();\n            \n            const fileInput = document.getElementById('fileInput');\n            const file = fileInput.files[0];\n            \n            if (!file) {\n                alert('Por favor, selecione um arquivo.');\n                return;\n            }\n\n            const formData = new FormData();\n            formData.append('arquivo', file);\n\n            try {\n                const response = await fetch('https://n8n.fluxautomate.com.br/webhook-test/analista_api', {\n                    method: 'POST',\n                    body: formData\n                });\n\n                if (!response.ok) {\n                    throw new Error('Erro na requisição');\n                }\n\n                const data = await response.json();\n\n                // Atualiza a data\n                const dataAtual = new Date().toLocaleDateString('pt-BR');\n                document.getElementById('dataAnalise').textContent = `Data da análise: ${dataAtual}`;\n\n                // Converte o markdown para HTML básico\n                const convertMarkdownToHtml = (text) => {\n                    return text\n                        .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')\n                        .replace(/\\n/g, '<br>')\n                        .replace(/- /g, '• ');\n                };\n\n                // Atualiza os conteúdos\n                document.getElementById('pontosPositivos').innerHTML = convertMarkdownToHtml(data.pontos_positivos);\n                document.getElementById('pontosNegativos').innerHTML = convertMarkdownToHtml(data.pontos_negativos);\n                document.getElementById('sugestoes').innerHTML = convertMarkdownToHtml(data.sugestao);\n\n                // Mostra os resultados\n                document.getElementById('resultadoAnalise').style.display = 'block';\n                document.getElementById('gridAnalise').style.display = 'grid';\n\n            } catch (error) {\n                alert('Erro ao processar o arquivo. Por favor, tente novamente.');\n                console.error('Erro:', error);\n            }\n        });\n    </script>\n</body>\n</html>\n"
+      },
+      "id": "eae2c61e-5c1e-4768-a2b8-a4dfac71109a",
+      "name": "HTML",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1020,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=  {{ $json.html }}",
+        "options": {}
+      },
+      "id": "1a11178b-0db5-48f8-9bf8-f7138bede065",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1240,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "path": "1befc023-9522-44db-ae17-c9b847df7e11",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "2e88219a-f728-4d77-835f-8dd8bd1ecc01",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        800,
+        360
+      ],
+      "webhookId": "1befc023-9522-44db-ae17-c9b847df7e11"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e031f710-dfe6-4f4b-a3af-a8e8d22304f1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "3KLHtnBB3kjvDOqk",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

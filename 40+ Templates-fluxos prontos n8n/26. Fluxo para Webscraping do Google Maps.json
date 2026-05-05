@@ -1,0 +1,1438 @@
+{
+  "name": "google maps pronto",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "59eacfc8-b62c-4d97-9e68-47e59692aad7",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -460,
+        3020
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "ec039565-c621-45aa-ac17-3cdbcf4cd137",
+      "name": "Run workflow every hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -460,
+        2680
+      ],
+      "typeVersion": 1.1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "51e191cb-af20-423b-9303-8523caa4ae0d",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $('Exponential Backoff').item.json[\"retryCount\"] }}",
+              "rightValue": 10
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "edcfcb9c-0c51-49e7-8180-78df4ad1cf1b",
+      "name": "Check Max Retries1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2380,
+        3540
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "errorMessage": "Google Sheets API Limit has been triggered and the workflow has stopped"
+      },
+      "id": "b8691a3d-8a0c-460d-b6b0-8c6e03c86de2",
+      "name": "Stop and Error1",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        2660,
+        3520
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://places.googleapis.com/v1/places:searchText",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Goog-FieldMask",
+              "value": "places.id,places.displayName,places.addressComponents,places.formattedAddress,places.primaryType,places.primaryTypeDisplayName,places.types,places.location,places.nationalPhoneNumber,places.rating,places.userRatingCount,places.websiteUri,places.editorialSummary,places.reviews,places.attributions,places.userRatingCount"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "textQuery",
+              "value": "={{ $item(\"0\").$node[\"Subcategoria\"].json[\"Subcategoria\"] }} {{ $json.zip }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fe627997-ea82-4375-8845-e34295d0407c",
+      "name": "GMaps API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        820,
+        3860
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "ROqFJcXZCmMHSdRy",
+          "name": "Google account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Define the retry count (coming from a previous node or set manually)\nconst retryCount = $json[\"retryCount\"] || 0;  // If not present, default to 0\nconst maxRetries = 5;  // Define the maximum number of retries\nconst initialDelay = 1;  // Initial delay in seconds (1 second)\n\n// If the retry count is less than the max retries, calculate the delay\nif (retryCount < maxRetries) {\n    const currentDelayInSeconds = initialDelay * Math.pow(2, retryCount);  // Exponential backoff delay in seconds\n    \n    // Log the delay time for debugging\n    console.log(`Waiting for ${currentDelayInSeconds} seconds before retry...`);\n    \n    return {\n        json: {\n            retryCount: retryCount + 1,  // Increment retry count\n            waitTimeInSeconds: currentDelayInSeconds, // Pass the delay time in seconds\n            status: 'retrying',\n        }\n    };\n} else {\n    // If max retries are exceeded, return a failure response\n    return {\n        json: {\n            error: 'Max retries exceeded',\n            retryCount: retryCount,\n            status: 'failed'\n        }\n    };\n}\n"
+      },
+      "id": "f8470751-43bb-4c35-bd2d-9b73570d8c79",
+      "name": "Exponential Backoff",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1960,
+        3540
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.waitTimeInSeconds }}"
+      },
+      "id": "39b937bd-6bd4-4c8c-9b00-9a17cefc85c8",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2140,
+        3540
+      ],
+      "webhookId": "e0cf8da3-e4ab-490e-abcd-0c0c55b90846",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "51e191cb-af20-423b-9303-8523caa4ae0d",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $('Exponential Backoff1').item.json[\"retryCount\"] }}",
+              "rightValue": 10
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1c5e4d3-e247-4c66-81d4-4800cfe9c7a6",
+      "name": "Check Max Retries",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3980,
+        2960
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "errorMessage": "Google Sheets API Limit has been triggered and the workflow has stopped"
+      },
+      "id": "155d4806-01c7-4275-9866-1ce6bba9af56",
+      "name": "Stop and Error",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        4200,
+        2940
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Define the retry count (coming from a previous node or set manually)\nconst retryCount = $json[\"retryCount\"] || 0;  // If not present, default to 0\nconst maxRetries = 5;  // Define the maximum number of retries\nconst initialDelay = 1;  // Initial delay in seconds (1 second)\n\n// If the retry count is less than the max retries, calculate the delay\nif (retryCount < maxRetries) {\n    const currentDelayInSeconds = initialDelay * Math.pow(2, retryCount);  // Exponential backoff delay in seconds\n    \n    // Log the delay time for debugging\n    console.log(`Waiting for ${currentDelayInSeconds} seconds before retry...`);\n    \n    return {\n        json: {\n            retryCount: retryCount + 1,  // Increment retry count\n            waitTimeInSeconds: currentDelayInSeconds, // Pass the delay time in seconds\n            status: 'retrying',\n        }\n    };\n} else {\n    // If max retries are exceeded, return a failure response\n    return {\n        json: {\n            error: 'Max retries exceeded',\n            retryCount: retryCount,\n            status: 'failed'\n        }\n    };\n}\n"
+      },
+      "id": "076a7da1-47f0-4ef3-8c97-5a293d9474a7",
+      "name": "Exponential Backoff1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3640,
+        2960
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json[\"waitTime\"] }}"
+      },
+      "id": "bd28717f-9505-4258-86ae-d83402b2272b",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        3800,
+        2960
+      ],
+      "webhookId": "670750d4-0c4d-4fff-b139-1d60be1eac68",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "51e191cb-af20-423b-9303-8523caa4ae0d",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $('Exponential Backoff2').item.json[\"retryCount\"] }}",
+              "rightValue": 10
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8c658382-920b-43a8-8b3a-1757a415cb0c",
+      "name": "Check Max Retries2",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3360,
+        3260
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "errorMessage": "Google Sheets API Limit has been triggered and the workflow has stopped"
+      },
+      "id": "4a990621-d787-494f-9225-980d7c4a4f35",
+      "name": "Stop and Error2",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        3600,
+        3240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Define the retry count (coming from a previous node or set manually)\nconst retryCount = $json[\"retryCount\"] || 0;  // If not present, default to 0\nconst maxRetries = 5;  // Define the maximum number of retries\nconst initialDelay = 1;  // Initial delay in seconds (1 second)\n\n// If the retry count is less than the max retries, calculate the delay\nif (retryCount < maxRetries) {\n    const currentDelayInSeconds = initialDelay * Math.pow(2, retryCount);  // Exponential backoff delay in seconds\n    \n    // Log the delay time for debugging\n    console.log(`Waiting for ${currentDelayInSeconds} seconds before retry...`);\n    \n    return {\n        json: {\n            retryCount: retryCount + 1,  // Increment retry count\n            waitTimeInSeconds: currentDelayInSeconds, // Pass the delay time in seconds\n            status: 'retrying',\n        }\n    };\n} else {\n    // If max retries are exceeded, return a failure response\n    return {\n        json: {\n            error: 'Max retries exceeded',\n            retryCount: retryCount,\n            status: 'failed'\n        }\n    };\n}\n"
+      },
+      "id": "095e23f4-d13f-4266-b28d-fa3ad573967a",
+      "name": "Exponential Backoff2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2980,
+        3260
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json[\"waitTime\"] }}"
+      },
+      "id": "2ebdecb7-8c49-4633-aab7-cbe68fcaeb77",
+      "name": "Wait2",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        3180,
+        3260
+      ],
+      "webhookId": "d9b32a26-861f-46d5-a8d7-0ede2ea37fe6",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "id": "162be6ce-37c7-4955-8799-22e086719cf6",
+      "name": "Limit",
+      "type": "n8n-nodes-base.limit",
+      "position": [
+        940,
+        2760
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# Gatilho por tempo\n",
+        "height": 311,
+        "width": 267,
+        "color": 4
+      },
+      "id": "3fba170a-d10d-4e21-8f85-46fff55f8e07",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -520,
+        2560
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# Google Maps API - Buscar Locais",
+        "height": 940,
+        "width": 2120,
+        "color": 3
+      },
+      "id": "49a25a39-5b49-4582-b3a7-79e5932a2e96",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        3440
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b64333b6-67ce-47c4-a2cc-07303278d178",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.STATUS }}",
+              "rightValue": "Ignore"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6ced2bca-065e-4d88-8119-509b8aa762a0",
+      "name": "Filter Subcategories",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -40,
+        3840
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "content": "# PREPARAR OS DADOS",
+        "height": 940,
+        "width": 2120,
+        "color": 7
+      },
+      "id": "1c6dd6de-c0e6-414d-bd1e-1fc2e6e840ca",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        2480
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d3470f6f-c66e-4223-bbf5-81e45201d45d",
+              "name": "Subcategoria",
+              "type": "string",
+              "value": "={{ $json.Subcategoria }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "82c9f487-0843-4aee-a1d4-483e9d1fc4a0",
+      "name": "Subcategoria",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        140,
+        3840
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Normaliza').item.json.url_planilha }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Normaliza').item.json.paginaCategorias }}",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "4af5a960-9404-47a8-9920-4a816c4ce535",
+      "name": "Pegar Subcategoria",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -260,
+        3840
+      ],
+      "executeOnce": true,
+      "typeVersion": 4.2,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0hH2ebwFYbreoE5Y",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $item(\"0\").$node[\"Normaliza\"].json[\"url_planilha\"] }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "=Resultados",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone": "={{ $json.place.nationalPhoneNumber }}",
+            "reviews": "={{ $json.place.reviews }}",
+            "website": "={{ $json.place.websiteUri }}",
+            "place_id": "={{ $json.place.id }}",
+            "nota": "={{ $json.place.rating }}",
+            "tipo": "={{ $json.place.types }}",
+            "Endereço": "={{ $json.place.formattedAddress }}",
+            "TITULO": "={{ $json.place.displayName.text }}",
+            "AÇÃO": "LIGAR"
+          },
+          "matchingColumns": [
+            "place_id"
+          ],
+          "schema": [
+            {
+              "id": "XID",
+              "displayName": "XID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AÇÃO",
+              "displayName": "AÇÃO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "TITULO",
+              "displayName": "TITULO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nota",
+              "displayName": "nota",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reviews",
+              "displayName": "reviews",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tipo",
+              "displayName": "tipo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Endereço",
+              "displayName": "Endereço",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "place_id",
+              "displayName": "place_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "types",
+              "displayName": "types",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "3f4d8603-dd33-4d4b-9915-2257507de5b8",
+      "name": "Adicionando Locais na Planilha",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1740,
+        3520
+      ],
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0hH2ebwFYbreoE5Y",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $item(\"0\").$node[\"Normaliza\"].json[\"url_planilha\"] }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $node[\"Normaliza\"].json[\"page\"] }}",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "571d41cc-377e-4433-9eb7-5bc9fc52886a",
+      "name": "Pegar Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2780,
+        3240
+      ],
+      "executeOnce": true,
+      "typeVersion": 4.2,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0hH2ebwFYbreoE5Y",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $item(\"0\").$node[\"Normaliza\"].json[\"url_planilha\"] }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $node[\"Normaliza\"].json[\"page\"] }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "zip": "={{ $item(\"0\").$node[\"ceps\"].json[\"zip\"] }}",
+            "status": "scraped",
+            "subcat": "={{ $item(\"0\").$node[\"Subcategoria\"].json[\"Subcategoria\"] }}"
+          },
+          "matchingColumns": [
+            "zip"
+          ],
+          "schema": [
+            {
+              "id": "zip",
+              "displayName": "zip",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subcat",
+              "displayName": "subcat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "576badfd-1bbe-4471-b855-090430a9cfb0",
+      "name": "Atualizar Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3420,
+        2940
+      ],
+      "executeOnce": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0hH2ebwFYbreoE5Y",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "# Cadastrar na Tabela",
+        "height": 940,
+        "width": 2860,
+        "color": 2
+      },
+      "id": "fb9c58d4-9444-40e3-aa2b-fdfaf5b2f65e",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        2900
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fa469a25-eb00-4011-a626-87fae7fb8bbd",
+              "name": "url_planilha",
+              "type": "string",
+              "value": "https://docs.google.com/spreadsheets/d/1Zsz-DDHYdDKVwoFPyH-kCpuKcJCAGOAAIGQwKFt0E4c/edit?gid=1666626842#gid=1666626842"
+            },
+            {
+              "id": "df0a7a51-0ec6-47d2-9f73-bc8268385305",
+              "name": "paginaCategorias",
+              "type": "string",
+              "value": "Tipos de Negocios"
+            },
+            {
+              "id": "a1ff9a58-9ae6-4000-9fcd-6c11de23bd48",
+              "name": "page",
+              "type": "string",
+              "value": "ceps"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "715217a5-652b-46c2-a519-2807a86138a3",
+      "name": "Normaliza",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -160,
+        2760
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3d16d922-0ed3-4a0f-9707-43797438970d",
+              "name": "zip",
+              "type": "number",
+              "value": "={{ $json.zip }}"
+            },
+            {
+              "id": "678ffae3-f9bd-486e-b5a6-31c3d4849155",
+              "name": "row_number",
+              "value": "={{ $json.row_number }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "f3b8c515-5aa3-4c19-8777-b95c8dd85ce3",
+      "name": "ceps",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        360,
+        2760
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "9f5a5e37-faae-45db-8a22-ad7d5786ecfe",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "201a23dc-9718-43d1-a8b1-d3431a74306e",
+      "name": "Filter Zips",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        600,
+        2760
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "content": "# gatilho manual",
+        "height": 380,
+        "width": 260,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        2900
+      ],
+      "id": "ad490408-6ba4-4555-962c-4139df8049f5",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "![Encha](https://encha.ai/wp-content/uploads/2025/01/Logo-ENCHA_AI-1.png)",
+        "height": 499,
+        "width": 2860,
+        "color": 6
+      },
+      "id": "583268b4-024c-4675-9f97-d8ba9878c25d",
+      "name": "Sticky Note20",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        3880
+      ]
+    },
+    {
+      "parameters": {
+        "content": "![Encha](https://encha.ai/wp-content/uploads/2025/01/Logo-ENCHA_AI-1.png)",
+        "height": 379,
+        "width": 2860,
+        "color": 6
+      },
+      "id": "a0ded7a0-99cd-43c7-9209-9ec5c2db65dc",
+      "name": "Sticky Note21",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        2480
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.url_planilha }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $json.page }}",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "c601eaa3-64f7-4835-8d45-41c004738659",
+      "name": "Colocar Cep",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        120,
+        2760
+      ],
+      "executeOnce": true,
+      "typeVersion": 4.2,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0hH2ebwFYbreoE5Y",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "c756d156-0e3a-4553-bad8-103e7bc36d12",
+      "name": "Loop Subcategorias",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        380,
+        3840
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "8729af46-987b-4123-8bdc-c96914f13531",
+      "name": "Loop ceps",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -520,
+        3820
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "content": "fazer credencial do places ID",
+        "height": 240
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        740,
+        3800
+      ],
+      "id": "b398921d-429b-4769-b2ca-52adb6cef239",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the places array from the input data\nconst places = items[0]?.json?.body?.places || [];\n\n// Create an output array to hold each place as a separate item\nlet output = [];\n\nif (places.length > 0) {\n  for (let i = 0; i < places.length; i++) {\n    // For each place, push a new item into the output array\n    output.push({\n      json: {\n        place: places[i], // The individual place object\n        otherData: items[0].json.otherData || null  // Include other data or default to null\n      }\n    });\n  }\n} else {\n  // Log an error or handle the case where places array is empty or undefined\n  console.log('Places array is empty or undefined.');\n}\n\n// Return the output array, so each place becomes its own item\nreturn output;\n"
+      },
+      "id": "a17c6954-6899-44db-8a45-cb6b77a43bc9",
+      "name": "separar resultados",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1240,
+        3880
+      ],
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "7424452f-e208-4e7e-8144-d0c6278bc0f0",
+              "operator": {
+                "type": "object",
+                "operation": "notExists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.body }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "752b0801-a7fb-45f9-b8da-6d7be659fad9",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1040,
+        3860
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7b1629c5-cbfe-4769-8286-66b46c51cd7e",
+              "name": "zip",
+              "type": "number",
+              "value": "={{ $('Loop ceps').first().json.zip }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "61e55175-c11b-4ee6-afb8-2e19eab38923",
+      "name": "Marcar cep",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        600,
+        3840
+      ],
+      "typeVersion": 3.4
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Check Max Retries1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Loop ceps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Check Max Retries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Check Max Retries2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GMaps API": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Max Retries": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Atualizar Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Max Retries1": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Adicionando Locais na Planilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Max Retries2": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exponential Backoff": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exponential Backoff1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exponential Backoff2": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Subcategories": {
+      "main": [
+        [
+          {
+            "node": "Subcategoria",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run workflow every hours": {
+      "main": [
+        [
+          {
+            "node": "Normaliza",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Normaliza",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subcategoria": {
+      "main": [
+        [
+          {
+            "node": "Loop Subcategorias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pegar Subcategoria": {
+      "main": [
+        [
+          {
+            "node": "Filter Subcategories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adicionando Locais na Planilha": {
+      "main": [
+        [
+          {
+            "node": "Pegar Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Exponential Backoff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pegar Status": {
+      "main": [
+        [
+          {
+            "node": "Atualizar Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Exponential Backoff2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar Status": {
+      "main": [
+        [
+          {
+            "node": "Loop Subcategorias",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Exponential Backoff1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normaliza": {
+      "main": [
+        [
+          {
+            "node": "Colocar Cep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ceps": {
+      "main": [
+        [
+          {
+            "node": "Filter Zips",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Zips": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Colocar Cep": {
+      "main": [
+        [
+          {
+            "node": "ceps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Subcategorias": {
+      "main": [
+        [
+          {
+            "node": "Loop ceps",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Marcar cep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop ceps": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Pegar Subcategoria",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "separar resultados": {
+      "main": [
+        [
+          {
+            "node": "Adicionando Locais na Planilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Loop Subcategorias",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "separar resultados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar cep": {
+      "main": [
+        [
+          {
+            "node": "GMaps API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fdabf0aa-5b86-4d13-b876-86d53e5cbcda",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d94ad27dbf2fdd59c03906cc4b6706d1ac1ed27d498846082a07cfa7a9bbf9a3"
+  },
+  "id": "lh0DLrp4CKd1Jcui",
+  "tags": [
+    {
+      "createdAt": "2025-02-17T21:31:47.427Z",
+      "updatedAt": "2025-02-17T21:31:47.427Z",
+      "id": "N3Z6sQyJwiKaGYag",
+      "name": "ENCHA FLUXOS"
+    }
+  ]
+}

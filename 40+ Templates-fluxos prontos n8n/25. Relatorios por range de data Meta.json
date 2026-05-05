@@ -1,0 +1,544 @@
+{
+  "name": "P11 | Meta - Relatório por range de data + Metricas + Evolution",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": "={{ 1 }}",
+              "triggerAtHour": "={{ 7 }}",
+              "triggerAtMinute": "={{ 10 }}"
+            }
+          ]
+        }
+      },
+      "id": "7105fc0f-1f47-4409-acc0-d96a33d0620b",
+      "name": "Gatilho por Horário",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -900,
+        1340
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let totalSpend = 0;\nlet totalLeads = 0;\nlet sumCPM = 0;\nlet sumCPP = 0;\nlet sumCTR = 0;\nlet totalLinkClicks = 0; // Variável para acumular o valor de link_click\nlet countCPM = 0;\nlet countCPP = 0;\nlet countCTR = 0;\nlet totalReach = 0; // Total de reach\nlet totalImpressions = 0; // Total de impressions\n\n// Função para converter string de valores para float, considerando tanto ponto quanto vírgula\nfunction convertToFloat(value) {\n    return parseFloat(value.replace(',', '.'));\n}\n\n// Itera sobre cada item (que representa um conjunto de dados da campanha)\nitems.forEach(item => {\n    const jsonData = item.json;\n\n    // Acumula o valor de spend\n    if (jsonData.spend !== undefined) {\n        totalSpend += convertToFloat(jsonData.spend);\n    }\n\n    // Verifica se o campo 'actions' existe e é um array\n    if (Array.isArray(jsonData.actions)) {\n        jsonData.actions.forEach(action => {\n            // Acumula o valor de link_click\n            if (action.action_type === \"link_click\") {\n                totalLinkClicks += parseInt(action.value, 10);\n            }\n            // Acumula o valor de leads (exemplo de ação específica)\n            if (action.action_type === $item(\"0\").$node[\"Dados Cliente1\"].json[\"Action_type\"]) {\n                totalLeads += parseInt(action.value, 10);\n            }\n        });\n    }\n\n    // Acumula os valores de cpm, cpp, ctr para calcular a média\n    if (jsonData.cpm !== undefined) {\n        sumCPM += convertToFloat(jsonData.cpm);\n        countCPM++;\n    }\n    if (jsonData.cpp !== undefined) {\n        sumCPP += convertToFloat(jsonData.cpp);\n        countCPP++;\n    }\n    if (jsonData.ctr !== undefined && convertToFloat(jsonData.ctr) > 0) {\n        sumCTR += convertToFloat(jsonData.ctr);\n        countCTR++;\n    }\n    \n    // Acumula reach e impressions\n    if (jsonData.reach !== undefined) {\n        totalReach += convertToFloat(jsonData.reach);\n    }\n    if (jsonData.impressions !== undefined) {\n        totalImpressions += convertToFloat(jsonData.impressions);\n    }\n});\n\n// Calcula as médias e a frequência\nconst avgCPC = totalLinkClicks > 0 ? (totalSpend / totalLinkClicks) : 0;\nconst avgCPM = countCPM > 0 ? (sumCPM / countCPM) : 0;\nconst avgCPP = countCPP > 0 ? (sumCPP / countCPP) : 0;\nconst avgCTR = countCTR > 0 ? (sumCTR / countCTR) : 0;\nconst frequency = totalReach > 0 ? (totalImpressions / totalReach) : 0;\nconst cpl = totalLeads > 0 ? (totalSpend / totalLeads) : 0; // Calcula o CPL\n\n// Retorna apenas os dados acumulados\nreturn [\n    {\n        json: {\n            totalSpend: totalSpend.toFixed(2).replace('.', ','),\n            totalLeads: totalLeads,\n            totalLinkClicks: totalLinkClicks,  // Inclui o total de link_click no resultado\n            avgCPC: avgCPC.toFixed(2).replace('.', ','),\n            avgCPM: avgCPM.toFixed(2).replace('.', ','),\n            avgCPP: avgCPP.toFixed(2).replace('.', ','),\n            avgCTR: avgCTR.toFixed(2).replace('.', ','),\n            reach: totalReach,\n            impressions: totalImpressions,\n            frequency: frequency.toFixed(2).replace('.', ','),\n            cpl: cpl.toFixed(2).replace('.', ',')\n        }\n    }\n];\n"
+      },
+      "id": "88aae29f-aae3-4017-b630-4775f1ffaa9b",
+      "name": "Script para Alterar Dados",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        1340
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "2570996e-f930-4fc2-8bb8-192ef6f2fe7c",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        1140
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3152ba7b-2784-42d8-ad8c-a9f97ad61fc0",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c175a502-a6c1-46d3-aea7-56cb7d20eb7d",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Dados\n**Alterar apenas aqui",
+        "height": 309.5559926974605,
+        "width": 437.4719903578132
+      },
+      "id": "496c96e8-ca93-4dc5-8cc2-7a7cf714db76",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        1202
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "id": "5edbd6aa-933e-4ed7-ae10-6003e57d5ffd",
+      "name": "Desmembrar Dados1",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        540,
+        1340
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "2d22f254-0943-40c7-96a6-061583d779fc",
+      "name": "Loop Over Items1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -220,
+        1340
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "9bb0e24a-0384-4f03-b959-cfcd18e92c23",
+      "name": "Replace Me1",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        1560
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1CHg8a6-keRBO0BosAssedtIvOxnl_xn1RoX_84rbbHo",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CHg8a6-keRBO0BosAssedtIvOxnl_xn1RoX_84rbbHo/edit#gid=0"
+        },
+        "options": {
+          "returnAllMatches": "returnAllMatches"
+        }
+      },
+      "id": "fec18a06-5c21-4485-bff4-f2e78065be5e",
+      "name": "Base de Clientes1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        -420,
+        1340
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "v20.0",
+        "node": "=act_{{ $json.Conta_de_Anuncio }}",
+        "edge": "insights",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "time_increment",
+                "value": "1"
+              },
+              {
+                "name": "level",
+                "value": "ad"
+              },
+              {
+                "name": "time_range",
+                "value": "={\n  \"since\":\"{{ $item(\"0\").$node[\"Dados1\"].json[\"data_inicial\"] }}\",\n  \"until\":\"{{ $item(\"0\").$node[\"Dados1\"].json[\"data_final\"] }}\"\n}"
+              },
+              {
+                "name": "fields",
+                "value": "=campaign_id,\ncampaign_name,\nadset_id,\nadset_name,\nad_id,\nad_name,\nspend,\nimpressions,\nclicks,\ncpc,\ncpm,\ncpp,\nctr,\nobjective,\nreach,\nfrequency,\nactions"
+              },
+              {
+                "name": "limit",
+                "value": "3000"
+              }
+            ]
+          }
+        }
+      },
+      "id": "cb03b2ea-9b08-47e0-af23-df686bcd91cc",
+      "name": "Busca Ad Account por Data1",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        160,
+        1360
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "bcbawFrWYrb4rVPq",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Dados Cliente1').first().json[\"Email\"] }}",
+        "subject": "Relatorio de Campanha",
+        "emailType": "text",
+        "message": "=📊 Relatório de campanha da conta {{ $('Dados Cliente1').first().json[\"Cliente\"] }} 🗓️ \n\nData: {{ $item('0').$node[\"Dados1\"].json[\"data_inicial\"] }} até {{ $item('0').$node[\"Dados1\"].json[\"data_final\"] }}\n\n- Pessoas alcançadas: {{ $item('0').$node[\"Script para Alterar Dados\"].json[\"reach\"] }}\n- Impressões: {{ $item('0').$node[\"Script para Alterar Dados\"].json[\"impressions\"] }}\n- Frequência: {{ $item('0').$node[\"Script para Alterar Dados\"].json[\"frequency\"] }}\n\n- Total de Cliques: {{ $item('0').$node[\"Script para Alterar Dados\"].json[\"totalLinkClicks\"] }}\n- Custo Médio por Cliques: R$ {{ $item('0').$node[\"Script para Alterar Dados\"].json[\"avgCPC\"] }}\n\n- Valor Total Investido: R${{ $item('0').$node[\"Script para Alterar Dados\"].json[\"totalSpend\"] }}\n\n- Total de {{ $item('0').$node[\"Loop Over Items1\"].json[\"Titulo\"] }}: {{ $item('0').$node[\"Script para Alterar Dados\"].json[\"totalLeads\"] }}\n- Custo Médio por {{ $item('0').$node[\"Loop Over Items1\"].json[\"Titulo\"] }}: R${{ $item('0').$node[\"Script para Alterar Dados\"].json[\"cpl\"] }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Flux Automate"
+        }
+      },
+      "id": "aa230cfc-7311-4d4b-83e1-02ad29262559",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1060,
+        1340
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uF4RSZEql4HvXrV3",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $item(\"0\").$node[\"Dados1\"].json[\"url_evolution\"] }}/message/sendText/{{ $item(\"0\").$node[\"Dados1\"].json[\"instancia\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $item(\"0\").$node[\"Dados1\"].json[\"token\"] }}"
+            },
+            {
+              "name": "content_type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $item('0').$node[\"Dados Cliente1\"].json[\"Contato_do_cliente\"] }}\",\n    \"text\": \"📊 *Relatório de campanha da conta* {{ $('Dados Cliente1').first().json[\"Cliente\"] }}\\n\\n🗓️ *Data:* {{ $item('0').$node[\"Dados1\"].json[\"data_inicial\"] }} até {{ $item('0').$node[\"Dados1\"].json[\"data_final\"] }}\\n\\n- *Pessoas alcançadas:* {{ $item('0').$node[\"Script para Alterar Dados\"].json[\"reach\"] }}\\n- *Impressões:* {{ $item('0').$node[\"Script para Alterar Dados\"].json[\"impressions\"] }}\\n- *Frequência:* {{ $item('0').$node[\"Script para Alterar Dados\"].json[\"frequency\"] }}\\n\\n- *Total de Cliques:* {{ $item('0').$node[\"Script para Alterar Dados\"].json[\"totalLinkClicks\"] }}\\n- *Custo Médio por Cliques:* R$ {{ $item('0').$node[\"Script para Alterar Dados\"].json[\"avgCPC\"] }}\\n\\n- *Valor Total Investido:* R${{ $item('0').$node[\"Script para Alterar Dados\"].json[\"totalSpend\"] }}\\n\\n- *Total de {{ $item('0').$node[\"Loop Over Items1\"].json[\"Titulo\"] }}:* {{ $json.totalLeads }}\\n- *Custo Médio por {{ $item('0').$node[\"Loop Over Items1\"].json[\"Titulo\"] }}:* R${{ $json.cpl }}\"\n}",
+        "options": {}
+      },
+      "id": "0d941a1a-da3a-46b1-9f69-dda438d91b0a",
+      "name": "Mensagem",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        1340
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bf0c339a-d3d1-4bc5-9079-d47ec4a2ae05",
+              "name": "Conta_de_Anuncio",
+              "value": "={{ $json['Conta de Anuncio'] }}",
+              "type": "string"
+            },
+            {
+              "id": "f4600920-959d-4eef-8a5c-acca0be0158b",
+              "name": "Contato_do_cliente",
+              "value": "={{ $json['Contato do cliente'] }}",
+              "type": "string"
+            },
+            {
+              "id": "1ca84bfe-93ec-45bb-be63-27a93363980c",
+              "name": "Email",
+              "value": "={{ $json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "bf948392-b9f7-4698-b27a-8a979d5e144c",
+              "name": "Cliente",
+              "value": "={{ $json.Cliente }}",
+              "type": "string"
+            },
+            {
+              "id": "fddc4e28-7fcf-4d8a-b857-31a5b77a5106",
+              "name": "Action_type",
+              "value": "={{ $json.Action_type }}",
+              "type": "string"
+            },
+            {
+              "id": "b6086186-5706-4dfe-acc3-eb0c7612da46",
+              "name": "Titulo",
+              "value": "={{ $json.Titulo }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "04b5e3e6-a15c-42d2-bf10-81434f1f3e1f",
+      "name": "Dados Cliente1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -20,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "030e2b8b-180b-4753-8ec2-2a70101aefb1",
+              "name": "url_evolution",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "81419d30-620a-4705-8816-03327870beab",
+              "name": "instancia",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "ceeffd46-2654-4d6d-8c69-2914ee1fff93",
+              "name": "token",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "87ffb0b7-16e8-4015-8667-fc639f5db9ee",
+              "name": "data_inicial",
+              "value": "={{ $now.minus(30, 'days').format('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "cf31b3d9-2d83-4119-9d81-4c7f8b7c4672",
+              "name": "data_final",
+              "value": "={{ $now.minus(1, 'days').format('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5ec89599-c433-4bbe-8c7a-48c3ad2bd918",
+      "name": "Dados1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -660,
+        1340
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gatilho por Horário": {
+      "main": [
+        [
+          {
+            "node": "Dados1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Script para Alterar Dados": {
+      "main": [
+        [
+          {
+            "node": "Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Desmembrar Dados1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Desmembrar Dados1": {
+      "main": [
+        [
+          {
+            "node": "Script para Alterar Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dados Cliente1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base de Clientes1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca Ad Account por Data1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Replace Me1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensagem": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados Cliente1": {
+      "main": [
+        [
+          {
+            "node": "Busca Ad Account por Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados1": {
+      "main": [
+        [
+          {
+            "node": "Base de Clientes1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "811468bd-a591-4738-bb3e-a539c00012c7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "MSyTjJViE9CVbUra",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

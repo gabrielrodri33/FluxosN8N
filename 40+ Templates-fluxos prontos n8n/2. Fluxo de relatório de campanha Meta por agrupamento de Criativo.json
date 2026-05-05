@@ -1,0 +1,575 @@
+{
+  "name": "P11 | Meta - Relatório Agrupado por Criativos",
+  "nodes": [
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "code",
+        "options": {}
+      },
+      "id": "edc13398-862d-4927-ad17-f96ba4bb0bf1",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1836,
+        1160
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b9c503de-a4de-4a31-b09b-4685d1c79491",
+      "name": "Inicio",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        640,
+        1160
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "v20.0",
+        "node": "=act_{{ $json.id_conta_anuncio }}",
+        "edge": "insights",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "time_increment",
+                "value": "1"
+              },
+              {
+                "name": "level",
+                "value": "ad"
+              },
+              {
+                "name": "time_range",
+                "value": "={\n  \"since\":\"{{ $json.data_inicial }}\",\n  \"until\":\"{{ $json.data_final }}\"\n}"
+              },
+              {
+                "name": "fields",
+                "value": "=campaign_id,\ncampaign_name,\nadset_id,\nadset_name,\nad_id,\nad_name,\nspend,\nimpressions,\nclicks,\ncpc,\ncpm,\ncpp,\nctr,\nobjective,\nreach,\nfrequency,\nactions"
+              },
+              {
+                "name": "limit",
+                "value": "3000"
+              }
+            ]
+          }
+        }
+      },
+      "id": "e23b4550-86e4-4891-967d-a76ae0e458f2",
+      "name": "Ads por periodo",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        1060,
+        1160
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "bcbawFrWYrb4rVPq",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "grupovitalizare@gmail.com",
+        "subject": "Relatorio de Campanha",
+        "emailType": "text",
+        "message": "=Relatório de Campanha de {{ $('Dados Iniciais').item.json.data_inicial.split('-').reverse().join('/') }}\n até {{ $('Dados Iniciais').item.json.data_final.split('-').reverse().join('/') }}\n\n\n{{ $node[\"Desmembra Texto Email\"].json[\"emailContent\"] }}",
+        "options": {}
+      },
+      "id": "b144a25c-16d7-4474-b995-5d59029c9fca",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2156,
+        1160
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uF4RSZEql4HvXrV3",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\"use strict\";\nfunction aggregateCampaignsByAdName(campaigns, action_type) {\n    const adMap = {};\n    campaigns.forEach((campaign) => {\n        if (parseFloat(campaign.spend) > 0) {\n            const adName = campaign.ad_name;\n            if (!adMap[adName]) {\n                adMap[adName] = {\n                    spend: 0,\n                    impressions: 0,\n                    clicks: 0,\n                    reach: 0,\n                    frequency: [],\n                    cpc: [],\n                    cpm: [],\n                    ctr: [],\n                    actions: {},\n                    count: 0\n                };\n            }\n            adMap[adName].spend += parseFloat(campaign.spend);\n            adMap[adName].impressions += parseInt(campaign.impressions, 10);\n            adMap[adName].clicks += parseInt(campaign.clicks, 10);\n            adMap[adName].reach += parseInt(campaign.reach, 10);\n            adMap[adName].cpc.push(parseInt(campaign.clicks, 10) === 0 ? 0 : parseFloat(campaign.cpc));\n            adMap[adName].frequency.push(parseFloat(campaign.frequency));\n            adMap[adName].cpm.push(parseFloat(campaign.cpm));\n            adMap[adName].ctr.push(parseFloat(campaign.ctr));\n          if (campaign.actions) {\n                const campaign_has_link_click = campaign.actions.find(action => action.action_type === \"link_click\");\n                if (campaign_has_link_click) {\n                    if (!adMap[adName].actions[\"link_click\"]) {\n                        adMap[adName].actions[\"link_click\"] = Number(campaign_has_link_click.value);\n                    }\n                    else {\n                        adMap[adName].actions[\"link_click\"] += Number(campaign_has_link_click.value);\n                    }\n                }\n                else {\n                    if (!adMap[adName].actions[\"link_click\"]) {\n                        adMap[adName].actions[\"link_click\"] = 0;\n                    }\n                }\n                const campaign_has_action = campaign.actions.find(action => action.action_type === action_type);\n                if (!campaign_has_action) {\n                    if (adMap[adName].actions[action_type] === undefined) {\n                        adMap[adName].actions[action_type] = 0;\n                    }\n                    adMap[adName].actions[action_type] += 0;\n                }\n                else {\n                    if (adMap[adName].actions[action_type] === undefined) {\n                        adMap[adName].actions[action_type] = 0;\n                    }\n                    adMap[adName].actions[action_type] += Number(campaign_has_action?.value);\n                }\n            }\n            else {\n                if (!adMap[adName].actions[action_type]) {\n                    adMap[adName].actions[action_type] = 0;\n                }\n            }\n            adMap[adName].count++;\n        }\n    });\n    return Object.keys(adMap).map((adName) => {\n        const data = adMap[adName];\n        const aggregatedActions = Object.keys(data.actions).map((actionType) => ({\n            action_type: actionType,\n            value: data.actions[actionType]\n        }));\n        let link_clicks = 0;\n        const link_clicks_action = aggregatedActions.find(action => action.action_type === \"link_click\");\n        if (link_clicks_action) {\n            link_clicks = link_clicks_action.value;\n        }\n        const action = aggregatedActions.filter(action => action.action_type !== \"link_click\")[0];\n        return {\n            ad_name: adName,\n            spend: data.spend,\n            impressions: data.impressions,\n            clicks: link_clicks,\n            reach: data.reach,\n            cpc: link_clicks === 0 ? 0 : (data.spend || 0) / link_clicks, // média de cpc\n            cpm: (link_clicks / (data.impressions || 0)) * 100, // média de cpm\n            ctr: ((data.spend || 0) / (data.impressions || 0)) * 1000, // média de ctr\n            frequency: ((data.impressions || 0) / (data.reach || 0)), // média de frequency\n            cpv: action_type === $node[\"Dados Iniciais\"].json[\"action_type\"] ? (action.value === 0 ? 0 : data.spend / action.value) : undefined,\n            action: action // ações somadas e preenchidas com 0 para ausentes\n        };\n    });\n}\n\nreturn aggregateCampaignsByAdName($input.all()[0].json.data, $node[\"Dados Iniciais\"].json[\"action_type\"])"
+      },
+      "id": "64db870b-afcb-4bd8-9552-797f9b26fbd0",
+      "name": "Agrupa Dados por Criativo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1220,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const campaigns = items[0].json.code;\nlet emailContent = '';\n\ncampaigns.forEach(campaign => {\n    emailContent +=\n`${campaign.Criativo}\\n`;\n    emailContent += `${campaign.Investimento}\\n`;\n    emailContent += `${campaign.impressoes}\\n`;\n    emailContent += `${campaign.clicks}\\n`;\n    emailContent += `${campaign.cpc}\\n`;\n    emailContent += `${campaign.conversao}\\n`;\n    emailContent += `${campaign.cpv}\\n\\n`;\n    emailContent += `${campaign.alcance}\\n\\n`;\n    emailContent += `${campaign.frequencia}\\n\\n`;\n});\n\nreturn [{ json: { emailContent } }];\n"
+      },
+      "id": "06c689de-426b-449b-8168-cce36f49742a",
+      "name": "Desmembra Texto Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1996,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2196923c-850b-43fa-ac34-f6232b9c60e1",
+              "name": "Criativo",
+              "value": "=Criativo - {{ $json.ad_name }}",
+              "type": "string"
+            },
+            {
+              "id": "d84334d4-d275-4d57-9b13-79b19bb19186",
+              "name": "Investimento",
+              "value": "=Investimento - R${{ Number($json.spend).toFixed(2).replace('.', ',') }}",
+              "type": "string"
+            },
+            {
+              "id": "803fc99d-c783-412a-89cb-bfd7bf274a22",
+              "name": "impressoes",
+              "value": "=Impressões - {{ $json.impressions }}",
+              "type": "string"
+            },
+            {
+              "id": "b0cba824-3a5d-461d-a58e-ba5b1e690e8d",
+              "name": "clicks",
+              "value": "=Clicks - {{ $json.clicks }}",
+              "type": "string"
+            },
+            {
+              "id": "d7fe4ebf-d0c3-4942-b8c9-cd1282306201",
+              "name": "cpc",
+              "value": "=CPC - R${{ Number($json.cpc).toFixed(2).replace('.', ',') }}",
+              "type": "string"
+            },
+            {
+              "id": "9f8ec3a9-1210-46a2-b335-8daa64456e87",
+              "name": "conversao",
+              "value": "=Conversões - {{ $json.action.value }}",
+              "type": "string"
+            },
+            {
+              "id": "d95411b8-fd09-4eee-8545-a6f27b904965",
+              "name": "cpv",
+              "value": "=Custo por conversão - R${{ Number($json.cpv).toFixed(2).replace('.', ',') }}",
+              "type": "string"
+            },
+            {
+              "id": "426dc39e-f4f6-4de3-8625-8273aa5c73f4",
+              "name": "alcance",
+              "value": "={{ $json.reach }}",
+              "type": "string"
+            },
+            {
+              "id": "1938ae94-2e57-4600-8b2d-89987cdbc9d1",
+              "name": "frequencia",
+              "value": "={{ $json.frequency.toFixed(2).replace('.', ',') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "37d018a2-04ad-4de7-84d9-324e3956de32",
+      "name": "Add Titulos",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1676,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cf5aee8d-062b-4c46-a97c-376ae751f946",
+              "name": "data_inicial",
+              "value": "={{$today.minus({days: 1}).toFormat('yyyy-MM-dd')}}",
+              "type": "string"
+            },
+            {
+              "id": "63ea1ad5-00b5-4733-b59e-644a91a68732",
+              "name": "data_final",
+              "value": "={{$today.minus({days: 1}).toFormat('yyyy-MM-dd')}}",
+              "type": "string"
+            },
+            {
+              "id": "690fbc7a-9f15-4f70-8eef-10aa12625d55",
+              "name": "id_conta_anuncio",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "315f2521-e074-43f0-8c33-6db61c9f57dd",
+              "name": "action_type",
+              "value": "purchase",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f16b7ad3-cc41-498c-a24a-309103b2ad1d",
+      "name": "Dados Iniciais",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        860,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1jaYEk5ouJjHup4kyiWsGzQBbFWn1BohdjZyaYnv5_1Y",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jaYEk5ouJjHup4kyiWsGzQBbFWn1BohdjZyaYnv5_1Y/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Criativo": "={{ $json.ad_name }}",
+            "Investimento": "={{ $json.spend }}",
+            "impressoes": "={{ $json.impressions }}",
+            "cpc": "={{ $json.clicks }}",
+            "cpm": "={{ $json.cpc }}",
+            "clicks": "={{ $json.clicks }}",
+            "ctr": "={{ $json.ctr }}",
+            "conversao": "={{ $json.action.value }}",
+            "cpv": "={{ $json.cpv }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Criativo",
+              "displayName": "Criativo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Investimento",
+              "displayName": "Investimento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "impressoes",
+              "displayName": "impressoes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "clicks",
+              "displayName": "clicks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cpc",
+              "displayName": "cpc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cpm",
+              "displayName": "cpm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ctr",
+              "displayName": "ctr",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "conversao",
+              "displayName": "conversao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cpv",
+              "displayName": "cpv",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fbd7be29-50d9-425c-b0cd-24a4098282c0",
+      "name": "Add Planilha",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1380,
+        820
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Dados\n**Adicionar data de inicio e data final do relatório",
+        "height": 295.29729729729735,
+        "color": 3
+      },
+      "id": "b856a488-e60d-4a05-87ed-2f5e09b24702",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        780,
+        1054
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5537bf8d-d0a2-4720-8881-f93399d0a8e4",
+              "leftValue": "={{ $json.action.value }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "34f32833-6993-49d9-8f38-e67a0e03d864",
+      "name": "Filtrar se teve Conversão",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1480,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Filtro\n**Aqui filtra somente quais campanhas tiveram conversão",
+        "height": 303,
+        "width": 247.7027027027026,
+        "color": 5
+      },
+      "id": "a7985fa7-75d5-42e6-821a-e9706e6edf8f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Disparo do email\n** Aqui são os nodes de formatação para o envio do email",
+        "height": 300.5810810810811,
+        "width": 703.8067886984651,
+        "color": 4
+      },
+      "id": "df365a4d-c365-4d60-9777-547a781724ff",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        1040
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Inicio": {
+      "main": [
+        [
+          {
+            "node": "Dados Iniciais",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ads por periodo": {
+      "main": [
+        [
+          {
+            "node": "Agrupa Dados por Criativo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Desmembra Texto Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agrupa Dados por Criativo": {
+      "main": [
+        [
+          {
+            "node": "Add Planilha",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Filtrar se teve Conversão",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Desmembra Texto Email": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Titulos": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados Iniciais": {
+      "main": [
+        [
+          {
+            "node": "Ads por periodo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar se teve Conversão": {
+      "main": [
+        [
+          {
+            "node": "Add Titulos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "85c27a67-50c5-4a54-aa48-aea816bd99e6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "J7BPU3EwxB73x0HI",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

@@ -1,0 +1,1094 @@
+{
+  "name": "P11 | Meta | AI Responde Relatório de Campanha",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "body.data.message.base64",
+        "options": {
+          "mimeType": "video/mp4"
+        }
+      },
+      "id": "84d6312c-c07a-4b79-ae82-f779f0399511",
+      "name": "Convert to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -2380,
+        1020
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Instruções: Etapa 1: Verifique se a mensagem começa com a palavra 'relatório' ou variantes como 'relatorio', 'relat'. Se a mensagem não começar com essas palavras, passe direto para a Etapa 3. Etapa 2: Sabendo que hoje é {{ $now }}, identifique a data ou intervalo de datas mencionado no texto. Se o usuário mencionar 'ontem', a data deve ser a de ontem. Se mencionar 'ontem e hoje', a data inicial deve ser ontem e a data final deve ser hoje. Se mencionar 'semana passada', retorne a data inicial e a data final da semana passada. Se for 'mês passado', retorne o primeiro e o último dia do mês passado. Se mencionar 'segunda e terça desta semana', identifique a data correspondente para ambas. Sempre use o formato AAAA-MM-DD, com ano em quatro dígitos, mês em dois dígitos e dia em dois dígitos. Separe as datas por uma vírgula e um espaço (', '). Se apenas uma data for mencionada, repita essa data como data inicial e final. Etapa 3: Se a condição da Etapa 1 não for atendida, retorne 'nulo'. Mensagem: {{ $node[\"Merge\"].json.Texto }}\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "7019a64e-8e15-4cd8-ba84-afd14e7a9ae3",
+      "name": "Gemini Pro",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -1380,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "id": "06319537-54fd-401f-bac4-1bddaa455ec4",
+      "name": "Ajeita os dados do anúncio1",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        820
+      ],
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v21.0/act_{{ $node[\"Variaveis\"].json[\"ID da conta de anuncios\"] }}/insights",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "impressions,reach,clicks,spend,actions,action_values"
+            },
+            {
+              "name": "time_range",
+              "value": "={\"since\":\"{{ $('Code1').item.json.startDate }}\",\"until\":\"{{ $('Code1').item.json.endDate }}\"} "
+            },
+            {
+              "name": "level",
+              "value": "account"
+            },
+            {
+              "name": "limit",
+              "value": "300"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "id": "6bc5d3d0-8a78-4857-93bd-6c9e8bb4bcb6",
+      "name": "Metricas a Nivel ADS1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -480,
+        820
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "Gg4go4oBqi8RR147",
+          "name": "Query Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "//pega os dados do \"body\" do input\nlet data = $input.item.json.actions;\nlet actionValues = $input.item.json.action_values;\n\n// Função para adicionar propriedades ao input\nfunction processActions(data, suffix) {\n  //faz o loop sob cada uma das propriedades\n  for (let i in data){\n    //pega a propriedade atual, o seu \"action\" e o seu \"value\"\n    let dataItem = data[i];\n    let action = dataItem.action_type;\n    let value = dataItem.value;\n\n    //cria uma nova propriedade no input com o nome da \"action\" e o valor do \"value\"\n    $input.item.json[action + suffix] = value;\n  }\n}\n\n// Processa as ações dentro de \"actions\" com sufixo \"_count\"\nprocessActions(data, \"_count\");\n\n// Processa as ações dentro de \"action_values\" com sufixo \"_value\"\nif (actionValues) {\n  processActions(actionValues, \"_value\");\n}\n\n//retorna o input com os novos campos\nreturn $input.item;"
+      },
+      "id": "96aeae44-52f9-4753-adce-8dcd4f9c8e41",
+      "name": "Extrai Metricas da Array Actions1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -40,
+        820
+      ],
+      "typeVersion": 1,
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Extrai a mensagem do nó 'Gemini Pro'\nconst message = $node['Gemini Pro'].json;\n\n// Acessa o conteúdo dentro de \"candidates\" -> \"content\" -> \"parts\" -> \"text\"\nconst text = message.candidates[0].content.parts[0].text;\n\n// Divide o texto nas datas usando a vírgula como delimitador\nconst dates = text.split(',');\n\n// Verifica se há uma ou duas datas e retorna apropriadamente\nconst startDate = dates[0].trim();\nconst endDate = dates.length > 1 ? dates[1].trim() : startDate;\n\nreturn {\n    startDate: startDate,\n    endDate: endDate\n};"
+      },
+      "id": "c86f4033-f653-4fe8-bfa2-cb057a0cd0cb",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -940,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolution.fluxautomate.com.br/message/sendWhatsAppAudio/fluxautomate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n\t\"number\": \"{{ $node[\"Webhook\"].json.body.data.key.remoteJid }}\",\n    \"audio\": \"{{ $json.data }}\",\n\t\"options\": {\n\t\t\"delay\": 1200,\n\t\t\"presence\": \"recording\",\n        \"encoding\": true\n\t}\n}",
+        "options": {}
+      },
+      "id": "c2ecb791-ab73-472b-8909-50b66c45e944",
+      "name": "Responde em Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        980
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/ZxeM4498ujGNHYhQXtLS",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "xi-api-key"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model_id\": \"eleven_multilingual_v2\",\n  \"voice_settings\": {\n    \"stability\": 0.6,\n    \"similarity_boost\": 0.8,\n    \"style\": 0.4,\n    \"use_speaker_boost\": true\n  },\n  \"text\": \"O investimento foi de {{ $node['Extrai Metricas da Array Actions1'].json['spend'].replace('.',',') }} reais. Tivemos um total de {{ $node['Extrai Metricas da Array Actions1'].json['initiate_checkout_count'] }} inícios de compra. O custo por início de compra ficou em {{ (parseFloat($node['Extrai Metricas da Array Actions1'].json['spend']) / parseFloat($node['Extrai Metricas da Array Actions1'].json['initiate_checkout_count'])).toFixed(2).replace('.',',') }} reais. Realizamos {{ $node['Extrai Metricas da Array Actions1'].json['purchase_count'] }} vendas, com um custo por compra de {{ (parseFloat($node['Extrai Metricas da Array Actions1'].json['spend']) / parseFloat($node['Extrai Metricas da Array Actions1'].json['purchase_count'])).toFixed(2).replace('.',',') }} reais. O retorno foi de {{ (parseFloat($node['Extrai Metricas da Array Actions1'].json['purchase_count']) * 97).toFixed(2).replace('.',',') }} reais. Isso resultou em um ROAS de {{ (parseFloat($node['Extrai Metricas da Array Actions1'].json['purchase_count']) * 97 / parseFloat($node['Extrai Metricas da Array Actions1'].json['spend'])).toFixed(2).replace('.',',') }}.\"\n}",
+        "options": {}
+      },
+      "id": "15649f0a-a58d-4971-921c-ce1acea5febf",
+      "name": "Gera o Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        980
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "resposta Gemini 01",
+              "stringValue": "={{ $('Gemini Pro').item.json[\"candidates\"][0][\"content\"][\"parts\"][0][\"text\"] }}"
+            },
+            {
+              "name": "ID da instância",
+              "stringValue": "ID da instância"
+            },
+            {
+              "name": "Token da instância",
+              "stringValue": "Token da Instância"
+            },
+            {
+              "name": "ID da conta de anuncios",
+              "stringValue": "790676155385306"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5228e87c-f3b2-48eb-bdc4-7e70550ba169",
+      "name": "Variaveis",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        -720,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f8a7a6bb-a49b-4ff7-a70c-21e5b4e2329b",
+              "name": "Texto",
+              "value": "={{ $node[\"Webhook\"].json.body.data.message.conversation }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "73cdea91-cb18-4a90-bac9-50445bf12d81",
+      "name": "Input_texto",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1780,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "9fe0f007-28bd-47ab-afdc-66b6bea3447c",
+              "leftValue": "={{ $node[\"Webhook\"].json.body.data.message.conversation }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "d836f964-cff7-4a56-ada4-9e7fd22f69ac",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -1960,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f8a7a6bb-a49b-4ff7-a70c-21e5b4e2329b",
+              "name": "Texto",
+              "value": "={{ $node['Transcreve Audio'].json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8e8079f9-37b0-452a-87a8-31b7d4376761",
+      "name": "Input_texto1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1780,
+        920
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "743732f6-a717-4c76-bb7b-0380a39b0c29",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        -1600,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "a769cf4e-5749-4a28-bd4a-4aef99423e18",
+                    "leftValue": "={{ $node[\"Webhook\"].json.body.data.message.conversation }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "texto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $node[\"Webhook\"].json.body.data.message.audioMessage }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "919d554a-1a2e-4c46-84f7-6134e55ea00f",
+      "name": "Tipo (audio, texto)1",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        180,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "a769cf4e-5749-4a28-bd4a-4aef99423e18",
+                    "leftValue": "={{ $node[\"Webhook\"].json.body.data.message.conversation }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "texto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $node[\"Webhook\"].json.body.data.message.audioMessage }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "414fc440-77d3-4e26-bb8c-87928d7dda12",
+      "name": "Tipo (audio, texto)",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -2640,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "id": "08e044b5-7faf-4d9f-b4bc-c280b4b49370",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        720,
+        980
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Mudanças\n\n-Mude para o ID do seu grupo",
+        "height": 318.23207046501886,
+        "width": 279.55801761625463
+      },
+      "id": "262ddcbb-d232-45db-af5e-e38f20da0f4d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2940,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "content": ".\n.\n.\n.\n.\n.\n.\n.\n.\n.\n.\n.\n.\n\n## Mudanças\n\nPor chave da API",
+        "height": 379.3626156259752,
+        "width": 273.73606093425917
+      },
+      "id": "33f06f36-c3ad-44f8-a1df-69a0e46c58b6",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2100,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "content": ".\n.\n.\n.\n.\n.\n.\n.\n## Mudanças\n\n-Mude o id da voz no link\n-Mude a chave da API em headers",
+        "height": 333.241762332063,
+        "width": 279.55801761625463
+      },
+      "id": "3e45704a-5825-40ec-82fa-b03cb1a2374c",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        964.9903081329559
+      ]
+    },
+    {
+      "parameters": {
+        "content": ".\n.\n.\n.\n.\n..\n..\n.\n..\n..\n.\n## Mudanças\n\nMude apenas a url da instância da Evolution API",
+        "height": 385.09342514548877,
+        "width": 279.55801761625463
+      },
+      "id": "771db13d-2e1c-41b2-b5c4-1648b6ae2bb6",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        860,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Mudanças\n\nMude apenas a url da instância da Evolution API",
+        "height": 385.09342514548877,
+        "width": 279.55801761625463
+      },
+      "id": "f99f6e78-9959-4a9b-b396-84001304f3df",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        460,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Mudanças\n\nPor API da meta",
+        "height": 332.8698613861272,
+        "width": 250.80436633663345
+      },
+      "id": "df3ef26d-deec-4d17-ba07-c40fb4325348",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Mudanças\n\nPor API do Gemini",
+        "height": 332.8698613861272,
+        "width": 250.80436633663345
+      },
+      "id": "89645865-32f5-4950-90db-4483eca02eaa",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1480,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://evolution.fluxautomate.com.br/group/fetchAllGroups/fluxautomate",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "getParticipants",
+              "value": "false"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "1746495a-f5f4-42df-a6e2-c107abe94841",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2860,
+        1340
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0de31642-cdd1-49db-8167-42e3c9f245e0",
+        "options": {}
+      },
+      "id": "1ca28656-ee80-4012-8961-024bea10de89",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -3180,
+        840
+      ],
+      "webhookId": "0de31642-cdd1-49db-8167-42e3c9f245e0"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolution.fluxautomate.com.br/message/sendText/fluxautomate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "="
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $node[\"Webhook\"].json.body.data.key.remoteJid }}\",\n    \"text\": \"*Relatório Data:* {{ $node['Code1'].json.startDate.split('-').reverse().join('/') }} - {{ $node['Code1'].json.endDate.split('-').reverse().join('/') }}\\n\\n*Investimento:* R$ {{ $node[\"Extrai Metricas da Array Actions1\"].json[\"spend\"].replace('.',',') }}\\n*Checkout:* {{ $node[\"Extrai Metricas da Array Actions1\"].json[\"initiate_checkout_count\"] }}\\n*Custo por checkout:* R$ {{ (parseFloat($node[\"Extrai Metricas da Array Actions1\"].json[\"spend\"]) / parseFloat($node[\"Extrai Metricas da Array Actions1\"].json[\"initiate_checkout_count\"])).toFixed(2).replace('.',',') }}\\n\\n*Vendas:* {{ $node[\"Extrai Metricas da Array Actions1\"].json[\"purchase_count\"] }}\\n*Custo por Venda:* R$ {{ (parseFloat($node[\"Extrai Metricas da Array Actions1\"].json[\"spend\"]) / parseFloat($node[\"Extrai Metricas da Array Actions1\"].json[\"purchase_count\"])).toFixed(2).replace('.',',') }}\\n\\n*Retorno:* R$ {{ (parseFloat($node[\"Extrai Metricas da Array Actions1\"].json[\"purchase_count\"]) * 88).toFixed(2).replace('.',',') }}\\n*ROAS:* {{ (parseFloat($node[\"Extrai Metricas da Array Actions1\"].json[\"purchase_count\"]) * 88 / parseFloat($node[\"Extrai Metricas da Array Actions1\"].json[\"spend\"])).toFixed(2).replace('.',',') }}\",\n    \"options\": {\n        \"delay\": 1200,\n        \"presence\": \"composing\",\n        \"linkPreview\": false\n    }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "6ad60b83-c9f7-420e-9381-bfdf0cc9f9af",
+      "name": "HTTP Request1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        640
+      ],
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "content": "## Buscar Grupos",
+        "height": 284.7462134417363,
+        "width": 306.9369925784926
+      },
+      "id": "aca12d75-37a9-46b7-8630-8d0d12f2f86f",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2940,
+        1240
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $node[\"Webhook\"].json.body.data.key.remoteJid }}",
+                    "rightValue": "120363304334053049@g.us",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aa342ca9-a2e4-40fb-85cd-88ba0adcb549",
+      "name": "Switch de Grupo",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -2860,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.candidates[0].content.parts[0].text }}",
+                    "rightValue": "nulo",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notContains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d05a57c9-eee5-438c-a2e8-38521097442c",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -1160,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "id": "0b6d1ce3-3196-48c5-b8d2-da3dbe9a7242",
+      "name": "Transcreve Audio",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [
+        -2060,
+        1020
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.fluxautomate.com.br",
+            "user-agent": "axios/1.7.7",
+            "content-length": "6573",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "147.182.224.164",
+            "x-forwarded-host": "n8n.fluxautomate.com.br",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "8c0c9699166f",
+            "x-real-ip": "147.182.224.164"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event": "messages.upsert",
+            "instance": "fluxautomate",
+            "data": {
+              "key": {
+                "remoteJid": "120363304334053049@g.us",
+                "fromMe": true,
+                "id": "3ADFFB7CD3DE768EAD9C",
+                "participant": "553597333909@s.whatsapp.net"
+              },
+              "pushName": "Marco Tulio",
+              "message": {
+                "audioMessage": {
+                  "url": "https://mmg.whatsapp.net/v/t62.7117-24/13156014_3744712905794141_5210499776275423773_n.enc?ccb=11-4&oh=01_Q5AaINIXPaIny-uWsurvfyZn2Jg6WlwnFDfutk2N8hEnCpBN&oe=674DDD84&_nc_sid=5e03e0&mms3=true",
+                  "mimetype": "audio/ogg; codecs=opus",
+                  "fileSha256": "gWMVg37IKMEWDezoJj0CEb3Gn4fQwdqomhWfVyG5rpU=",
+                  "fileLength": "3762",
+                  "seconds": 1,
+                  "ptt": true,
+                  "mediaKey": "gS3nSOUJuEg8jhoGs7bGUpqNUEIk77O9G+setrSzfxg=",
+                  "fileEncSha256": "Y+FJsCx/mFm2Zbr0vSYQN2PEmYrgOzxACDxybKa7A6U=",
+                  "directPath": "/v/t62.7117-24/13156014_3744712905794141_5210499776275423773_n.enc?ccb=11-4&oh=01_Q5AaINIXPaIny-uWsurvfyZn2Jg6WlwnFDfutk2N8hEnCpBN&oe=674DDD84&_nc_sid=5e03e0",
+                  "mediaKeyTimestamp": "1730567864",
+                  "streamingSidecar": "SoQ3ZC0ReDXYlg==",
+                  "waveform": "AAgRGiMsNT5DSE5TWV5kZGRkZGRkZGRkZGRkZGRkZGRkZGRkYV9dWlhWVFFPTUpIRkRITVFWWl9kXlhSTEZAOw=="
+                },
+                "messageContextInfo": {
+                  "messageSecret": "VEHUqlPNQO+yAYSpHwqw0py1n7yo1iKgZ6BnidC6js8="
+                },
+                "base64": "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"
+              },
+              "contextInfo": null,
+              "messageType": "audioMessage",
+              "messageTimestamp": 1730567867,
+              "instanceId": "57fb0e4a-93bf-4bf3-9b30-816bde6c8887",
+              "source": "ios"
+            },
+            "destination": "https://n8n.fluxautomate.com.br/webhook-test/0de31642-cdd1-49db-8167-42e3c9f245e0",
+            "date_time": "2024-11-02T14:17:47.427Z",
+            "sender": "553597333909@s.whatsapp.net",
+            "server_url": "http://localhost:8080",
+            "apikey": "B5E971DAEE66-4DA4-B755-DE746B299826"
+          },
+          "webhookUrl": "https://webhooks.fluxautomate.com.br/webhook-test/0de31642-cdd1-49db-8167-42e3c9f245e0",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Transcreve Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Pro": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ajeita os dados do anúncio1": {
+      "main": [
+        [
+          {
+            "node": "Extrai Metricas da Array Actions1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Metricas a Nivel ADS1": {
+      "main": [
+        [
+          {
+            "node": "Ajeita os dados do anúncio1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrai Metricas da Array Actions1": {
+      "main": [
+        [
+          {
+            "node": "Tipo (audio, texto)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Variaveis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gera o Audio": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Variaveis": {
+      "main": [
+        [
+          {
+            "node": "Metricas a Nivel ADS1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input_texto": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Input_texto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Input_texto1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input_texto1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Gemini Pro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tipo (audio, texto)1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gera o Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tipo (audio, texto)": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Responde em Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch de Grupo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch de Grupo": {
+      "main": [
+        [
+          {
+            "node": "Tipo (audio, texto)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcreve Audio": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "0a312ef4-e5ee-44d0-8cf1-e97564133a03",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "11SHQ3wNwXayMy0A",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

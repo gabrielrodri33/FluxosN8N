@@ -1,0 +1,1037 @@
+{
+  "name": "P11 | Meta - Relatório por range agrupado por nome + Evolution",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": "={{ 1 }}",
+              "triggerAtHour": "={{ 7 }}",
+              "triggerAtMinute": "={{ 10 }}"
+            }
+          ]
+        }
+      },
+      "id": "02226986-3aa9-4731-8dbe-18576803ea31",
+      "name": "Gatilho por Horário",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1160,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "v20.0",
+        "node": "=act_{{ $json['Conta_de_Anuncio'] }}",
+        "edge": "insights",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "time_increment",
+                "value": "1"
+              },
+              {
+                "name": "level",
+                "value": "ad"
+              },
+              {
+                "name": "fields",
+                "value": "=campaign_id,\ncampaign_name,\nadset_id,\nadset_name,\nad_id,\nad_name,\nspend,\nimpressions,\nclicks,\ncpc,\ncpm,\ncpp,\nctr,\nobjective,\nreach,\nactions"
+              },
+              {
+                "name": "limit",
+                "value": "3000"
+              },
+              {
+                "name": "date_preset",
+                "value": "yesterday"
+              }
+            ]
+          }
+        }
+      },
+      "id": "c0dea250-427f-4456-8f3d-14a7590d7e95",
+      "name": "Buscar Dados no Meta",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        -260,
+        820
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "bcbawFrWYrb4rVPq",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let totalSpend = 0;\nlet totalConversoes = 0;\nlet sumCPM = 0;\nlet sumCPP = 0;\nlet sumCTR = 0;\nlet totalClicks = 0;\nlet countCPM = 0;\nlet countCPP = 0;\nlet countCTR = 0;\n\n// Função para converter string de valores para float, considerando tanto ponto quanto vírgula\nfunction convertToFloat(value) {\n    return parseFloat(value.replace(',', '.'));\n}\n\n// Itera sobre cada item (que representa um conjunto de dados da campanha)\nitems.forEach(item => {\n    const jsonData = item.json;\n\n    // Acumula o valor de spend\n    if (jsonData.spend !== undefined) {\n        totalSpend += convertToFloat(jsonData.spend);\n    }\n\n    // Acumula o valor dos clicks\n    if (jsonData.clicks !== undefined) {\n        totalClicks += parseInt(jsonData.clicks, 10);  // Certifique-se de que está convertendo clicks para inteiro\n    }\n\n    // Verifica se o campo 'actions' existe e é um array\n    if (Array.isArray(jsonData.actions)) {\n        jsonData.actions.forEach(action => {\n            if (action.action_type === $node[\"Edit Fields\"].json[\"Action_type 1\"] ) {\n                totalConversoes += parseInt(action.value, 10);\n            }\n        });\n    }\n\n    // Acumula os valores de cpm, cpp, ctr para calcular a média\n    if (jsonData.cpm !== undefined) {\n        sumCPM += convertToFloat(jsonData.cpm);\n        countCPM++;\n    }\n    if (jsonData.cpp !== undefined) {\n        sumCPP += convertToFloat(jsonData.cpp);\n        countCPP++;\n    }\n    if (jsonData.ctr !== undefined && convertToFloat(jsonData.ctr) > 0) {\n        sumCTR += convertToFloat(jsonData.ctr);\n        countCTR++;\n    }\n});\n\n// Calcula as médias\nconst avgCPC = totalClicks > 0 ? (totalSpend / totalClicks) : 0;\nconst avgCPM = countCPM > 0 ? (sumCPM / countCPM) : 0;\nconst avgCPP = countCPP > 0 ? (sumCPP / countCPP) : 0;\nconst avgCTR = countCTR > 0 ? (sumCTR / countCTR) : 0;\nconst cpa = totalConversoes > 0 ? (totalSpend / totalConversoes) : 0;  // Calcula o CPA\n\n// Retorna apenas os dados acumulados\nreturn [\n    {\n        json: {\n            totalSpend: totalSpend.toFixed(2).replace('.', ','),\n            totalConversoes: totalConversoes,\n            totalClicks: totalClicks,  // Inclui o total de clicks no resultado\n            avgCPC: avgCPC.toFixed(2).replace('.', ','),\n            avgCPM: avgCPM.toFixed(2).replace('.', ','),\n            avgCPP: avgCPP.toFixed(2).replace('.', ','),\n            avgCTR: avgCTR.toFixed(2).replace('.', ','),\n            cpa: cpa.toFixed(2).replace('.', ',')\n        }\n    }\n];\n"
+      },
+      "id": "d351becb-70b0-420f-bbc2-679070534b00",
+      "name": "Script para Alterar Dados",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "9d3887ab-c000-4b16-af96-2b4518c5e2e4",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -620,
+        580
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b6b54be3-456f-4d25-897b-db7b0bc20fcf",
+      "name": "Replace Me",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        800
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "55b2346a-57a9-40d0-b20b-2b712acd989d",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -420,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1mzpJGdQ5M0wvwtss_OKKsimZLGpcbsHzsW7kn0Gdkzc",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mzpJGdQ5M0wvwtss_OKKsimZLGpcbsHzsW7kn0Gdkzc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "daab8ce1-cd9d-4b08-ac86-1569d490c104",
+      "name": "Base de Clientes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        -840,
+        580
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bf0c339a-d3d1-4bc5-9079-d47ec4a2ae05",
+              "name": "Conta_de_Anuncio",
+              "value": "={{ $json['Conta de Anuncio'] }}",
+              "type": "string"
+            },
+            {
+              "id": "f4600920-959d-4eef-8a5c-acca0be0158b",
+              "name": "Contato_do_cliente",
+              "value": "={{ $json['Contato do cliente'] }}",
+              "type": "number"
+            },
+            {
+              "id": "1ca84bfe-93ec-45bb-be63-27a93363980c",
+              "name": "Email",
+              "value": "={{ $json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "bf948392-b9f7-4698-b27a-8a979d5e144c",
+              "name": "Cliente",
+              "value": "={{ $json.Cliente }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c1d05d7a-32c0-464a-aac7-05ee418c48b8",
+      "name": "Dados",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -420,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "030e2b8b-180b-4753-8ec2-2a70101aefb1",
+              "name": "URL",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "81419d30-620a-4705-8816-03327870beab",
+              "name": "instancia",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "ceeffd46-2654-4d6d-8c69-2914ee1fff93",
+              "name": "Token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9f179b89-8a1a-4b44-845d-10fba0e0c81a",
+      "name": "Chaves Whatsapp",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1460,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Trocar as Chaves de Acesso da API\n\n\n## 👇",
+        "height": 150.199452534768,
+        "width": 150,
+        "color": 7
+      },
+      "id": "459d5eb3-e1f6-40de-8055-20d9ff85d7a2",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1460,
+        380
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Dados').first().json[\"Email\"] }}",
+        "subject": "Relatorio de Campanha",
+        "emailType": "text",
+        "message": "=📊 Relatório de campanha da conta {{ $('Dados').first().json[\"Cliente\"] }}\n\n🗓️ Data: {{ new Date(Date.now() - 86400000).toLocaleDateString('pt-BR') }}\n\n{{ $('Code3').item.json.report }}",
+        "options": {
+          "senderName": "Flux Automate"
+        }
+      },
+      "id": "e756407b-6f2d-41dd-a198-a2a42859f602",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1840,
+        580
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uF4RSZEql4HvXrV3",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3152ba7b-2784-42d8-ad8c-a9f97ad61fc0",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "df8c576a-79ac-4b07-8cd7-447decd05b84",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -100,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Acessa o array de campanhas\nconst campaigns = $json.data; // Certifique-se de que \"data\" contém suas campanhas\nconst results = [];\n\n// Loop para verificar cada campanha\nfor (const campaign of campaigns) {\n    // Verifica se \"campaign_name\" contém \"[TOFU]\"\n    if (campaign.campaign_name && campaign.campaign_name.includes($node[\"Edit Fields\"].json[\"Filtro 1\"])) {\n        results.push({\n            ...campaign,\n            containsTOFU: true // Adiciona um novo campo se a palavra for encontrada\n        });\n    }\n}\n\n// Retorna os resultados\nreturn results.length > 0 ? results : [{ message: \"Nenhuma campanha foi encontrada.\" }];\n"
+      },
+      "id": "53cf606e-74dc-4e88-8591-9359432a5964",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Acessa o array de campanhas\nconst campaigns = $json.data; // Certifique-se de que \"data\" contém suas campanhas\nconst results = [];\n\n// Loop para verificar cada campanha\nfor (const campaign of campaigns) {\n    // Verifica se \"campaign_name\" contém \"[TOFU]\"\n    if (campaign.campaign_name && campaign.campaign_name.includes($node[\"Edit Fields\"].json[\"Filtro 2\"])) {\n        results.push({\n            ...campaign,\n            containsTOFU: true // Adiciona um novo campo se a palavra for encontrada\n        });\n    }\n}\n\n// Retorna os resultados\nreturn results.length > 0 ? results : [{ message: \"Nenhuma campanha foi encontrada.\" }];\n"
+      },
+      "id": "755fa289-d2f1-427f-a602-445038051dc7",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let totalSpend = 0;\nlet totalConversoes = 0;\nlet sumCPM = 0;\nlet sumCPP = 0;\nlet sumCTR = 0;\nlet totalClicks = 0;\nlet countCPM = 0;\nlet countCPP = 0;\nlet countCTR = 0;\n\n// Função para converter string de valores para float, considerando tanto ponto quanto vírgula\nfunction convertToFloat(value) {\n    return parseFloat(value.replace(',', '.'));\n}\n\n// Itera sobre cada item (que representa um conjunto de dados da campanha)\nitems.forEach(item => {\n    const jsonData = item.json;\n\n    // Acumula o valor de spend\n    if (jsonData.spend !== undefined) {\n        totalSpend += convertToFloat(jsonData.spend);\n    }\n\n    // Acumula o valor dos clicks\n    if (jsonData.clicks !== undefined) {\n        totalClicks += parseInt(jsonData.clicks, 10);  // Certifique-se de que está convertendo clicks para inteiro\n    }\n\n    // Verifica se o campo 'actions' existe e é um array\n    if (Array.isArray(jsonData.actions)) {\n        jsonData.actions.forEach(action => {\n            if (action.action_type === $node[\"Edit Fields\"].json[\"Action_type 2\"]) {\n                totalConversoes += parseInt(action.value, 10);\n            }\n        });\n    }\n\n    // Acumula os valores de cpm, cpp, ctr para calcular a média\n    if (jsonData.cpm !== undefined) {\n        sumCPM += convertToFloat(jsonData.cpm);\n        countCPM++;\n    }\n    if (jsonData.cpp !== undefined) {\n        sumCPP += convertToFloat(jsonData.cpp);\n        countCPP++;\n    }\n    if (jsonData.ctr !== undefined && convertToFloat(jsonData.ctr) > 0) {\n        sumCTR += convertToFloat(jsonData.ctr);\n        countCTR++;\n    }\n});\n\n// Calcula as médias\nconst avgCPC = totalClicks > 0 ? (totalSpend / totalClicks) : 0;\nconst avgCPM = countCPM > 0 ? (sumCPM / countCPM) : 0;\nconst avgCPP = countCPP > 0 ? (sumCPP / countCPP) : 0;\nconst avgCTR = countCTR > 0 ? (sumCTR / countCTR) : 0;\nconst cpa = totalConversoes > 0 ? (totalSpend / totalConversoes) : 0;  // Calcula o CPA\n\n// Retorna apenas os dados acumulados\nreturn [\n    {\n        json: {\n            totalSpend: totalSpend.toFixed(2).replace('.', ','),\n            totalConversoes: totalConversoes,\n            totalClicks: totalClicks,  // Inclui o total de clicks no resultado\n            avgCPC: avgCPC.toFixed(2).replace('.', ','),\n            avgCPM: avgCPM.toFixed(2).replace('.', ','),\n            avgCPP: avgCPP.toFixed(2).replace('.', ','),\n            avgCTR: avgCTR.toFixed(2).replace('.', ','),\n            cpa: cpa.toFixed(2).replace('.', ',')\n        }\n    }\n];\n"
+      },
+      "id": "749f9339-989e-4ff9-8304-14fe2ee4187f",
+      "name": "Script para Alterar Dados1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4b5e0c4b-f7ae-4c83-98fc-892da4cfd768",
+              "name": "Filtro 1",
+              "value": "[Q2]",
+              "type": "string"
+            },
+            {
+              "id": "3134e98c-15ee-48bc-b849-665706a47de1",
+              "name": "Filtro 2",
+              "value": "[Q3]",
+              "type": "string"
+            },
+            {
+              "id": "9b7a5d5c-618c-492d-8c9a-29aefaa4be31",
+              "name": "Filtro 3",
+              "value": "[LP4]",
+              "type": "string"
+            },
+            {
+              "id": "94a22f9b-d59f-42a3-b50d-57a152e7a3d2",
+              "name": "Action_type 1",
+              "value": "purchase",
+              "type": "string"
+            },
+            {
+              "id": "cd469ed2-e7a8-40e4-863a-3c2217367edf",
+              "name": "Action_type 2",
+              "value": "purchase",
+              "type": "string"
+            },
+            {
+              "id": "d684d11c-46bc-4c8a-ab09-53f418893c5c",
+              "name": "Action_type 3",
+              "value": "purchase",
+              "type": "string"
+            },
+            {
+              "id": "18a94cec-1d85-437e-b415-40333bfb3d4c",
+              "name": "Filtro 4",
+              "value": "[LP5-HOT]",
+              "type": "string"
+            },
+            {
+              "id": "0f1402de-c4ff-4a05-8d36-9521aac64b44",
+              "name": "Action_type 4",
+              "value": "purchase",
+              "type": "string"
+            },
+            {
+              "id": "99e3551c-b190-4da6-9f61-bacea1e4b989",
+              "name": "data inicio",
+              "value": "={{ $today.minus(30, \"days\").format('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "5568454c-f6e3-4961-8a24-46108d2b6f9c",
+              "name": "data fim",
+              "value": "={{ $today.minus(1, \"days\").format('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b864fbbc-5257-4a44-bcb0-87fbcee05c99",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1000,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7970d0e0-811c-4fbf-b6fc-0e61b0bbe6b0",
+              "name": "={{ $node[\"Edit Fields\"].json[\"Filtro 1\"].replace(/[\\[\\]]/g, '') }}",
+              "value": "={{ $json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "567cb46c-5f8a-49b1-981f-6e4538e29cf4",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7970d0e0-811c-4fbf-b6fc-0e61b0bbe6b0",
+              "name": "={{ $node[\"Edit Fields\"].json[\"Filtro 2\"].replace(/[\\[\\]]/g, '') }}",
+              "value": "={{ $json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0ab8de04-1231-4a59-b4d2-ef213bbb6aa0",
+      "name": "Edit Fields2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Acessa o array de campanhas\nconst campaigns = $json.data; // Certifique-se de que \"data\" contém suas campanhas\nconst results = [];\n\n// Loop para verificar cada campanha\nfor (const campaign of campaigns) {\n    // Verifica se \"campaign_name\" contém \"[TOFU]\"\n    if (campaign.campaign_name && campaign.campaign_name.includes($node[\"Edit Fields\"].json[\"Filtro 3\"])) {\n        results.push({\n            ...campaign,\n            containsTOFU: true // Adiciona um novo campo se a palavra for encontrada\n        });\n    }\n}\n\n// Retorna os resultados\nreturn results.length > 0 ? results : [{ message: \"Nenhuma campanha foi encontrada.\" }];\n"
+      },
+      "id": "9075e5a3-2b20-4754-9003-595a54111141",
+      "name": "Code2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let totalSpend = 0;\nlet totalConversoes = 0;\nlet sumCPM = 0;\nlet sumCPP = 0;\nlet sumCTR = 0;\nlet totalClicks = 0;\nlet countCPM = 0;\nlet countCPP = 0;\nlet countCTR = 0;\n\n// Função para converter string de valores para float, considerando tanto ponto quanto vírgula\nfunction convertToFloat(value) {\n    return parseFloat(value.replace(',', '.'));\n}\n\n// Itera sobre cada item (que representa um conjunto de dados da campanha)\nitems.forEach(item => {\n    const jsonData = item.json;\n\n    // Acumula o valor de spend\n    if (jsonData.spend !== undefined) {\n        totalSpend += convertToFloat(jsonData.spend);\n    }\n\n    // Acumula o valor dos clicks\n    if (jsonData.clicks !== undefined) {\n        totalClicks += parseInt(jsonData.clicks, 10);  // Certifique-se de que está convertendo clicks para inteiro\n    }\n\n    // Verifica se o campo 'actions' existe e é um array\n    if (Array.isArray(jsonData.actions)) {\n        jsonData.actions.forEach(action => {\n            if (action.action_type === $node[\"Edit Fields\"].json[\"Action_type 3\"]) {\n                totalConversoes += parseInt(action.value, 10);\n            }\n        });\n    }\n\n    // Acumula os valores de cpm, cpp, ctr para calcular a média\n    if (jsonData.cpm !== undefined) {\n        sumCPM += convertToFloat(jsonData.cpm);\n        countCPM++;\n    }\n    if (jsonData.cpp !== undefined) {\n        sumCPP += convertToFloat(jsonData.cpp);\n        countCPP++;\n    }\n    if (jsonData.ctr !== undefined && convertToFloat(jsonData.ctr) > 0) {\n        sumCTR += convertToFloat(jsonData.ctr);\n        countCTR++;\n    }\n});\n\n// Calcula as médias\nconst avgCPC = totalClicks > 0 ? (totalSpend / totalClicks) : 0;\nconst avgCPM = countCPM > 0 ? (sumCPM / countCPM) : 0;\nconst avgCPP = countCPP > 0 ? (sumCPP / countCPP) : 0;\nconst avgCTR = countCTR > 0 ? (sumCTR / countCTR) : 0;\nconst cpa = totalConversoes > 0 ? (totalSpend / totalConversoes) : 0;  // Calcula o CPA\n\n// Retorna apenas os dados acumulados\nreturn [\n    {\n        json: {\n            totalSpend: totalSpend.toFixed(2).replace('.', ','),\n            totalConversoes: totalConversoes,\n            totalClicks: totalClicks,  // Inclui o total de clicks no resultado\n            avgCPC: avgCPC.toFixed(2).replace('.', ','),\n            avgCPM: avgCPM.toFixed(2).replace('.', ','),\n            avgCPP: avgCPP.toFixed(2).replace('.', ','),\n            avgCTR: avgCTR.toFixed(2).replace('.', ','),\n            cpa: cpa.toFixed(2).replace('.', ',')\n        }\n    }\n];\n"
+      },
+      "id": "b2a91dfc-88a7-4084-aedb-7ee0ed3e0bd1",
+      "name": "Script para Alterar Dados2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7970d0e0-811c-4fbf-b6fc-0e61b0bbe6b0",
+              "name": "={{ $node[\"Edit Fields\"].json[\"Filtro 3\"].replace(/[\\[\\]]/g, '') }}",
+              "value": "={{ $json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c881071a-2193-4eb9-8c6c-5642c2d2855b",
+      "name": "Edit Fields3",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Supondo que os dados estão em um campo específico\nconst inputData = $json.data; // Ajuste \"data\" para o campo correto\n\n// Verifica se inputData é um array\nif (!Array.isArray(inputData)) {\n  throw new Error(\"Os dados de entrada não são um array.\");\n}\n\nlet report = '';\n\n// Loop por cada item do JSON para montar o relatório\ninputData.forEach(campanha => {\n  // Captura o nome da campanha, que é a chave do objeto\n  const campanhaName = Object.keys(campanha)[0]; \n  const data = campanha[campanhaName]; // Captura os dados da campanha\n\n  // Monta a string do relatório para essa campanha\n  report += `Campanha: ${campanhaName}\\n`;\n  report += `Investimento: R$ ${data.totalSpend}\\n`;\n  report += `Conversões: ${data.totalConversoes}\\n`;\n  report += `Custo por conversões: R$ ${data.cpa}\\n\\n`; // Pula uma linha\n});\n\n// Retorna o relatório formatado\nreturn { report };\n"
+      },
+      "id": "5e04e672-9412-415f-9d7d-879a474130c4",
+      "name": "Code3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "7ee90ac8-eb32-4d46-a092-330c70859e91",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Alterar os dados\n\n\n## 👇",
+        "height": 150.199452534768,
+        "width": 150,
+        "color": 4
+      },
+      "id": "1e809664-edd5-43a6-b680-8d6db82559eb",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        380
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.URL }}/message/sendText/{{ $json.instancia }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $json.Token }}"
+            },
+            {
+              "name": "content_type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('Dados').first().json[\"Contato_do_cliente\"] }}\",\n    \"text\": \"{{ $('Code3').item.json.report.replace(/\\n/g, \"\\\\n\").replace(/['\"]/g, '') }}\"\n}",
+        "options": {}
+      },
+      "id": "a0f15be9-0d8b-42a9-92b2-9db449d6b147",
+      "name": "Evolution 2.1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1660,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "id": "dcd810bb-7b89-4303-b931-88377302f07c",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        940,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Acessa o array de campanhas\nconst campaigns = $json.data; // Certifique-se de que \"data\" contém suas campanhas\nconst results = [];\n\n// Loop para verificar cada campanha\nfor (const campaign of campaigns) {\n    // Verifica se \"campaign_name\" contém \"[TOFU]\"\n    if (campaign.campaign_name && campaign.campaign_name.includes($node[\"Edit Fields\"].json[\"Filtro 4\"])) {\n        results.push({\n            ...campaign,\n            containsTOFU: true // Adiciona um novo campo se a palavra for encontrada\n        });\n    }\n}\n\n// Retorna os resultados\nreturn results.length > 0 ? results : [{ message: \"Nenhuma campanha foi encontrada.\" }];\n"
+      },
+      "id": "25b5a92c-e4c0-488a-bd6f-f3ad14cff441",
+      "name": "Code4",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        900
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let totalSpend = 0;\nlet totalConversoes = 0;\nlet sumCPM = 0;\nlet sumCPP = 0;\nlet sumCTR = 0;\nlet totalClicks = 0;\nlet countCPM = 0;\nlet countCPP = 0;\nlet countCTR = 0;\n\n// Função para converter string de valores para float, considerando tanto ponto quanto vírgula\nfunction convertToFloat(value) {\n    return parseFloat(value.replace(',', '.'));\n}\n\n// Itera sobre cada item (que representa um conjunto de dados da campanha)\nitems.forEach(item => {\n    const jsonData = item.json;\n\n    // Acumula o valor de spend\n    if (jsonData.spend !== undefined) {\n        totalSpend += convertToFloat(jsonData.spend);\n    }\n\n    // Acumula o valor dos clicks\n    if (jsonData.clicks !== undefined) {\n        totalClicks += parseInt(jsonData.clicks, 10);  // Certifique-se de que está convertendo clicks para inteiro\n    }\n\n    // Verifica se o campo 'actions' existe e é um array\n    if (Array.isArray(jsonData.actions)) {\n        jsonData.actions.forEach(action => {\n            if (action.action_type === $node[\"Edit Fields\"].json[\"Action_type 4\"]) {\n                totalConversoes += parseInt(action.value, 10);\n            }\n        });\n    }\n\n    // Acumula os valores de cpm, cpp, ctr para calcular a média\n    if (jsonData.cpm !== undefined) {\n        sumCPM += convertToFloat(jsonData.cpm);\n        countCPM++;\n    }\n    if (jsonData.cpp !== undefined) {\n        sumCPP += convertToFloat(jsonData.cpp);\n        countCPP++;\n    }\n    if (jsonData.ctr !== undefined && convertToFloat(jsonData.ctr) > 0) {\n        sumCTR += convertToFloat(jsonData.ctr);\n        countCTR++;\n    }\n});\n\n// Calcula as médias\nconst avgCPC = totalClicks > 0 ? (totalSpend / totalClicks) : 0;\nconst avgCPM = countCPM > 0 ? (sumCPM / countCPM) : 0;\nconst avgCPP = countCPP > 0 ? (sumCPP / countCPP) : 0;\nconst avgCTR = countCTR > 0 ? (sumCTR / countCTR) : 0;\nconst cpa = totalConversoes > 0 ? (totalSpend / totalConversoes) : 0;  // Calcula o CPA\n\n// Retorna apenas os dados acumulados\nreturn [\n    {\n        json: {\n            totalSpend: totalSpend.toFixed(2).replace('.', ','),\n            totalConversoes: totalConversoes,\n            totalClicks: totalClicks,  // Inclui o total de clicks no resultado\n            avgCPC: avgCPC.toFixed(2).replace('.', ','),\n            avgCPM: avgCPM.toFixed(2).replace('.', ','),\n            avgCPP: avgCPP.toFixed(2).replace('.', ','),\n            avgCTR: avgCTR.toFixed(2).replace('.', ','),\n            cpa: cpa.toFixed(2).replace('.', ',')\n        }\n    }\n];\n"
+      },
+      "id": "012496a7-8ce4-4dd9-a149-92d670f702c8",
+      "name": "Script para Alterar Dados3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        900
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7970d0e0-811c-4fbf-b6fc-0e61b0bbe6b0",
+              "name": "={{ $node[\"Edit Fields\"].json[\"Filtro 4\"].replace(/[\\[\\]]/g, '') }}",
+              "value": "={{ $json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "eb18ce1f-a5ff-45b2-ad99-68e161bdeaca",
+      "name": "Edit Fields4",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        900
+      ]
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "v20.0",
+        "node": "=act_{{ $node[\"Dados\"].json[\"Conta_de_Anuncio\"] }}",
+        "edge": "insights",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "time_increment",
+                "value": "1"
+              },
+              {
+                "name": "level",
+                "value": "ad"
+              },
+              {
+                "name": "time_range",
+                "value": "={\n  \"since\":\"{{ $item(\"0\").$node[\"Edit Fields\"].json[\"data inicio\"] }}\",\n  \"until\":\"{{ $item(\"0\").$node[\"Edit Fields\"].json[\"data fim\"] }}\"\n}"
+              },
+              {
+                "name": "fields",
+                "value": "=campaign_id,\ncampaign_name,\nadset_id,\nadset_name,\nad_id,\nad_name,\nspend,\nimpressions,\nclicks,\ncpc,\ncpm,\ncpp,\nctr,\nobjective,\nreach,\nactions"
+              },
+              {
+                "name": "limit",
+                "value": "3000"
+              }
+            ]
+          }
+        }
+      },
+      "id": "37c748e6-0d76-4bdd-bcd4-0f2fa2223687",
+      "name": "Busca Ad Account por Data1",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        -260,
+        600
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "bcbawFrWYrb4rVPq",
+          "name": "Facebook Graph account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gatilho por Horário": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Script para Alterar Dados": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base de Clientes": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados": {
+      "main": [
+        [
+          {
+            "node": "Busca Ad Account por Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chaves Whatsapp": {
+      "main": [
+        [
+          {
+            "node": "Evolution 2.1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Script para Alterar Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Script para Alterar Dados1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Script para Alterar Dados1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Base de Clientes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Script para Alterar Dados2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Script para Alterar Dados2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Chaves Whatsapp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution 2.1": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Script para Alterar Dados3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Script para Alterar Dados3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Busca Ad Account por Data1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "21656851-d600-4530-a8dd-09713848be81",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "TgLPHU5hmMU7Vnic",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

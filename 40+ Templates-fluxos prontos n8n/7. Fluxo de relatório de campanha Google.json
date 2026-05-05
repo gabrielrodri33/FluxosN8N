@@ -1,0 +1,1844 @@
+{
+  "name": "P12 | Google Ads - Relatórios multiplos clientes + Evolution",
+  "nodes": [
+    {
+      "parameters": {
+        "sendTo": "={{ $node[\"Code1\"].json[\"email\"] }}",
+        "subject": "=Relatorio de Campanha",
+        "emailType": "text",
+        "message": "=📊 Relatório de campanha da conta {{ $node[\"Code1\"].json[\"cliente\"] }}\n\n🗓️ Data: {{ $node[\"Dados\"].json[\"Data do Relatorio\"] }}:\n\n- Impressões: {{ $node[\"Code1\"].json[\"totalImpressões\"] }}\n- Cpm: R${{ $node[\"Code1\"].json[\"cpm\"] }}\n\n- Total de Cliques: {{ $node[\"Code1\"].json[\"totalCliques\"] }}\n- Custo Médio por Cliques: R${{ $node[\"Code1\"].json[\"cpc\"] }}\n\n- Valor Total Investido: R${{ $node[\"Code1\"].json[\"totalInvestido\"] }}\n\n- Total de Conversões: {{ $node[\"Code1\"].json[\"totalConversões\"] }}\n- Custo Médio por Conversão: R${{ $node[\"Code1\"].json[\"cpv\"] }}\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "7b956ca8-dff7-4570-993a-868d186f7b97",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1700,
+        440
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uF4RSZEql4HvXrV3",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtém os dados das campanhas dinamicamente\nconst campanhas = $item(\"0\").$node[\"Dados\"].json[\"Dados\"];\n\n// Variáveis de acumulação\nlet totalClicks = 0;\nlet totalCost = 0;\nlet totalImpressions = 0;\nlet totalConversions = 0;\n\n// Filtra campanhas válidas (com custo e impressões > 0)\nconst campanhasValidas = campanhas.filter(campaign => {\n  const stats = campaign.stats;\n  return stats.cost > 0 && stats.impressions > 0;\n});\n\n// Processando os dados das campanhas\ncampanhasValidas.forEach(campaign => {\n  const stats = campaign.stats;\n\n  totalClicks += parseInt(stats.clicks || \"0\", 10); // Converte cliques para inteiro\n  totalCost += parseFloat(stats.cost || 0); // Converte custo para número\n  totalImpressions += parseInt(stats.impressions || \"0\", 10); // Converte impressões para inteiro\n  totalConversions += parseFloat(stats.conversions || 0); // Converte conversões para número\n});\n\n// Calculando os valores finais\nconst ctr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0; // CTR em porcentagem\nconst cpm = totalImpressions > 0 ? (totalCost / totalImpressions) * 1000 : 0; // CPM em moeda\nconst cpc = totalClicks > 0 ? totalCost / totalClicks : 0; // CPC em moeda\nconst cpv = totalConversions > 0 ? totalCost / totalConversions : 0; // CPV em moeda\n\n// Função para formatar valores monetários com vírgula\nfunction formatCurrency(value) {\n  return value.toFixed(2).replace('.', ',');\n}\n\n// Montando o resultado final como objeto\nconst result = {\n  cliente: campanhasValidas[0]?.accountName || \"Desconhecido\",\n  account_id: campanhasValidas[0]?.accountId || \"Desconhecido\",\n  totalImpressões: totalImpressions.toString(), // Total de impressões como string sem padding\n  totalInvestido: formatCurrency(totalCost), // Total investido\n  totalCliques: totalClicks.toString(), // Total de cliques como string sem padding\n  cpc: formatCurrency(cpc), // CPC formatado\n  cpm: formatCurrency(cpm), // CPM formatado\n  ctr: `${ctr.toFixed(2).replace('.', ',')}%`, // CTR formatado como porcentagem\n  totalConversões: Math.round(totalConversions), // Total de conversões arredondado para inteiro\n  cpv: totalConversions > 0 ? formatCurrency(cpv) : \"0,00\" // CPV formatado ou 0,00\n};\n\n// Retornando o resultado como objeto\nreturn [{ json: result }];\n"
+      },
+      "id": "7a8f618b-3dba-4fa8-90ab-e5dd202b9b1c",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1y3qAoB2zZjiUG2dbxwmJKfSgNXddQyyxlp_rp8cSESU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y3qAoB2zZjiUG2dbxwmJKfSgNXddQyyxlp_rp8cSESU/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Ativo",
+              "lookupValue": "=Sim"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3fb9c593-d25e-4734-b37a-e31a8838a539",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        380
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtém os dados do node \"Merge\" usando a expressão do input\nconst dados = $item(\"0\").$node[\"Aggregate\"].json[\"data\"] ;\n\n// Separar os dados da campanha e os dados da planilha\nconst campanhas = dados.filter(item => item.cliente);\nconst clientes = dados.filter(item => item[\"ID Conta\"]);\n\n// Comparar os `account_id` e adicionar o telefone e email correspondentes\nconst resultado = campanhas.map(campanha => {\n    // Encontrar o cliente correspondente pelo `account_id`\n    const clienteInfo = clientes.find(cliente => cliente[\"ID Conta\"] === campanha.account_id);\n\n    // Adicionar telefone e email ao JSON de saída, se encontrado\n    return {\n        ...campanha,\n        telefone: clienteInfo ? clienteInfo[\"Telefone Cliente\"] : \"Não encontrado\",\n        email: clienteInfo ? clienteInfo[\"Email Cliente\"] : \"Não encontrado\"\n    };\n});\n\n// Retornar o resultado processado\nreturn resultado.map(item => ({ json: item }));\n"
+      },
+      "id": "4b3d357c-7183-44cb-adbc-babbb62399c4",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "89a90cbf-f5e5-458f-aafc-339040890e24",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f211820a-542c-49b9-a450-909283251e62",
+              "name": "Dados",
+              "value": "={{ $json.body.campaigns }}",
+              "type": "array"
+            },
+            {
+              "id": "a16ad370-1d14-40fc-bbeb-dec2085afe60",
+              "name": "Data do Relatorio",
+              "value": "={{ $today.minus(1, \"days\").format('dd/MM/yyyy') }}",
+              "type": "string"
+            },
+            {
+              "id": "06750b08-daa6-46a9-8b51-1019d2b11e17",
+              "name": "URL Evolution",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "98849710-e5a5-4de3-a289-886ae6b9e6d4",
+              "name": "Instancia/ID",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "1e4eb6f4-bc33-45df-89d4-d6a520655179",
+              "name": "Token",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "282e1597-8dea-4da3-95e6-18bb3f197c08",
+              "name": "Client_token_zapi",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "31e1e597-9c33-43b8-84d3-f638c9124eb7",
+      "name": "Dados",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Dados').item.json[\"URL Evolution\"] }}/message/sendText/{{ $('Dados').item.json[\"Instancia/ID\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('Dados').item.json.Token }}"
+            },
+            {
+              "name": "content_type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $json.telefone }}\",\n    \"text\": \"📊 *Relatório de campanha da conta* {{ $json.cliente }} \\n\\n🗓️ Data: {{ $node[\"Dados\"].json[\"Data do Relatorio\"] }}:\\n\\n- Impressões: {{ $json.totalImpressões }}\\n- Cpm: R${{ $json.cpm }}\\n\\n- Total de Cliques: {{ $json.totalCliques }}\\n- Custo Médio por Cliques: R${{ $json.cpc }}\\n\\n- Valor Total Investido: R${{ $json.totalInvestido }}\\n\\n- Total de Conversões: {{ $json.totalConversões }}\\n- Custo Médio por Conversão: R${{ $json.cpv }}\"\n}",
+        "options": {}
+      },
+      "id": "1fa02350-8649-4cb7-869b-9576e3af3e4c",
+      "name": "Evolution 2.1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1700,
+        200
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d15c86bb-7f94-40fb-8b47-b3b7aac403cb",
+              "leftValue": "={{ $json.telefone.toString() }}",
+              "rightValue": "Não encontrado",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "5e581341-44c5-4d74-b114-7dba5228c6a7",
+              "leftValue": "={{ $json.telefone.toString() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "68eae21f-e4b7-472f-9905-c7130769a999",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1460,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bcd82f5a-2fdc-4238-9ab0-e2e9ca19c8dc",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "Não encontrado",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "f7dc2b7b-3c2e-441c-8cc0-6d527a181fc1",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "313d8346-7d6c-43e0-a646-a81994af0c87",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1460,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Dados\nMexa somente aqui 👇🏼",
+        "height": 326.21275844971547,
+        "width": 236.90286785497426
+      },
+      "id": "73837602-4ee0-4598-9b84-557cff686657",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        180
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "960bd172-0886-40d5-8f47-4a11c7b8931d",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        940,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "558c8f6a-8fdc-44d2-9fe8-716ade313093",
+              "leftValue": "={{ $json.body.campaigns }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "efec177f-05f2-4e30-b207-65eb96a17f8f",
+      "name": "A conta teve Gasto Ontem?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        220,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a404338d-3b1e-4d9f-aa2d-d6eb5f8036f1",
+        "options": {}
+      },
+      "id": "b161e138-69c4-4a78-af9b-f28e6e503b0d",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        60,
+        320
+      ],
+      "webhookId": "a404338d-3b1e-4d9f-aa2d-d6eb5f8036f1"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.pequenonegociodigital.com.br",
+            "user-agent": "Mozilla/5.0 (compatible; Google-Apps-Script; beanserver; +https://script.google.com; id: UAEmdDd_sPagzyKr4vCinm6YhKWoQp20Big)",
+            "content-length": "19127",
+            "accept-encoding": "gzip, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "107.178.224.134",
+            "x-forwarded-host": "n8n.pequenonegociodigital.com.br",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "bc5d3d05fa9b",
+            "x-real-ip": "107.178.224.134"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "campaigns": [
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Ticket Facil",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Bilheteria",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Show Luan Santana em Santos",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Campaign #1",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Show Sepultura | Rio Branco - AC",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Spirit Festival",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Ana Carolina | Santos - SP",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Viva Parque",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Vegas Music | Valesca Popozuda",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Rio Samba e Carnaval",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "FESTA DA VÉIA PREMIUM",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "RACIONAIS AO VIVO",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "EPIC MUAY THAI BRASIL",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Show The Stylistics",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Mano Walter",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Rio Samba e Carnaval 2018",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Mundo bita e os Animais",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Parques",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Casa do Papai Noel",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Museu da Imaginação JK Iguatemi",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Jon Secada - Dia internacional da Mulher",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Viva! Irlanda – Celebre e Vivencie",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Expo Rio Verde 2018",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Expo Rio Verde 2018",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Show Mumuzinho",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Villa Carioca Interlagos",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Planetários Virada Cultural",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Show Anitta",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Planetarios",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Planetario Ibirapuera",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Planetario do Carmo",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Planetario do Ibirapuera",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Parque da Galinha Pintadinha - Franca",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Expo Rio Verde 2018 - Gráfico",
+                "isEnabled": false,
+                "type": "DISPLAY",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Rio Verde 2018",
+                "isEnabled": false,
+                "type": "DISPLAY",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Teatros",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Cirque La Force",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Teatro SESI - Brasília",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Teatro Livraria da Vila",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Hebraica",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Teatro UMC",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Theatro da Paz",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Fest Verão Itapema",
+                "isEnabled": false,
+                "type": "DISPLAY",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Fest Verão Itapema 2",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Lisa Liza e Eu",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Parque das Águas de Caxambu",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Cidade das Abelhas",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Museu da Imaginação",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Balneário de Pocinhos do Rio Verde",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Sitiolândia Eco Park",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Homens no Divã",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Rock Rio Pardo",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Expo Rio Verde 2019",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "CCTG 1",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Teatro Vitória",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "CCTG",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Wet'n Wild",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "CCTG 2",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Hopi Hari",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Fest Verão 2020",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "CAMAROTE +BRASIL RIO 2020",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Festival Verão Fortaleza",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Website traffic-Search-60",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Loubet - Aldeia 5 anos",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Super Drift Brasil - 1ª Etapa",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "BJJ Stars Edition III",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Camarote Pride",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Coffee Festival",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Live Vitinho rede",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Live Vitinho",
+                "isEnabled": false,
+                "type": "VIDEO",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Live Vitinho Display",
+                "isEnabled": false,
+                "type": "DISPLAY",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Hopi Hari 2020",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Espaço Kahal",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Lendários Experience",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Barões da Pisadinha",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Wet'n Wild - Show Jorge e Mateus",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Oceanic Aquarium",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Hopi Night: Atlântida",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Classic Car Show",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Museu Butantan",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Thermas Water Park - São Pedro",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "NFT Brasil",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Jardim Botânico SP",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Zoo SP",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Ingressos para eventos",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Thermas Acqualinda",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "Cidade das Abelhas 2",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][THEATRO DA PAZ]",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][CIDADE DAS ABELHAS]",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][ECOPOINT PARQUE]",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][ECOPOINT PARQUE] #2",
+                "isEnabled": false,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][GRUPO OCEANIC]",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][WET'N WILD]",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][ZOO SP]",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [VIDEO VIEW]",
+                "isEnabled": true,
+                "type": "VIDEO",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][SESI TAGUATINGA]",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][CLUBE HEBRAICA]",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][THERMAS ACQUALINDA]",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][FARMA-CONDE]",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][THERMAS WATER PARK]",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              },
+              {
+                "accountName": "Ticket Fácil",
+                "accountId": "518-451-0772",
+                "name": "[PND] [SEARCH][CARDE MUSEU]",
+                "isEnabled": true,
+                "type": "SEARCH",
+                "stats": {
+                  "conversions": 0,
+                  "clicks": "0",
+                  "cost": 0,
+                  "impressions": "0"
+                }
+              }
+            ]
+          },
+          "webhookUrl": "https://webhook.pequenonegociodigital.com.br/webhook-test/7fd1ea72-686e-4ef5-9b83-31e03252d58d",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Evolution 2.1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A conta teve Gasto Ontem?": {
+      "main": [
+        [
+          {
+            "node": "Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "A conta teve Gasto Ontem?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "d5e73c53-1229-41bf-a04d-3f2255a1da4a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "FMwDoCKGkierlv7A",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

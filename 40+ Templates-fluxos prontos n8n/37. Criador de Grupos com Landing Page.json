@@ -1,0 +1,466 @@
+{
+  "name": "Criador de Grupos com Landing Page",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "ad01b428-5481-4c95-bac8-7287cb631986",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Criar Grupo</title>\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js\"></script>\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js\"></script>\n    <link href=\"https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Open+Sans:wght@400;600&display=swap\" rel=\"stylesheet\">\n    <style>\n        body {\n            background-color: black;\n            color: white;\n            display: flex;\n            flex-direction: column;\n            align-items: center;\n            justify-content: center;\n            height: 100vh;\n            font-family: 'Montserrat', 'Open Sans', sans-serif;\n            text-align: center;\n            padding: 20px;\n        }\n        .container {\n            width: 100%;\n            max-width: 400px;\n        }\n        input, textarea, button {\n            width: 90%;\n            padding: 12px;\n            margin-top: 10px;\n            border-radius: 8px;\n            border: none;\n            font-size: 16px;\n            font-family: 'Montserrat', 'Open Sans', sans-serif;\n        }\n        textarea {\n            height: 120px;\n            resize: none;\n        }\n        button {\n            background-color: green;\n            color: white;\n            font-weight: 600;\n            cursor: pointer;\n            width: 200px;\n        }\n        button:disabled {\n            background-color: gray;\n            cursor: not-allowed;\n        }\n        .notification {\n            position: absolute;\n            top: 10px;\n            left: 50%;\n            transform: translateX(-50%);\n            padding: 10px 20px;\n            border-radius: 5px;\n            font-weight: 600;\n            display: none;\n        }\n        .success { background-color: green; }\n        .error { background-color: red; }\n    </style>\n</head>\n<body>\n    <div class=\"notification\" id=\"notification\"></div>\n    <div class=\"container\">\n        <img src=\"https://fluxautomate.com.br/wp-content/uploads/2024/10/Logo.svg\" alt=\"Logo\">\n        <input type=\"text\" id=\"groupName\" placeholder=\"Nome do Grupo\">\n        <input type=\"text\" id=\"phone\" placeholder=\"(00) 00000-0000\">\n        <textarea id=\"message\">Olá seja bem vindo a Flux!</textarea>\n        <button id=\"createGroup\">Criar Grupo</button>\n    </div>\n\n    <script>\n        $(document).ready(function() {\n            $('#phone').mask('(00) 00000-0000');\n        });\n\n        function showNotification(message, type) {\n            let notification = $('#notification');\n            notification.text(message).attr('class', `notification ${type}`).fadeIn();\n            setTimeout(() => notification.fadeOut(), 3000);\n        }\n\n        $(document).on('click', '#createGroup', function() {\n            let groupName = $('#groupName').val().trim();\n            let phone = $('#phone').val().replace(/\\D/g, '');\n            let message = $('#message').val().trim();\n\n            if (!groupName) {\n                showNotification('O nome do grupo não pode estar vazio!', 'error');\n                return;\n            }\n            if (!(phone.length === 10 || phone.length === 11)) {\n                showNotification('Número de telefone inválido!', 'error');\n                return;\n            }\n            if (!message) {\n                showNotification('O campo de mensagem não pode estar vazio!', 'error');\n                return;\n            }\n\n            $(this).prop('disabled', true).text('Enviando...');\n\n            fetch('https://webhooks.fluxautomate.com.br/webhook/2fcdab62-9905-480c-9764-847c8f9f5e77', {\n                method: 'POST',\n                headers: {\n                    'Content-Type': 'application/json'\n                },\n                body: JSON.stringify({ nome_grupo: groupName, telefone: phone, texto: message })\n            })\n            .then(data => {\n                showNotification('Grupo criado com sucesso!', 'success');\n                $('#groupName').val('');\n                $('#phone').val('');\n                $('#message').val('Olá seja bem vindo a Flux!');\n                $('#createGroup').prop('disabled', false).text('Criar Grupo');\n            })\n            .catch(error => {\n                console.log(error)\n                showNotification('Erro ao criar o grupo!', 'error');\n                $('#createGroup').prop('disabled', false).text('Criar Grupo');\n            });\n        });\n    </script>\n</body>\n</html>\n"
+      },
+      "id": "12b10004-4452-43ca-bbed-34c4cdba8275",
+      "name": "HTML",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1040,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "47d4882e-788f-49c7-85b8-1194e070d865",
+              "name": "Url Evolution",
+              "value": "URL DA EVOLUTION",
+              "type": "string"
+            },
+            {
+              "id": "d50049e2-cbbc-4235-b7c3-01be2f5b3a8f",
+              "name": "Instancia",
+              "value": "INSTANCIA EVOLUTION",
+              "type": "string"
+            },
+            {
+              "id": "358d7eb8-ae5d-4034-a476-60f1ff584cdc",
+              "name": "Adm Grupo",
+              "value": "NUMERO DO ADM DO GRUPO, EX: (5535999999999)",
+              "type": "string"
+            },
+            {
+              "id": "6a4e0b88-82f9-4da8-9765-a36f83c6c1d1",
+              "name": "Participante 1",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "ce8e36a3-62e7-4720-b729-8761c51ab180",
+              "name": "Participante 2",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "1b3e0777-8efd-4b98-8507-d62634a14864",
+              "name": "Nome do Grupo",
+              "value": "={{ $json.body.nome_grupo }}",
+              "type": "string"
+            },
+            {
+              "id": "38a68433-c2d0-47e1-a8ab-d12c27026b14",
+              "name": "Convidado",
+              "value": "=55{{ $json.body.telefone }}",
+              "type": "string"
+            },
+            {
+              "id": "9dc8ac23-2dcc-4f7e-9331-b1f1bc30dd61",
+              "name": "Texto Inicial",
+              "value": "={{ $json.body.texto }}",
+              "type": "string"
+            },
+            {
+              "id": "57cd7638-a8aa-4d55-91cc-fa42839c0273",
+              "name": "imagem do grupo",
+              "value": "https://fluxautomate.com.br/wp-content/uploads/2024/12/logo.png",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4a38db86-25c2-40c2-96ab-4a9ba5380c4e",
+      "name": "Dados",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json['Url Evolution'] }}/group/create/{{ $json.Instancia }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subject\": \"{{ $json['Adm Grupo'] }}\",\n  \"description\": \"Grupo de Soluções\",\n  \"participants\": [\n    \"{{ $json['Convidado'] }}\"\n  ]\n}",
+        "options": {}
+      },
+      "id": "3407b53f-6c70-4bb5-af51-5cc9e163fbf1",
+      "name": "Criar Grupo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        840
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "3GVf9iG8Zz5GyRk5",
+          "name": "Evo Marco Pessoal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $item(\"0\").$node[\"Dados\"].json[\"Url Evolution\"] }}/group/updateGroupSubject/{{ $item(\"0\").$node[\"Dados\"].json[\"Instancia\"] }}?groupJid={{ $item(\"0\").$node[\"Criar Grupo\"].json[\"id\"] }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subject\": \"{{ $item(\"0\").$node[\"Dados\"].json[\"Nome do Grupo\"] }}\"\n}",
+        "options": {}
+      },
+      "id": "c26e8c90-049a-4093-a21f-0f100b4a45c5",
+      "name": "Mudar Nome Grupo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1040,
+        840
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "3GVf9iG8Zz5GyRk5",
+          "name": "Evo Marco Pessoal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $item(\"0\").$node[\"Dados\"].json[\"Url Evolution\"] }}/group/updateGroupPicture/{{ $item(\"0\").$node[\"Dados\"].json[\"Instancia\"] }}?groupJid={{ $item(\"0\").$node[\"Criar Grupo\"].json[\"id\"] }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"image\": \"{{ $item(\"0\").$node[\"Dados\"].json[\"imagem do grupo\"] }}\"\n}",
+        "options": {}
+      },
+      "id": "b2df9e74-72e0-4f21-b03e-90753330b2af",
+      "name": "Mudar Imagem",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        840
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "3GVf9iG8Zz5GyRk5",
+          "name": "Evo Marco Pessoal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $item(\"0\").$node[\"Dados\"].json[\"Url Evolution\"] }}/message/sendText/{{ $item(\"0\").$node[\"Dados\"].json[\"Instancia\"] }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $item(\"0\").$node[\"Criar Grupo\"].json[\"id\"] }}\",\n    \"text\": \"{{ $('Dados').item.json[\"Texto Inicial\"].replace(/\\n/g, \"\\\\n\").replace(/['\"]/g, '') }}\"\n}",
+        "options": {}
+      },
+      "id": "8f38b0ed-e231-49cc-898c-c08576031075",
+      "name": "Mensagem de Boas Vindas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1360,
+        840
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "3GVf9iG8Zz5GyRk5",
+          "name": "Evo Marco Pessoal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Pagina de Criação de Grupo",
+        "height": 257.99342823591405,
+        "width": 602.8667540617045,
+        "color": 7
+      },
+      "id": "facd9533-568b-4be2-9b11-c3880cecf753",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        800,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Automação de Criação de Grupo",
+        "height": 396.7365989065641,
+        "width": 943.4181729805715,
+        "color": 7
+      },
+      "id": "7d60f78e-403f-4a5b-9554-5451240034b3",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        800,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "noData",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "fc705f34-146d-4103-b25c-8d48e2234b12",
+      "name": "Respond to Webhook1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1560,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": []
+        },
+        "options": {}
+      },
+      "id": "07b2c9aa-cb40-4b94-82a5-29bc47b1c6c5",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1400,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "path": "c454fadd-cb7a-4623-b391-2b89277b7415",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "79d134d9-df94-4860-81b6-cd7489ced197",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        880,
+        400
+      ],
+      "webhookId": "c454fadd-cb7a-4623-b391-2b89277b7415"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "2fcdab62-9905-480c-9764-847c8f9f5e77",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "ce51645a-5fb2-47c9-97c4-33fd02f997cd",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        880,
+        660
+      ],
+      "webhookId": "2fcdab62-9905-480c-9764-847c8f9f5e77"
+    }
+  ],
+  "pinData": {
+    "Webhook1": [
+      {
+        "json": {
+          "headers": {
+            "host": "webhooks.fluxautomate.com.br",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+            "content-length": "88",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "pt-PT,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+            "content-type": "application/json",
+            "cookie": "rl_page_init_referrer=RudderEncrypt%3AU2FsdGVkX1%2BQXHGevziNGQxGNB8QTQtGNsFfB5WC%2BPA%3D; rl_page_init_referring_domain=RudderEncrypt%3AU2FsdGVkX1%2BfrK3xNgpBY%2FGRwN0cEaFmonqFcKgZRpc%3D; _fbp=fb.2.1735324919463.956488049390522279; _clck=v2r59%7C2%7Cftx%7C0%7C1822; rl_anonymous_id=RudderEncrypt%3AU2FsdGVkX1%2B3KpenzDWqCmkEGH%2F0Gaw0jFE%2Fl7W6L%2BGqiUg9geTxjqxqB1R0jbZpFejAm8Gm%2BRa%2F0ttEYaLRhg%3D%3D; rl_user_id=RudderEncrypt%3AU2FsdGVkX1%2BVFtuDv4LT9i58bLMsQKQTfJxRrbzJzzmkWSppPzHD0Dyst%2Fd4LSeoZX4QEusZVi%2BqG2k1NxQYkB4OCe30Jy6Erf085qUHi%2FdFNlm56mIhiTSGhQQqCfnieQW6w8284iqxWRq7R3m0eZNayAhPkjAfNJ3BXIrrxd0%3D; rl_trait=RudderEncrypt%3AU2FsdGVkX1%2BwL45bWPeyilg79IAS1%2Fa7poSa5gXnsxK%2BF6XLGs315hTHdl166T%2BeQOSqm6nbYRs%2FWyHiaJaATWCgw58cyfYfWElQisXMzG7n5eYtzXjye6rx26HQzjScfi30O1RO8%2FyNTNMoUHe7Tw%3D%3D; ph_phc_4URIAm1uYfJO7j8kWSe0J8lc8IqnstRLS7Jx8NcakHo_posthog=%7B%22distinct_id%22%3A%22619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b%23c4016c9b-eebc-488b-b7bc-1fe8f4659438%22%2C%22%24sesid%22%3A%5B1741463513121%2C%2201957748-57c8-7785-b653-6ef88be064ae%22%2C1741462984648%5D%2C%22%24epp%22%3Atrue%2C%22%24initial_person_info%22%3A%7B%22r%22%3A%22%24direct%22%2C%22u%22%3A%22https%3A%2F%2Fn8n.fluxautomate.com.br%2Fsetup%22%7D%7D; rl_session=RudderEncrypt%3AU2FsdGVkX19hWpXnnqJaKuYevlA2zPWUme%2FRgtpAnnJKVM9YIKDlF5RuLGD%2B%2BsbJCStCECoRrSDX3bsMkGGj4bL7xN8YGRAW%2BmNjpMBP5hJOe4s20mA%2FVh5BsxM680jMZzxuUXHF0o1nV2KBnAxdcQ%3D%3D",
+            "origin": "https://webhooks.fluxautomate.com.br",
+            "priority": "u=1, i",
+            "referer": "https://webhooks.fluxautomate.com.br/webhook/c454fadd-cb7a-4623-b391-2b89277b7415",
+            "sec-ch-ua": "\"Not(A:Brand\";v=\"99\", \"Google Chrome\";v=\"133\", \"Chromium\";v=\"133\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"macOS\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "x-forwarded-for": "45.234.243.251",
+            "x-forwarded-host": "webhooks.fluxautomate.com.br",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "a19ad8bfbb74",
+            "x-real-ip": "45.234.243.251"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "nome_grupo": "GP Marco",
+            "telefone": "35998003880",
+            "texto": "Olá seja bem vindo a Flux!"
+          },
+          "webhookUrl": "https://webhooks.fluxautomate.com.br/webhook/2fcdab62-9905-480c-9764-847c8f9f5e77",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Grupo": {
+      "main": [
+        [
+          {
+            "node": "Mudar Nome Grupo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mudar Nome Grupo": {
+      "main": [
+        [
+          {
+            "node": "Mudar Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mudar Imagem": {
+      "main": [
+        [
+          {
+            "node": "Mensagem de Boas Vindas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensagem de Boas Vindas": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados": {
+      "main": [
+        [
+          {
+            "node": "Criar Grupo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cf22543b-4221-43f3-8202-6dcfca7cf4c8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "MeM17WkmzXXXc4Lw",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:22:31.536Z",
+      "updatedAt": "2025-02-12T12:22:31.536Z",
+      "id": "1p5FwcznKzLziB3N",
+      "name": "GPR"
+    }
+  ]
+}

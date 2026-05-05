@@ -1,0 +1,420 @@
+{
+  "name": "39. Fluxo telegram completo + gerador de imagem",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "123765a5-64d1-41ad-bd9e-122b9762988d",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1940,
+        -20
+      ],
+      "webhookId": "097ac395-582c-4407-9f2b-15a0c1d1fa70"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5573bd74-8722-4f08-8b36-c94e4ff5ddb8",
+              "name": "message.text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3efa6031-9393-4dfe-9b82-cb434b9944fc",
+      "name": "PreProcessing",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1720,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7b2ce96b-a083-454b-b5b9-b85bc60dcde3",
+              "name": "system_command",
+              "value": "=You are a friendly chatbot. User name is {{ $('Telegram Trigger').item.json.message.chat.first_name }}. . First, detect user text language. Next, provide your reply in the same language. Include several suitable emojis in your answer.",
+              "type": "string"
+            },
+            {
+              "id": "32b805a7-bfa5-43f7-bc61-ca7d7d033f70",
+              "name": "bot_typing",
+              "value": "={{ $json?.message?.text.startsWith('/image') ? \"upload_photo\" : \"typing\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "745de6ae-28ff-45fd-9a45-3151e95a9473",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1500,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "action": "={{ $json.bot_typing }}"
+      },
+      "id": "56f171ac-1a50-4b3a-9c0e-ee1cafcdea32",
+      "name": "send_typing",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1240,
+        -20
+      ],
+      "webhookId": "abeb0b8f-b4f5-4693-84ea-a54523cca852"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.message.content }}",
+        "additionalFields": {}
+      },
+      "id": "d5d961cb-99e6-4344-bc79-dd33823002e3",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -420,
+        -100
+      ],
+      "webhookId": "b1f27d0b-b3d3-431d-8c0d-47c986969fb5"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Faça uma resposta breve para um lead que mandou a mensagem :  {{ $('PreProcessing').item.json.message.text }} responda de forma divertida, no maximo 200 caracteres"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "53317d19-bdde-49b9-a9bd-202bc06d17ae",
+      "name": "responde_Texto",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [
+        -820,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Essa é a primeira mensagem recebida de um usuário, dê boas vindas :  {{ $('PreProcessing').item.json.message.text }} "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "17a49d3e-0d23-4a03-9f47-745f48a68369",
+      "name": "responde_Texto1",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [
+        -800,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "={{ $('PreProcessing').item.json.message.text.split(' ').slice(1).join(' ') }}",
+        "options": {}
+      },
+      "id": "a0cfc43c-6fbc-4ef1-8804-b64351b66318",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [
+        -760,
+        100
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "INflW21yMiyFTmVx",
+          "name": "OpenAi RI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "id": "9200bb9f-939a-4333-9422-1422f74f5e90",
+      "name": "Telegram1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -540,
+        100
+      ],
+      "webhookId": "14ce0e19-30a0-4f6f-9452-53cfdca43375"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('PreProcessing').item.json.message.text }}",
+                    "rightValue": "/",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notStartsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "d94bea33-4352-4b66-8dcb-12d593b74afc",
+                    "leftValue": "={{ $('PreProcessing').item.json.message.text }}",
+                    "rightValue": "/start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "d784a89c-8298-4d51-b05b-4ba1ff982f83",
+                    "leftValue": "={{ $('PreProcessing').item.json.message.text }}",
+                    "rightValue": "/image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "ee38da95-6bcd-4d20-8233-966f1d63a693",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.1,
+      "position": [
+        -1020,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=Desculpe, esse comando ainda não está programado. Utilize /image para gerar imagens ou faça perguntas diretas",
+        "replyMarkup": "=none",
+        "forceReply": {},
+        "replyKeyboardOptions": {},
+        "replyKeyboardRemove": {},
+        "additionalFields": {}
+      },
+      "id": "c5a48a6b-c9fe-425d-b4c7-f0d4f2408304",
+      "name": "Telegram2",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -720,
+        300
+      ],
+      "webhookId": "14c5bcdb-fde7-4a23-b625-1a4c10d2990f"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "PreProcessing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PreProcessing": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "send_typing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send_typing": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "responde_Texto": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "responde_Texto1": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "responde_Texto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "responde_Texto1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "10f7fb77-e0ac-49a9-a563-72daa6056cdf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "385c06b6bbed00452a824dd157a142ab661dedbca13fb1106183d4d0295a4f6e"
+  },
+  "id": "8OAElqirM1rh8P8s",
+  "tags": []
+}

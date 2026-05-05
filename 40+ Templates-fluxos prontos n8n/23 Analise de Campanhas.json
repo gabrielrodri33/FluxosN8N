@@ -1,0 +1,736 @@
+{
+  "name": "P2 | Gestor de Trafego | Insights de Trafego | 1. Busca de Dados",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "xls",
+        "binaryPropertyName": "arquivo",
+        "options": {}
+      },
+      "id": "7d212dba-3bfa-4d40-bb51-bc407c3d9e72",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2af919d5-95a1-4336-a0a9-53e273952b55",
+              "leftValue": "={{ $json.Reach }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2688a6a4-632f-4e49-857a-e1c7cff5ad78",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -640,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "196fa544-5e02-4db6-bc1e-badd63ebb78d",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -40,
+        620
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "82763f27-06ff-494a-9b82-1b32b0c2ea1f",
+      "name": "Auto-fixing Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        520,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"pontos_positivos\": \"pontos positivos aqui\",\n    \"pontos_atencao\": \"pontos de atenção aqui\",\n    \"sugestao\": \"sugestao aqui.\",\n    \"nome_anuncio\": \"nome do anuncio\"\n}"
+      },
+      "id": "82614618-7763-4e1f-9d5d-90a094da8444",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "bbc18579-98b5-40b4-b0c9-b03879b34a7e",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        260,
+        860
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "4e196afe-b32e-4a6a-949c-dddd0252ffde",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        460,
+        1000
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "34a927be-d7ae-4e2e-abeb-4e6b5c614fb7",
+      "name": "agrupar",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        260,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "b7e67b17-9814-4ec8-9954-120f627b64ce",
+      "name": "OpenAI Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        560,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "af2e80f6-9396-44fb-88ad-2f34bd3b4db5",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1260,
+        120
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "0779ff13-c630-4f06-8bb9-79ad84d7a71d",
+      "name": "Auto-fixing Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        800,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"pontos_positivos\": \"pontos positivos aqui\",\n    \"pontos_negativos\": \"pontos negativos aqui\",\n    \"sugestao\": \"sugestao aqui.\"\n}"
+      },
+      "id": "b3412ae3-cef7-4598-8773-e1fb186ed683",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1K33ZNtwuB0bsbarsxSjT6lBdw5AeJyeuVTMtkm68amI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EfKR7LxcdT3nnOR7On0J9L7GFKWwSTjiBrzDjDxyGOk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $now.format('yyyy-MM-dd-hh-mm-ss-ii') }}",
+            "nome": "={{ $json.output.nome_anuncio }}",
+            "pontos_positivos": "={{ $json.output.pontos_positivos }}",
+            "pontos_negativos": "={{ $json.output.pontos_atencao }}",
+            "sugestao": "={{ $json.output.sugestao }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pontos_positivos",
+              "displayName": "pontos_positivos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pontos_negativos",
+              "displayName": "pontos_negativos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sugestao",
+              "displayName": "sugestao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0c6dabe3-8dab-4027-a74c-1652810ef9b8",
+      "name": "Google Sheets2",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        760,
+        640
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1K33ZNtwuB0bsbarsxSjT6lBdw5AeJyeuVTMtkm68amI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EfKR7LxcdT3nnOR7On0J9L7GFKWwSTjiBrzDjDxyGOk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "=gestor_{{ $now.format('yyyy-MM-dd--hh-mm-ss') }}",
+            "nome": "Analise do gestor",
+            "pontos_positivos": "={{ $json.output.pontos_positivos }}",
+            "pontos_negativos": "={{ $json.output.pontos_negativos }}",
+            "sugestao": "={{ $json.output.sugestao }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pontos_positivos",
+              "displayName": "pontos_positivos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pontos_negativos",
+              "displayName": "pontos_negativos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sugestao",
+              "displayName": "sugestao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "27f525f7-0aed-44a6-a251-15abe346ba4e",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1060,
+        120
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "analista_api",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "c26fab62-be43-437d-aa12-f1db276b869a",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -960,
+        620
+      ],
+      "webhookId": "8b394f86-a08d-47da-a414-af6f51528120"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "v20.0",
+        "node": "=act_790676155385306",
+        "edge": "insights",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "time_increment",
+                "value": "1"
+              },
+              {
+                "name": "level",
+                "value": "ad"
+              },
+              {
+                "name": "fields",
+                "value": "=campaign_id,\ncampaign_name,\nspend,\nimpressions,\nclicks,\ncpc,\ncpm,\ncpp,\nctr,\nobjective,\nreach,\nactions"
+              },
+              {
+                "name": "limit",
+                "value": "3000"
+              },
+              {
+                "name": "date_preset",
+                "value": "yesterday"
+              }
+            ]
+          }
+        }
+      },
+      "id": "e708d1a6-15a8-421b-a280-5df713138370",
+      "name": "Buscar Dados no Meta",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        -460,
+        620
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "bcbawFrWYrb4rVPq",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recebe os dados do node anterior de forma dinâmica\nconst inputData = $item(\"0\").$node[\"Buscar Dados no Meta\"].json[\"data\"] ;\n\n// Tipos de ações que queremos extrair\nconst desiredActions = [\n    \"purchase\",\n    \"view_content\",\n    \"initiate_checkout\",\n    \"link_click\",\n    \"post_engagement\",\n    \"add_to_cart\"\n];\n\n// Variável para armazenar os resultados processados\nlet processedData = [];\n\n// Processa cada campanha no array \"data\"\ninputData.forEach(campaign => {\n    // Prepara o objeto base para a campanha\n    let campaignResult = {\n        campaign_id: campaign.campaign_id,\n        campaign_name: campaign.campaign_name,\n        adset_id: campaign.adset_id,\n        adset_name: campaign.adset_name,\n        ad_id: campaign.ad_id,\n        ad_name: campaign.ad_name,\n        spend: parseFloat(campaign.spend || 0),\n        impressions: parseInt(campaign.impressions || 0, 10),\n        clicks: parseInt(campaign.clicks || 0, 10),\n        cpc: parseFloat(campaign.cpc || 0),\n        cpm: parseFloat(campaign.cpm || 0),\n        cpp: parseFloat(campaign.cpp || 0),\n        ctr: parseFloat(campaign.ctr || 0),\n        reach: parseInt(campaign.reach || 0, 10),\n        objective: campaign.objective\n    };\n\n    // Inicializa os valores das ações desejadas como 0\n    desiredActions.forEach(action => {\n        campaignResult[action] = 0;\n    });\n\n    // Verifica as actions e atualiza os valores das desejadas\n    if (campaign.actions && Array.isArray(campaign.actions)) {\n        campaign.actions.forEach(action => {\n            if (desiredActions.includes(action.action_type)) {\n                campaignResult[action.action_type] = parseInt(action.value || 0, 10);\n            }\n        });\n    }\n\n    // Adiciona o resultado processado à lista\n    processedData.push(campaignResult);\n});\n\n// Retorna os dados processados para o próximo node\nreturn processedData;\n"
+      },
+      "id": "9457a222-bffb-447f-997d-f5b88e392b77",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($json.data) }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Persona\nVocê é um analista sênior de marketing digital e cientista de dados, especializado em análise comparativa de campanhas do Meta Ads, com experiência em identificação de padrões e anomalias em grandes conjuntos de dados de marketing.\n\n# Objetivo\nAnalisar múltiplos anúncios do Meta simultaneamente, identificando padrões, comparando performances e gerando insights acionáveis para otimização de campanhas.\n\n# Estrutura de Análise\nPara cada conjunto de anúncios fornecido, siga este processo:\n\n<analysis_structure>\n1. Primeiro, crie uma tabela de análise com os seguintes campos:\n   - ID do anúncio\n   - Nome do anúncio\n   - Pontos Positivos\n   - Pontos Negativos\n   - Sugestões de Otimização\n\n2. Para cada anúncio, analise:\n   - Métricas de performance (CTR, CPC, CPM)\n   - Métricas de alcance (Reach, Impressions, Frequency)\n   - Eficiência de custos (Cost per Result, Amount Spent)\n\n3. Compare os anúncios entre si para identificar:\n   - Melhores performers\n   - Piores performers\n   - Anomalias e outliers\n</analysis_structure>\n\n\n# Regras de Análise\n1. Sempre inclua números específicos nas análises\n2. Compare métricas com benchmarks do setor quando relevante\n3. Forneça no mínimo 2 pontos positivos e 2 pontos negativos por anúncio\n4. Inclua no mínimo 3 sugestões acionáveis por anúncio\n5. Use linguagem clara e objetiva\n6. Identifique tendências entre diferentes anúncios\n\n# Análise Final\nApós analisar todos os anúncios, forneça:\n\n<gestor_analysis>\n{\n    \"pontos_positivos\": [\n        \"Insights gerais positivos da campanha como um todo\"\n    ],\n    \"pontos_negativos\": [\n        \"Principais pontos de atenção identificados\"\n    ],\n    \"sugestao\": [\n        \"Recomendações estratégicas para todo o conjunto de campanhas\"\n    ]\n}\n</gestor_analysis>\n\n# Benchmarks de Referência\n- CTR médio: 1-3%\n- Frequência ideal: 1.8-2.5\n- CPM competitivo: R$5-15\n- CPC adequado: R$0.50-2.00\n\nSe algum dado estiver faltando ou parecer inconsistente, indique claramente na análise."
+        }
+      },
+      "id": "7dbc70c8-bb2b-498b-b747-12eba173fd3a",
+      "name": "gestor_de_trafego_pago",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        600,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($json) }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Persona\nVocê é um analista sênior de marketing digital especializado em análise de campanhas do Meta Ads, com vasta experiência em otimização de campanhas e interpretação de métricas-chave de performance.\n\n# Objetivo\nAnalisar detalhadamente os dados do anúncio fornecido e fornecer insights acionáveis para otimização de campanha.\n\n# Instruções de Análise\nQuando receber os dados de um anúncio, siga este processo de análise:\n\n<thinking>\n1. Primeiro, identifique as métricas básicas da campanha:\n   - Nome da campanha\n   - Status\n   - Orçamento gasto\n   - Período\n\n2. Analise as métricas de alcance e engajamento:\n   - Alcance total\n   - Impressões\n   - Frequência\n   - CTR\n   - CPC\n\n3. Avalie a eficiência do custo:\n   - CPM\n   - Custo por resultado\n   - ROI geral\n</thinking>\n\n<analysis>\nForneça a análise estruturada seguindo este formato:\n\n## Visão Geral da Campanha\n[Inclua as informações básicas da campanha]\n\n## Métricas de Performance\n[Liste as métricas principais com suas respectivas análises]\n\n## Pontos Fortes\n[Liste 2-3 aspectos positivos da campanha]\n\n## Pontos de Atenção\n[Liste 2-3 aspectos que precisam de melhoria]\n\n## Recomendações\n[Forneça 3-5 recomendações acionáveis baseadas nos dados]\n</analysis>\n\n# Regras Importantes\n1. Use comparações percentuais quando relevante\n2. Sempre contextualize as métricas\n3. Seja específico nas recomendações\n4. Indique se alguma métrica está fora dos benchmarks padrão do setor\n5. Priorize insights que podem levar a ações concretas\n\nSe houver dados insuficientes para alguma análise, indique claramente na resposta."
+        }
+      },
+      "id": "bacce2f2-af9b-4412-b62a-a6b0c8f4d02e",
+      "name": "analista_de_trafego_pago",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        320,
+        640
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Buscar Dados no Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "agrupar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "analista_de_trafego_pago",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "analista_de_trafego_pago",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "analista_de_trafego_pago",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "agrupar": {
+      "main": [
+        [
+          {
+            "node": "gestor_de_trafego_pago",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "gestor_de_trafego_pago",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Auto-fixing Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "gestor_de_trafego_pago",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Dados no Meta": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gestor_de_trafego_pago": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "analista_de_trafego_pago": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "f9868b55-ff7e-471d-8301-f5123a980e30",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "JfWI6cQY5iwmX9SB",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

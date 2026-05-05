@@ -1,0 +1,633 @@
+{
+  "name": "35. Fluxo agenda - Vendedor IA",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.data.message.conversation }}",
+        "options": {
+          "systemMessage": "=<Papel>\nvocê é meu assistente pessoal que cuida da minha agenda, seu papel é consultar disponibilidade, agendar call, reagendar, pode ser informal. em hipotese alguma você pode inventar informações como email, numero, cnpj, só use as informações que tiver acesso ou que forem fornecidas pelo usuário.\n<Papel>\n\n<ao criar uma call>\nnunca invente emails de convidados, se não for informado, ignore.\n<ao criar uma call>\n\n<ao reagendar/deletar uma call>\nSempre utilize a tool {Consulta Calls agendadas em uma data} para pegar o campo 'id' e uso esse id para atualizar ou deletar uma call\n\ncaso não consiga reagendar (atualizar uma call) e precise criar uma nova, avise o usuário que vai fazer isso antes de finalizar a ação.\n<ao reagendar/deletar uma call>\n\n<duração da call>\nsempre pergunte a duração da call ao usuário, geralmente é de 30 minutos, mas pergunte.\n<duração da call>\n\n<data atual>\nhoje é {{ $now }}\n<data atual>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        500,
+        -100
+      ],
+      "id": "41b544ac-1038-437f-963c-29d011978e6a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        320
+      ],
+      "id": "5397384f-d93b-4093-8e16-675603bf9945",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "use a api do google calendar para consultar disponibilidade em minha agenda, sabendo que só será retornado \"booked slots\" ou seja, horários ocupados, se não retornar nenhum horário ocupado na data/hora da pesquisa, é por que está livre.",
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "isaacsantos@growthtap.com.br",
+          "mode": "list",
+          "cachedResultName": "isaacsantos@growthtap.com.br"
+        },
+        "timeMin": "={{ $fromAI(\"data_inicial\") }}",
+        "timeMax": "={{ $fromAI(\"data_final\") }}",
+        "options": {
+          "outputFormat": "bookedSlots"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        320
+      ],
+      "id": "5521571c-ae2e-4107-938c-eac3c5940d4f",
+      "name": "consultar disponibilidade"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "isaacsantos@growthtap.com.br",
+          "mode": "list",
+          "cachedResultName": "isaacsantos@growthtap.com.br"
+        },
+        "start": "={{ $fromAI(\"data_inicial\") }}",
+        "end": "={{ $fromAI(\"data_final\") }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ $fromAI(\"emails_participans\", \"email dos participantes separados por virgulas, sempre pergunte se precisa enviar para mais alguém antes de finalizar a criação da call\") }}"
+          ],
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          },
+          "description": "={{ $fromAI(\"descricao\", \"descricao da call, caso seja solicitado, adicione o campo 'numero:' phonenumberaqui para que um fluxo de automacao possa usar esse campo para follow-up\") }}",
+          "summary": "={{ $fromAI(\"Title\",\"titulo da reunião\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        320
+      ],
+      "id": "4890ebf3-522d-4b21-b4ac-14a784ffd8b8",
+      "name": "Criar Call"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "isaacsantos@growthtap.com.br",
+          "mode": "list",
+          "cachedResultName": "isaacsantos@growthtap.com.br"
+        },
+        "eventId": "={{ $fromAI(\"id_Call\") }}",
+        "updateFields": {
+          "description": "={{ $fromAI(\"descricao\", \"descricao da call, caso seja solicitado, adicione o campo numero: phonenumberaqui para que um fluxo de automacao possa usar esse campo para follow-up\") }}",
+          "end": "={{ $fromAI(\"data_final\") }}",
+          "start": "={{ $fromAI(\"data_inicial\") }}",
+          "summary": "={{ $fromAI(\"Title\",\"titulo da reunião\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        540,
+        320
+      ],
+      "id": "e90a5a6d-6dd8-410e-bb25-9db933b13676",
+      "name": "Atualiza Call"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "isaacsantos@growthtap.com.br",
+          "mode": "list",
+          "cachedResultName": "isaacsantos@growthtap.com.br"
+        },
+        "eventId": "={{ $fromAI(\"id_Call\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        700,
+        320
+      ],
+      "id": "7307ee89-8396-4bfe-9344-99b7b2a08719",
+      "name": "Detele Call"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "isaacsantos@growthtap.com.br",
+          "mode": "list",
+          "cachedResultName": "isaacsantos@growthtap.com.br"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{ $fromAI(\"data_inicial\") }}",
+          "timeMax": "={{ $fromAI(\"data_final\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        840,
+        320
+      ],
+      "id": "c07a1032-96b5-479a-9226-e5fd19b901e6",
+      "name": "Consulta Calls agendadas em uma data"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "teste01",
+        "contextWindowLength": 0
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        120,
+        320
+      ],
+      "id": "f6d6efa8-2588-4180-8d66-5ca945c1016d",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use essa tool quando quiser agendar uma call com um cliente, aqui você encontra os dados de todos os clientes, incluindo numero, cnpj...",
+        "documentId": {
+          "__rl": true,
+          "value": "1ak7Cj-bPdFTmYqhzU9S6zrnPYDbHMFkuiFF7hzs1Lyc",
+          "mode": "list",
+          "cachedResultName": "Cópia de [Template] Planilha Mestre 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ak7Cj-bPdFTmYqhzU9S6zrnPYDbHMFkuiFF7hzs1Lyc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1294876509,
+          "mode": "list",
+          "cachedResultName": "JUNHO/24",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ak7Cj-bPdFTmYqhzU9S6zrnPYDbHMFkuiFF7hzs1Lyc/edit#gid=1294876509"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        1000,
+        320
+      ],
+      "id": "234abc99-0980-4b6b-9004-870ec16fb2b8",
+      "name": "Todos_os_clientes",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GW6ywKnqbuFhA8i2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node['Webhook'].json.body.server_url }}/message/sendText/{{ $node['Webhook'].json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $node['Webhook'].json.body.apikey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $node['Webhook'].json.body.data.key.remoteJid }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{ $node['Webhook'].json.body.data.message.audioMessage ? Math.min(Math.trunc($node['Webhook'].json.body.data.message.audioMessage.seconds * 1000), 15000) : Math.min(Math.trunc($json.output.length / 10 * 1000), 15000) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dbea801f-c956-47dd-8ebb-6adcd050bd04",
+      "name": "Resposta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1700,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output",
+        "options": {}
+      },
+      "id": "52e08676-dd54-4a2e-944c-e4092b5e9e23",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1480,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "00b1b5cd-6961-4958-aa4e-88e99c9540dc",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1480,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "939acbed-02e9-424e-86f7-1761089d247e",
+              "name": "=output",
+              "value": "={{ $json.message.content.mensagem }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5824bae9-60f8-424e-a5e0-fbb71c2edb35",
+      "name": "Transforma Output em Array",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1320,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0cdb1c63-c4a4-4941-9de9-b15a86719ab2",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "cfff6bad-9bb9-45af-8746-dc13b8bcc014",
+      "name": "Remove Vazios",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "38e6cbe3-09bf-4431-b3b9-a706613f39c7",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "id": "14754533-916e-41e5-a743-1143f0608ce2",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        60,
+        -100
+      ],
+      "webhookId": "d9b4f27b-a050-4157-80ed-e7cdc0357f4a"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.output }}"
+            },
+            {
+              "content": "retorne uma resposta estruturada em json onde os textos precisam estar em uma array 'mensagem'"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        940,
+        -100
+      ],
+      "id": "21969db6-496d-432b-af46-dd14f512d3ec",
+      "name": "Resposta estruturada"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.data.key.remoteJid }}",
+                    "rightValue": "ID DO NUMERO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        300,
+        -100
+      ],
+      "id": "ee41100e-faae-458a-8a25-f27f355e0c4f",
+      "name": "Switch"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar disponibilidade": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Call": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualiza Call": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detele Call": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consulta Calls agendadas em uma data": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Todos_os_clientes": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resposta": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Remove Vazios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Resposta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transforma Output em Array": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Vazios": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Resposta estruturada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resposta estruturada": {
+      "main": [
+        [
+          {
+            "node": "Transforma Output em Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "74d509f8-0302-43a7-af24-51a6ce234692",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "385c06b6bbed00452a824dd157a142ab661dedbca13fb1106183d4d0295a4f6e"
+  },
+  "id": "8OAElqirM1rh8P8s",
+  "tags": [
+    {
+      "name": "GPR",
+      "id": "3rBDwHILWazTf215",
+      "createdAt": "2025-06-02T23:20:08.121Z",
+      "updatedAt": "2025-06-02T23:20:08.121Z"
+    }
+  ]
+}

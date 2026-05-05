@@ -1,0 +1,1076 @@
+{
+  "name": "P1 | Onboarding | 2.1 Gerando Contrato",
+  "nodes": [
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook').item.json.body.email }}",
+        "subject": "={{ $('Formata Texto para o Email').item.json.output.subject }}",
+        "emailType": "text",
+        "message": "={{ $('Formata Texto para o Email').item.json.output.body }}",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          },
+          "senderName": "Flux Automate"
+        }
+      },
+      "id": "6c274938-121a-499d-9208-197fc8455d07",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2740,
+        380
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uF4RSZEql4HvXrV3",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Formulário\nCaptura Dados\n",
+        "height": 280,
+        "width": 209.5385093719796,
+        "color": 2
+      },
+      "id": "4962dc5d-c9b7-42dc-8e7c-80ecdc5288ca",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        301.46149062802044,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Contrato\nFormulando o Contrato",
+        "height": 522.1355157049098,
+        "width": 1303.8891640057277,
+        "color": 5
+      },
+      "id": "56f6986d-f5f0-4d7f-b8e7-04bb9a0e4ae2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        780,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Whatsapp\nEnvia o contrato para o cliente",
+        "height": 524.2374054018253,
+        "width": 838.2813279995445,
+        "color": 6
+      },
+      "id": "6e897734-5a90-4017-a61a-691cce4dc56b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2120,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Email\nFormata e Envia o Contrato",
+        "height": 525.1745446440551,
+        "width": 841.7914476548938,
+        "color": 4
+      },
+      "id": "2bcdbe6e-f234-407e-8d6d-d048e6368cbf",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2120,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Fluxo de entrada de cliente\n",
+        "height": 1214.764605962525,
+        "width": 2745.353349419275,
+        "color": 7
+      },
+      "id": "c427e873-84a1-4c62-bb90-7e25aeaa4fd1",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        248.87324842948328,
+        163.25896134556183
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Dados\nFormando os dados\n",
+        "height": 280,
+        "width": 209.5385093719796,
+        "color": 3
+      },
+      "id": "e2cb3da9-6318-470b-9042-f8000c31dbca",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        540,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"objetive\": \"Aqui vai o objetivo do contrato\",\n  \"servicos\": \"Aqui vai os servicos contratos\",\n  \"payment\": \"Aqui vai a forma de pagamento\",\n  \"vigencia\": \"Aqui vai a vigencia do contrato\"\n}\n"
+      },
+      "id": "bb9cd697-da79-438d-b929-0d5dae867620",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1020,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1efe7Xcb1MK0AneQABOfOgOJKzYqq3qbNmRUxVUJ5D48",
+          "mode": "id"
+        },
+        "name": "=Contrato -  {{ $('Webhook').item.json.body.companyName }}",
+        "options": {}
+      },
+      "id": "8bbe7c94-0013-43d6-ab20-f5b4d082f9f3",
+      "name": "Copiar Documento Modelo",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1220,
+        380
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2ODbFDlqPgB7hD9i",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "writer",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      },
+      "id": "6180e6cd-ff99-4d0a-817b-18ff088670e9",
+      "name": "Atualizar Permissão",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1400,
+        380
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2ODbFDlqPgB7hD9i",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Copiar Documento Modelo').item.json.id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1ok5W-nLw9R4Ehvlpq0z6Rb7VQO5Lxw72",
+          "mode": "id"
+        }
+      },
+      "id": "89fa4ea1-3554-455e-b103-11b5248927f2",
+      "name": "Mover Arquivo Para Pasta",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1580,
+        380
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2ODbFDlqPgB7hD9i",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "=https://docs.google.com/document/d/{{ $json.planilhaid }}/edit?tab=t.0",
+        "simple": false,
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "{{nomedaempresa}}",
+              "replaceText": "={{ $json.nomedocliente }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{cpf/cnpj}}",
+              "replaceText": "={{ $json.cpfcnpj }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{nome_rua}}",
+              "replaceText": "={{ $json.rua }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{numero}}",
+              "replaceText": "={{ $json.numero }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{bairro}}",
+              "replaceText": "={{ $json.bairro }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{cidade}}",
+              "replaceText": "={{ $json.cidade }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{estado}}",
+              "replaceText": "={{ $json.estado }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{cep}}",
+              "replaceText": "={{ $json.cep }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{objetivo}}",
+              "replaceText": "={{ $json.objetivo }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{servicos}}",
+              "replaceText": "={{ $json.servicos }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{pagamento}}",
+              "replaceText": "={{ $json.pagamento }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{vigencia}}",
+              "replaceText": "={{ $json.vigencia }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{data_contrato}}",
+              "replaceText": "={{ $json.data }}",
+              "matchCase": true
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{contratante}}",
+              "replaceText": "={{ $json.contratante }}",
+              "matchCase": true
+            }
+          ]
+        }
+      },
+      "id": "1af8bbf3-c3de-47c2-a7ff-78defbea2ad3",
+      "name": "Atualizar Documento",
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1940,
+        380
+      ],
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "r9Vonklr5hRXQmm5",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e7ab212e-ee56-41c5-a252-b81f8186e741",
+              "name": "body",
+              "value": "={{ $json.body }}",
+              "type": "object"
+            },
+            {
+              "id": "b8e895e3-5517-4789-ae21-9041e5e88cac",
+              "name": "url_evolution",
+              "value": "https://evolution.fluxautomate.com.br",
+              "type": "string"
+            },
+            {
+              "id": "ac2039a0-9a84-4a59-955e-02c6d10cfd27",
+              "name": "instancia",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "53dd11e4-c7b1-4980-aad9-3d48701f02e8",
+              "name": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b411fcdc-fcb2-428e-accd-ca4d1f8c5a39",
+      "name": "Dados do Formulario",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        580,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e7ab212e-ee56-41c5-a252-b81f8186e741",
+              "name": "planilhaid",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "77ce83a3-f257-43e1-9d96-5c85cbde34af",
+              "name": "nomedocliente",
+              "value": "={{ $('Webhook').item.json.body.companyName }}",
+              "type": "string"
+            },
+            {
+              "id": "1f5425ef-b6c6-4a7c-8515-a621eab99ab7",
+              "name": "cpfcnpj",
+              "value": "={{ $('Webhook').item.json.body.cpfCnpj }}",
+              "type": "string"
+            },
+            {
+              "id": "53ec7342-0c5f-41d1-baca-5a136a07d6ba",
+              "name": "rua",
+              "value": "={{ $('Webhook').item.json.body.street }}",
+              "type": "string"
+            },
+            {
+              "id": "2a05caa3-833a-4c30-bd95-1e780b7540b1",
+              "name": "numero",
+              "value": "={{ $('Webhook').item.json.body.number }}",
+              "type": "string"
+            },
+            {
+              "id": "26872928-d60e-463d-b309-77930c462b5b",
+              "name": "bairro",
+              "value": "={{ $('Webhook').item.json.body.neighborhood }}",
+              "type": "string"
+            },
+            {
+              "id": "7d985c74-0cf3-4cf6-8d2e-276e39654f77",
+              "name": "cidade",
+              "value": "={{ $('Webhook').item.json.body.city }}",
+              "type": "string"
+            },
+            {
+              "id": "e246e883-d6ae-4391-a9d7-8c96fa0382f2",
+              "name": "estado",
+              "value": "={{ $('Webhook').item.json.body.state }}",
+              "type": "string"
+            },
+            {
+              "id": "d842460e-3e30-40fe-824d-31afc0302f3f",
+              "name": "cep",
+              "value": "={{ $('Webhook').item.json.body.state }}",
+              "type": "string"
+            },
+            {
+              "id": "a9f44a17-fbff-4a3d-afff-503ce8a56769",
+              "name": "objetivo",
+              "value": "={{ $('Gerador de Contrato').item.json.output.output.objetivo }}",
+              "type": "string"
+            },
+            {
+              "id": "6a1af9e2-2373-4882-be83-b64908feda98",
+              "name": "servicos",
+              "value": "={{ $('Gerador de Contrato').item.json.output.output.servico }}",
+              "type": "string"
+            },
+            {
+              "id": "e22b74ad-060f-4548-b5ee-da5f6a17d84e",
+              "name": "pagamento",
+              "value": "={{ $('Gerador de Contrato').item.json.output.output.pagamentp }}",
+              "type": "string"
+            },
+            {
+              "id": "579fb7dd-a8c8-4436-b5c0-07c8a7300ffc",
+              "name": "vigencia",
+              "value": "={{ $('Gerador de Contrato').item.json.output.output.vigencia }}",
+              "type": "string"
+            },
+            {
+              "id": "16fc6219-2f80-4d44-89d0-855523665cd8",
+              "name": "data",
+              "value": "={{ $('Webhook').item.json.body.date.split('-').reverse().join('/') }}",
+              "type": "string"
+            },
+            {
+              "id": "9b476983-19c8-4000-a3c7-74a4bc041d07",
+              "name": "contratante",
+              "value": "={{ $('Webhook').item.json.body.contractorName }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dddf2d1c-b144-42f3-a244-bccd4fb12162",
+      "name": "Dados Formatados",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1760,
+        380
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "e22f728d-48b9-4a4b-975f-2892a42d7149",
+      "name": "Auto-fixing Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        2340,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"subject\": \"adicione aqui o titulo\",\n\t\"body\": \"adicione aqui o texto do email\"\n}"
+      },
+      "id": "7096cfe9-52e5-48b5-b11b-e76de1025b14",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2520,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {}
+      },
+      "id": "e847d006-5405-4875-b12b-e9fef0cda8ca",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        640
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://docs.google.com/feeds/download/documents/export/Export?id={{ $('Atualizar Documento').item.json.documentId }}&exportFormat=pdf",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "c8bcf0e9-54ca-4e1f-a373-7ea430579e57",
+      "name": "Converte em Pdf",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2560,
+        380
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "id": "e5a78951-aa3f-49f0-9691-1c59f2d5bb21",
+      "name": "Auto-fixing Output Parser2",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        2340,
+        1080
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"subject\": \"adicione aqui o titulo\",\n\t\"body\": \"adicione aqui o texto do email\"\n}"
+      },
+      "id": "311bbbb6-26cd-4957-aaa2-cb59ab1ab7f1",
+      "name": "Structured Output Parser2",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2520,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {}
+      },
+      "id": "400133ed-4466-4165-939f-79e453f86575",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        1180
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Dados do Formulario').item.json.url_evolution }}/message/sendText/{{ $('Dados do Formulario').item.json.instancia }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('Dados do Formulario').item.json.token }}"
+            },
+            {
+              "name": "content_type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"55{{ $('Webhook').item.json.body.telefone }}\",\n    \"text\": \"{{ $json.output.body.replace(/\\n/g, \"\\\\n\").replace(/['\"]/g, '') }}\"\n}",
+        "options": {}
+      },
+      "id": "a8c6995b-4788-47cc-a594-a498bb4f9efa",
+      "name": "Evolution 2.",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2740,
+        920
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Objetivo: {{ $('Dados Formatados').item.json.objetivo }}\n\nServiços que serão Prestados: {{ $('Dados Formatados').item.json.servicos }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Persona\nVocê é um copywriter preparado para enviar textos para whatsapp, bem formatos e bem escritos, para fechamento de propostas comerciais de prestação de serviço.\n\n# Objetivo\nGerar um texto para whatsapp informando que foi enviado no email o contratando conforme combinado a respeito da prestação de servico dentro do assunto recebido.\n\n# Instruções\nQuando receber os dados siga o processo:\n\n<thinking>\n1. Analise o objetivo e os servicos que serão prestados e crie um texto para whatsapp informando que acabamos de enviar o contrato no email conforme combinado para aprovação.\n2. No inicio do texto fale que se trata do servico para a empresa {{ $('Dados Formatados').item.json.nomedocliente }}.\n3. Após falar sobre o contrato avise que só estamos aguardando o OK para enviar para assinatura digital e dar inicio ao trabalho.\n4. No final do texto finalize fechando que estamos muito felizes com a parceria\n</thinking>\n\n#Exemplo do texto: \nOlá Flávia Couto,\n\nConforme conversamos, acabei de enviar o contrato no email email@gmail.com, com o objetivo de prestar o servico de marketing digital para sua empresa.\n\nEle detalha todos os pontos acordados, incluindo a gestão de redes sociais, tráfego pago e criação de conteúdo e criação das copys.\n\nApós sua analise basta me dar um OK para que eu envie o contrato para assinatura digital. Estamos ansiosos para começar e colocar em prática as estratégias que irão impulsionar seus resultados!\n\nAtenciosamente,\nFlux Automate\n\n\n# Regras Importantes\n1. Não fuja muito dos exemplos que passei\n2. Não invente nenhum dado ou nenhum serviço \n3. Seja específico nos textos conforme deixei nos exemplos\n4. Escreva o texto resumido, não precisa colocar item por item, apenas um texto corrido sobre o que será o serviço, pois e para enviar whatsapp.\n\nRegra:\n\nNo final gere a body para enviar a mensagem do whatsapp."
+        }
+      },
+      "id": "5bc8affc-1d97-40c8-bfbd-a12128b3be31",
+      "name": "Formata Texto para Whatsapp",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        2140,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Objetivo: {{ $('Dados Formatados').item.json.objetivo }}\n\nServiços que serão Prestados: {{ $('Dados Formatados').item.json.servicos }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Persona\nVocê é um copywriter preparado para enviar emails, bem formatos e bem escritos, para fechamento de propostas comerciais de prestação de serviço.\n\n# Objetivo\nGerar um email informando que está enviando o contratando conforme combinado a respeito da prestação de servico dentro do assunto recebido.\n\n# Instruções\nQuando receber os dados siga o processo:\n\n<thinking>\n1. Analise o objetivo e os servicos que serão prestados e crie um email informando que está enviando o contrato conforme combinado para aprovação.\n2. No inicio do email fale que se trata do servico para a empresa {{ $('Dados Formatados').item.json.nomedocliente }}.\n3. Após falar sobre o contrato avise que só estamos aguardando o OK para enviar para assinatura digital e dar inicio ao trabalho.\n4. No rodapé finalize fechando que estamos muito felizes com a parceria\n</thinking>\n\n#Exemplo de email: \nPrezada Flávia Couto,\n\nSegue em anexo o contrato de prestação de serviços de marketing digital para sua empresa, conforme conversamos. Ele detalha todos os pontos acordados, incluindo a gestão de redes sociais, tráfego pago e criação de conteúdo.\n\nApós a assinatura, basta me dar um OK para lhe enviar o contrato original para assinatura digital. Estamos ansiosos para começar e colocar em prática as estratégias que irão impulsionar seus resultados!\n\nAtenciosamente,\nFlux Automate\n\n\n# Regras Importantes\n1. Não fuja muito dos exemplos que passei\n2. Não invente nenhum dado ou nenhum serviço \n3. Seja específico nos textos conforme deixei nos exemplos\n4. Escreva o email resumido, não precisa colocar item por item, apenas um texto corrido sobre o que será o serviço\n\nRegra:\n\nNo final gere o subject e o body para enviar o email."
+        }
+      },
+      "id": "8d77a885-59c2-492d-92f3-52a5239ba020",
+      "name": "Formata Texto para o Email",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        2140,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "da84f37f-13e8-49d0-8894-fb08cb35f3a5",
+      "name": "OpenAI Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        840,
+        600
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "3d38b633-70e5-4de5-a3b2-c2e581cc1775",
+      "name": "OpenAI Chat Model4",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2340,
+        1200
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "16d8317b-fe5a-4b8a-90c7-c30e378b4f62",
+      "name": "OpenAI Chat Model5",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        660
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5edf1d64-2de4-45ee-90a9-782ca0c65fe7",
+        "options": {}
+      },
+      "id": "65e2c00b-923f-4696-bb57-3db62d7b5154",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        340,
+        380
+      ],
+      "webhookId": "5edf1d64-2de4-45ee-90a9-782ca0c65fe7"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=objective: {{ $json.body.objective }}\nservicos: {{ $json.body.servicos }}\npayment: {{ $json.body.payment }}\nvigencia: {{ $json.body.vigencia }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=<persona>\nVocê é um analista advogado especializado em contratos para prestação de serviços digitais, com vasta experiência em marketing para grandes empresas. Sua especialidade é estruturar contratos claros, objetivos e juridicamente sólidos, garantindo proteção para ambas as partes.\n</persona>\n\n<objetivo>\nGerar um JSON válido contendo os trechos de um contrato para prestação de serviços de marketing, social media, tráfego pago, criação de sites e outros serviços digitais, com base nas informações fornecidas.\n</objetivo>\n\n<instrucoes>\nAnálise do objetivo e contexto do contrato\n</instrucoes>\n\n<execucao>\nGere um resumo do contrato no seguinte formato JSON:\n\nobjetivo: Texto descrevendo a prestação do serviço.\n\nExemplo de saída:\n1. Objetivo\nobjetivo: Este contrato estabelece a prestação de serviços relacionados à gestão de tráfego pago e intermediação comercial, onde o CONTRATADO criará campanhas de mídia paga, veiculando anúncios para as redes sociais indicadas pela CONTRATANTE.\n\n\n2. Serviços\nservicos:\n. Tráfego Pago:\n. Criação e gestão de campanhas no Facebook Ads e Google Ads\n. Otimização contínua para melhor desempenho\n. Relatórios mensais de performance\n. Social Media:\n. Planejamento estratégico de conteúdo\n. Criação e agendamento de postagens\n. Monitoramento e interação com o público\n. Descrição clara da forma de pagamento\n\n3. Pagamento\npayment: O pagamento tera um setup no valor de R$1200,00 que será efetuado logo apos a assinatura do contrato, seguido de R$1000,00 mensais para os meses subsequentes, o pagamento sera realizaco no pix ou boleto bancario enviado pela contratada. O pagamento deve ser efetuado no mesmo dia de cada mês. Em caso de atraso, será aplicada uma multa de 2% e juros de 1% ao dia.\n\n\n4. vigencia:\n\nvigencia: A vigência minima para esse contrato é de 3 meses com possibilidade de renovação automática mediante pagamento da mensalidade.\n</execucao>\n\n<regras>\nA saída deve ser um JSON válido e seguir exatamente a estrutura especificada acima.\nNão gere texto corrido, apenas um objeto JSON estruturado.\nNão invente serviços ou informações que não foram fornecidas.\nNão use markdown, caracteres especiais ou quebras de linha \\n.\n</regras>\n"
+        }
+      },
+      "id": "fd95759b-bd7f-4fc1-ab28-e495f507f523",
+      "name": "Gerador de Contrato",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        840,
+        380
+      ]
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.fluxautomate.com.br",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+            "content-length": "503",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "pt-PT,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+            "content-type": "application/json",
+            "origin": "https://webhooks.fluxautomate.com.br",
+            "priority": "u=1, i",
+            "referer": "https://webhooks.fluxautomate.com.br/",
+            "sec-ch-ua": "\"Not A(Brand\";v=\"8\", \"Chromium\";v=\"132\", \"Google Chrome\";v=\"132\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"macOS\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-site",
+            "x-forwarded-for": "200.189.29.253",
+            "x-forwarded-host": "n8n.fluxautomate.com.br",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "a19ad8bfbb74",
+            "x-real-ip": "200.189.29.253"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "companyName": "Marco Tulio",
+            "cpfCnpj": "2253599928899",
+            "street": "R. Jose Agosto",
+            "number": "123",
+            "zip": "37260000",
+            "neighborhood": "Centro",
+            "city": "Perdoes",
+            "state": "MG",
+            "objective": "trabalhar a parte de anuncios patrocinados com gestao de midias sociais",
+            "servicos": "trafego pago, social media, criacao e edicao de reels",
+            "payment": "1200 de setup + 1000 reais mensal",
+            "vigencia": "minimo de 3 meses",
+            "contractorName": "Alfredo Gomes",
+            "email": "alfredo@gmail.com",
+            "telefone": "35997333998",
+            "date": "2025-02-06"
+          },
+          "webhookUrl": "https://webhooks.fluxautomate.com.br/webhook-test/gerar_contrato",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Copiar Documento Modelo": {
+      "main": [
+        [
+          {
+            "node": "Atualizar Permissão",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar Permissão": {
+      "main": [
+        [
+          {
+            "node": "Mover Arquivo Para Pasta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mover Arquivo Para Pasta": {
+      "main": [
+        [
+          {
+            "node": "Dados Formatados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar Documento": {
+      "main": [
+        [
+          {
+            "node": "Formata Texto para o Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Formata Texto para Whatsapp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados do Formulario": {
+      "main": [
+        [
+          {
+            "node": "Gerador de Contrato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados Formatados": {
+      "main": [
+        [
+          {
+            "node": "Atualizar Documento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Formata Texto para o Email",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Formata Texto para o Email",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte em Pdf": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Formata Texto para Whatsapp",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser2",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Formata Texto para Whatsapp",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Texto para Whatsapp": {
+      "main": [
+        [
+          {
+            "node": "Evolution 2.",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Texto para o Email": {
+      "main": [
+        [
+          {
+            "node": "Converte em Pdf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gerador de Contrato",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Dados do Formulario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Gerador de Contrato",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerador de Contrato": {
+      "main": [
+        [
+          {
+            "node": "Copiar Documento Modelo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "74567d6e-cd89-44f9-ac21-fac809a8c2fe",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "HyK8FDw69gBqUQHu",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

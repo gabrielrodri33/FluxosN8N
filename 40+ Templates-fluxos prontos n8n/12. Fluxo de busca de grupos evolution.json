@@ -1,0 +1,349 @@
+{
+  "name": "P17 | Buscar Grupos de Whatsapp Evolution",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b97900e5-94fe-4f30-b2a8-150c7df5d293",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        1240,
+        320
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "be09692e-e1d6-416a-adeb-673c918c0bee",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1980,
+        320
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "1e6fce89-15ea-4c14-ba5a-502d299fe3a9",
+      "name": "Replace Me",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2460,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url_evolution }}/group/fetchAllGroups/{{ $json.instancia }}?getParticipants=false",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "17a2fc4f-2888-4c30-a593-c666adef450f",
+      "name": "Buscar Grupos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1640,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "17Hw56a-WpvAIopUteVDO5jHWND2QKj3f8sBWDun9oP0",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 311120567,
+          "mode": "list",
+          "cachedResultName": "Página2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17Hw56a-WpvAIopUteVDO5jHWND2QKj3f8sBWDun9oP0/edit#gid=311120567"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "NOME": "={{ $node[\"Loop Over Items\"].json[\"subject\"] }}",
+            "NUMERO": "={{ $node[\"Loop Over Items\"].json[\"id\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "NOME",
+              "displayName": "NOME",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "NUMERO",
+              "displayName": "NUMERO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "16dae18b-0da0-41d1-b4a5-e6d810f25589",
+      "name": "Adicionar na planilha",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2160,
+        340
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Dados",
+        "height": 243.76609073992563,
+        "width": 203.9006653973735
+      },
+      "id": "452052a5-52c9-4e0f-a2fc-23318f298558",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        246
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "17ba8af1-d6a5-4563-8cf8-18bbe9e66f98",
+              "name": "url_evolution",
+              "value": "https://evolution.fluxautomate.com.br",
+              "type": "string"
+            },
+            {
+              "id": "2afa19cd-fafe-43aa-a4bb-ded06d83c385",
+              "name": "instancia",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "76813325-2638-466e-8a46-289bcd6b6aef",
+              "name": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fac07ffc-5257-436b-a798-a9a4973c8195",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1460,
+        320
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "1979ac9a-3ee4-4b97-bf91-fc99a45ef25e",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2320,
+        340
+      ],
+      "webhookId": "5b8cfa39-0dae-4767-8cf3-315167700c35"
+    },
+    {
+      "parameters": {},
+      "id": "a0c20348-bf2e-41fa-860b-7987dd2b8aa3",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b4a90e43-61e7-4824-9518-4c9790d908a0",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Ivan - Vitalizare",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "522f2f3c-2a8f-428c-b4af-559c346282e7",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1780,
+        320
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Adicionar na planilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Grupos": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adicionar na planilha": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Buscar Grupos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f10df0f2-1c34-4236-9f04-3df55c37e050",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "WmRjkaoHjr7S5H2X",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

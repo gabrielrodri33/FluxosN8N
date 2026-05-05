@@ -1,0 +1,289 @@
+{
+  "name": "Scrape Videos Youtube post linkedin",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "01b8e2fd-0250-42b1-9734-bbaebbe93e0e",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        220,
+        300
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "id": "43c12f5e-36c9-45d9-a8e1-a9fdaa8e9f81",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        600,
+        300
+      ],
+      "webhookId": "825773b4-ff3e-4844-b9b4-9531fa81bf1a"
+    },
+    {
+      "parameters": {
+        "url": "https://youtube-v2.p.rapidapi.com/channel/videos?channel_id=UC8eJxPzmvTb12v7LlZUJcLQ",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-RapidAPI-Key",
+              "value": "SUAAPIKEY"
+            },
+            {
+              "name": "X-RapidAPI-Host",
+              "value": "youtube-v2.p.rapidapi.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "92bb8e65-77ea-4ad0-b038-2a5f6ffa3c8a",
+      "name": "BUSCA VÍDEOS DO CANAL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://youtube-v2.p.rapidapi.com/video/subtitles?video_id={{ $json.videos[0].video_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-RapidAPI-Key",
+              "value": "SUAAPIKEY"
+            },
+            {
+              "name": "X-RapidAPI-Host",
+              "value": "youtube-v2.p.rapidapi.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dee90f5a-d5c2-4e6e-8bb7-9a4bb73ce31d",
+      "name": "TRANSCREVE O VÍDEO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "subtitles",
+        "options": {}
+      },
+      "id": "949d451e-77ab-4cab-9f15-9939228e3000",
+      "name": "SEPARA O TEXTO",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a473e308-d912-4dfc-a8fe-fafe94a1f018",
+      "name": "JUNTA O TEXTO ORGANIZADO",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Esta função assume que a entrada do nó \"Function\" é um array de objetos,\n// onde cada objeto tem um campo \"text\" que é uma lista de strings.\n\n// Função principal\nfunction main() {\n  // Obter dados de entrada\n  const items = $input.all();\n\n  // Inicializar a variável que armazenará o texto mesclado\n  let mergedText = '';\n\n  items.forEach(item => {\n    // Acessar a lista de textos no campo \"text\"\n    const textList = item.json.text || [];\n    \n    // Concatenar todos os elementos da lista em um único texto\n    mergedText += textList.join(' ') + ' ';\n  });\n\n  // Retornar o texto mesclado como saída\n  return [\n    {\n      json: {\n        mergedText: mergedText.trim()\n      }\n    }\n  ];\n}\n\n// Executar a função principal\nreturn main();\n"
+      },
+      "id": "fa0991f3-959d-40d2-9e51-25fc3d2a4cf9",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "person": "QdwuWbX4IT",
+        "additionalFields": {}
+      },
+      "id": "b05b83d7-19c5-43ff-94c1-d2027bad2bdc",
+      "name": "LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        2140,
+        300
+      ],
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "0zghLEqeN2j2x04M",
+          "name": "LinkedIn account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a content aggregator and distributor who takes transcripts/subtitles extracted from videos and rewords, summarizes, or expands upon the topic discussed to be published as a blog, social posts, or other media types.",
+              "role": "system"
+            },
+            {
+              "content": "Using the same tone and personality as the transcript provided, create a blog post Title. The title will be for a blog on the topic discussed in the transcript. Use a style and structure similar to the example titles given.\n##\nTranscript: {{19.text}}\n##\nExamples: \n1/ 10 Step To Successfully Outsourcing Your Online Business\n2/ Gene Breakthrough Restores The Sight Of People With Inherited Eye Disease And Could Save Thousands From Blindness\n3/ Tips That Show Anybody How To Make Money Online – Guaranteed\n4/ Why All Guys Cheat, Fresh Insight\n5/ Want To Immediately Reverse All Your Health Issues?\n##\nConstraints: Do not include pretext or context, only return the blog title. Avoid the following words and phrases if possible -  \"Unlock,\" \"Unleash,\" and \"game-changer.\""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c8b3e61e-3807-41c2-87de-a0e1b9dc7140",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [
+        1700,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "JO96jSLNRfkkZY7y",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "BUSCA VÍDEOS DO CANAL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "TRANSCREVE O VÍDEO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BUSCA VÍDEOS DO CANAL": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TRANSCREVE O VÍDEO": {
+      "main": [
+        [
+          {
+            "node": "SEPARA O TEXTO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SEPARA O TEXTO": {
+      "main": [
+        [
+          {
+            "node": "JUNTA O TEXTO ORGANIZADO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JUNTA O TEXTO ORGANIZADO": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "366d05e1-dbff-4ba8-971f-7b8bf3e63d25",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "86d0b539cdbfaefdd305e9f4d9320d6449af6a05b20f421bc7ca5b2501068fb2"
+  },
+  "id": "v4CHMA1a9WA47zwk",
+  "tags": []
+}

@@ -1,0 +1,1507 @@
+{
+  "name": "28. Fluxo Agendamento SDR",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "75fc0781-0458-4f24-88db-92b95c9c378f",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -3800,
+        16740
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "edc090f3-5297-46f6-badf-11b0535a8a30",
+              "name": "response",
+              "value": "=Já possui uma reunião:\n\nInicio: {{ $json.horario_agendado_inicio }}\nFim: {{ $json.horario_agendado_fim }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6fb823a2-a011-43d4-b9a6-0bf292eb4a6e",
+      "name": "Edit Fields2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1200,
+        15740
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "mktandbuy@gmail.com",
+          "mode": "list",
+          "cachedResultName": "mktandbuy@gmail.com"
+        },
+        "eventId": "={{ $json.id_evento }}",
+        "options": {}
+      },
+      "id": "0a059690-583a-481f-b4ab-bc3bf3e0660c",
+      "name": "Google Calendar1",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.1,
+      "position": [
+        -660,
+        17380
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7f842ffa-cd8f-40ab-a0a7-40dc173357a7",
+              "name": "response",
+              "value": "Informe o usuário que o agendamento foi cancelado e que estará sempre à disposição para um novo agendamento.",
+              "type": "string"
+            },
+            {
+              "id": "a760b709-8b16-4b56-a672-2ffde8549cb8",
+              "name": "cancelado",
+              "value": "={{ $json.success }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "38ab0eb5-978b-4cfd-9419-ab650cc0ff14",
+      "name": "Edit Fields3",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        17380
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Evento }}",
+                    "rightValue": "disponibilidade",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5e62fcec-420e-4836-b90c-ce64ce635123"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "DISPONIBILIDADE"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "37d8d342-94a6-4776-ac77-e6f4c15f032f",
+                    "leftValue": "={{ $json.Evento }}",
+                    "rightValue": "agendamento",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "AGENDAMENTO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8a8c56bc-a487-4e01-ae0d-f9d4c376d76b",
+                    "leftValue": "={{ $json.Evento }}",
+                    "rightValue": "cancelamento",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CANCELAMENTO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "60282e4d-0e18-406a-a9c8-d725f4c3cd68",
+                    "leftValue": "={{ $json.Evento }}",
+                    "rightValue": "reagendamento",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "REAGENDAMENTO"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "f38f8986-6205-4778-95c4-03d515db0653",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -3020,
+        16720
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "mktandbuy@gmail.com",
+          "mode": "list",
+          "cachedResultName": "mktandbuy@gmail.com"
+        },
+        "options": {
+          "timeMin": "={{ $now.plus(1, 'hour') }}"
+        }
+      },
+      "id": "b1c8a6d3-646f-424e-a11e-5353d98b8bda",
+      "name": "Buscar Eventos",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.1,
+      "position": [
+        -2340,
+        15740
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3605f2eb-2f0f-4460-8981-48aa75d099d8",
+              "name": "horario_ocupado_start",
+              "value": "={{ $json.start.dateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "84741ba8-f1fa-45ff-81cb-79dd151d8426",
+              "name": "horario_ocupado_end",
+              "value": "={{ $json.end.dateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "7a30a813-51b2-4da3-832b-96e60ad659e0",
+              "name": "id_evento_calendar",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "a8ea4678-04d9-42f4-8553-2fb1493cc45f",
+              "name": "id_evento_calendar_status",
+              "value": "={{ $json.status }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1960,
+        15740
+      ],
+      "id": "8be1a69d-d47d-4564-98dc-b657dcf88978",
+      "name": "Edit Fields6"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of items) {\n  try {\n    // Verifica se os valores existem\n    if (!item.json.horario_ocupado_start || !item.json.horario_ocupado_end) {\n      throw new Error(\"Horário não disponível\");\n    }\n\n    // Pegando os valores do JSON\n    const startDateTime = item.json.horario_ocupado_start; // Exemplo: \"2025-06-03T08:35:00-03:00\"\n    const endDateTime = item.json.horario_ocupado_end;\n    const eventId = item.json.id_evento_calendar || \"ID não disponível\";\n    const eventStatus = item.json.id_evento_calendar_status || \"Status não disponível\";\n    \n    // Extraindo e-mails dos participantes (converte string JSON para objeto, se necessário)\n    const emailAttendList = typeof item.json.email_attend === \"string\" \n      ? JSON.parse(item.json.email_attend) \n      : item.json.email_attend;\n    \n    // Pega o primeiro e-mail da lista, se houver\n    const email = emailAttendList?.[0]?.email || \"E-mail não disponível\";\n\n    // Função para formatar a data corretamente para \"dd/MM/yyyy HH:mm\"\n    function formatDateTime(isoString) {\n      if (!isoString) return \"Data inválida\"; // Caso a data seja nula ou indefinida\n\n      const date = new Date(isoString);\n\n      if (isNaN(date.getTime())) {\n        console.log(\"Erro ao converter data:\", isoString); // Debugging\n        return \"Data inválida\"; // Caso a conversão falhe\n      }\n\n      const day = String(date.getDate()).padStart(2, '0');\n      const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês começa do 0\n      const year = date.getFullYear();\n      const hours = String(date.getHours()).padStart(2, '0');\n      const minutes = String(date.getMinutes()).padStart(2, '0');\n\n      return `${day}/${month}/${year} ${hours}:${minutes}`;\n    }\n\n    // Formata as datas corretamente\n    const startFormatted = formatDateTime(startDateTime);\n    const endFormatted = formatDateTime(endDateTime);\n\n    // Adiciona os dados formatados ao resultado final\n    results.push({\n      json: {\n        email: email, // Exemplo: \"usuario@example.com\"\n        horario_agendado_inicio: startFormatted, // Exemplo: \"03/06/2025 08:35\"\n        horario_agendado_fim: endFormatted, // Exemplo: \"03/06/2025 08:35\"\n        id_evento: eventId, // Exemplo: \"cos92fmvp9dqk9q69b5o6q48o8\"\n        status_evento: eventStatus // Exemplo: \"confirmed\"\n      }\n    });\n\n  } catch (error) {\n    console.log(\"Erro ao processar item:\", error.message); // Debugging\n\n    // Em caso de erro, retorna valores padrão\n    results.push({\n      json: {\n        email: \"E-mail não disponível\",\n        horario_agendado_inicio: \"Data inválida\",\n        horario_agendado_fim: \"Data inválida\",\n        id_evento: \"ID não disponível\",\n        status_evento: \"Status não disponível\"\n      }\n    });\n  }\n}\n\n// Retorna os dados formatados para o próximo nó no n8n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1580,
+        15740
+      ],
+      "id": "b4a1e069-b934-46a1-9c13-a8de75f0d46d",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "mktandbuy@gmail.com",
+          "mode": "list",
+          "cachedResultName": "mktandbuy@gmail.com"
+        },
+        "eventId": "={{ $('Filtro Evento').item.json.id_evento }}",
+        "useDefaultReminders": false,
+        "updateFields": {
+          "description": "Nesta call de 1 hora, você vai receber um plano estruturado de como aplicar e estruturar sua inteligência artificial. ",
+          "end": "={{ $json.Novo_Agendamento_fim }}",
+          "sendUpdates": "all",
+          "start": "={{ $json.Novo_Agendamento_Comeco }}",
+          "summary": "=Call de Estruturação com {{ $('Switch').item.json.query.nome }}"
+        },
+        "remindersUi": {
+          "remindersValues": [
+            {
+              "method": "email",
+              "minutes": 20
+            }
+          ]
+        }
+      },
+      "id": "3ad473fc-f333-4df9-b56a-2ca032c0a3fe",
+      "name": "Google Calendar3",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.1,
+      "position": [
+        -200,
+        17780
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "mktandbuy@gmail.com",
+          "mode": "list",
+          "cachedResultName": "mktandbuy@gmail.com"
+        },
+        "options": {
+          "timeMin": "={{ $now }}"
+        }
+      },
+      "id": "02c1245d-ab5f-4483-af95-36913b72f90c",
+      "name": "Buscar Eventos1",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.1,
+      "position": [
+        -2360,
+        17780
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3605f2eb-2f0f-4460-8981-48aa75d099d8",
+              "name": "horario_ocupado_start",
+              "value": "={{ $json.start.dateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "84741ba8-f1fa-45ff-81cb-79dd151d8426",
+              "name": "horario_ocupado_end",
+              "value": "={{ $json.end.dateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "7a30a813-51b2-4da3-832b-96e60ad659e0",
+              "name": "id_evento_calendar",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "a8ea4678-04d9-42f4-8553-2fb1493cc45f",
+              "name": "id_evento_calendar_status",
+              "value": "={{ $json.status }}",
+              "type": "string"
+            },
+            {
+              "id": "33d4d396-d1f4-4b1b-a58e-a8c6ec0dde5c",
+              "name": "email_attend",
+              "value": "={{ $json.attendees }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1840,
+        17780
+      ],
+      "id": "5cacfcc9-9a0e-40e4-be9b-3d4e5c40fd07",
+      "name": "Edit Fields7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of items) {\n  try {\n    // Verifica se os valores existem\n    if (!item.json.horario_ocupado_start || !item.json.horario_ocupado_end) {\n      throw new Error(\"Horário não disponível\");\n    }\n\n    // Pegando os valores do JSON\n    const startDateTime = item.json.horario_ocupado_start; // Exemplo: \"2025-06-03T08:35:00-03:00\"\n    const endDateTime = item.json.horario_ocupado_end;\n    const eventId = item.json.id_evento_calendar || \"ID não disponível\";\n    const eventStatus = item.json.id_evento_calendar_status || \"Status não disponível\";\n    \n    // Extraindo e-mails dos participantes (converte string JSON para objeto, se necessário)\n    const emailAttendList = typeof item.json.email_attend === \"string\" \n      ? JSON.parse(item.json.email_attend) \n      : item.json.email_attend;\n    \n    // Pega o primeiro e-mail da lista, se houver\n    const email = emailAttendList?.[0]?.email || \"E-mail não disponível\";\n\n    // Função para formatar a data corretamente para \"dd/MM/yyyy HH:mm\"\n    function formatDateTime(isoString) {\n      if (!isoString) return \"Data inválida\"; // Caso a data seja nula ou indefinida\n\n      const date = new Date(isoString);\n\n      if (isNaN(date.getTime())) {\n        console.log(\"Erro ao converter data:\", isoString); // Debugging\n        return \"Data inválida\"; // Caso a conversão falhe\n      }\n\n      const day = String(date.getDate()).padStart(2, '0');\n      const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês começa do 0\n      const year = date.getFullYear();\n      const hours = String(date.getHours()).padStart(2, '0');\n      const minutes = String(date.getMinutes()).padStart(2, '0');\n\n      return `${day}/${month}/${year} ${hours}:${minutes}`;\n    }\n\n    // Formata as datas corretamente\n    const startFormatted = formatDateTime(startDateTime);\n    const endFormatted = formatDateTime(endDateTime);\n\n    // Adiciona os dados formatados ao resultado final\n    results.push({\n      json: {\n        email: email, // Exemplo: \"usuario@example.com\"\n        horario_agendado_inicio: startFormatted, // Exemplo: \"03/06/2025 08:35\"\n        horario_agendado_fim: endFormatted, // Exemplo: \"03/06/2025 08:35\"\n        id_evento: eventId, // Exemplo: \"cos92fmvp9dqk9q69b5o6q48o8\"\n        status_evento: eventStatus // Exemplo: \"confirmed\"\n      }\n    });\n\n  } catch (error) {\n    console.log(\"Erro ao processar item:\", error.message); // Debugging\n\n    // Em caso de erro, retorna valores padrão\n    results.push({\n      json: {\n        email: \"E-mail não disponível\",\n        horario_agendado_inicio: \"Data inválida\",\n        horario_agendado_fim: \"Data inválida\",\n        id_evento: \"ID não disponível\",\n        status_evento: \"Status não disponível\"\n      }\n    });\n  }\n}\n\n// Retorna os dados formatados para o próximo nó no n8n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1420,
+        17780
+      ],
+      "id": "8a4a472a-2f23-48ba-ac3a-dd737e863ff8",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "86ff282a-3ede-4417-98c1-0d10858bc5dc",
+              "name": "response",
+              "value": "Agendamento concluído",
+              "type": "string"
+            },
+            {
+              "id": "b413c98f-b97f-4b6d-9961-36f0cbb2fdf1",
+              "name": "Link",
+              "value": "={{ $('Marca').item.json.hangoutLink }}",
+              "type": "string"
+            },
+            {
+              "id": "e743c1c5-c7a6-48be-ace6-641c3187ad0d",
+              "name": "horarioInicio",
+              "value": "={{ $json.horarioInicio }}",
+              "type": "string"
+            },
+            {
+              "id": "cb720d03-a72d-4c4c-a5c9-3ee3ec799178",
+              "name": "horariofinal",
+              "value": "={{ $json.horarioFim }}",
+              "type": "string"
+            },
+            {
+              "id": "10768c40-58ca-4220-b564-bede3d5fff8a",
+              "name": "dia_data",
+              "value": "={{ $json.dataFormatada }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5940a197-cff4-4ce7-bbc9-d6e966fd2099",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -760,
+        16600
+      ]
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "mktandbuy@gmail.com",
+          "mode": "list",
+          "cachedResultName": "mktandbuy@gmail.com"
+        },
+        "start": "={{ $json.inicio_hora }}",
+        "end": "={{ $json.final_hora }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ $('Switch').item.json.query.email }}"
+          ],
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "=hangoutsMeet"
+            }
+          },
+          "description": "=Nesta call de 1 hora, você vai receber um plano estruturado de como aplicar e estruturar sua inteligência artificial. ",
+          "summary": "=Call de Estruturação com {{ $('Switch').item.json.query.nome }}"
+        }
+      },
+      "id": "41c9c670-31bb-48f8-8929-e7ec9d8542f9",
+      "name": "Marca",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.1,
+      "position": [
+        -1440,
+        16600
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pegando os valores do input do n8n\nconst inputData = $input.first().json.query;\nconst conversationStory = inputData.conversationStory; // Mensagem do usuário\nconst horario = inputData.horario; // Data em formato dd/MM/yyyy HH:MM:SS\n\n// Função para parsear a data no formato dd/MM/yyyy HH:MM:SS\nfunction parseDataBr(dataString) {\n    const [data, hora] = dataString.split(' ');\n    const [dia, mes, ano] = data.split('/').map(Number);\n    const [horas, minutos, segundos] = hora.split(':').map(Number);\n    // mes - 1 porque em JavaScript os meses começam em 0\n    return new Date(ano, mes - 1, dia, horas, minutos, segundos);\n}\n\n// Criando um objeto Date a partir da string recebida\nconst dataUTC = parseDataBr(horario);\n\n// Convertendo para o fuso horário de São Paulo (GMT-3)\nconst opcoesFuso = { timeZone: \"America/Sao_Paulo\", hour12: false };\nconst dataBrasil = new Date(dataUTC.toLocaleString(\"en-US\", opcoesFuso));\n\n// Criando uma nova data para o horário de encerramento (endDate) adicionando +1 hora\nconst dataEncerramento = new Date(dataBrasil);\ndataEncerramento.setHours(dataEncerramento.getHours() + 1);\n\n// Formatando as datas no formato ISO 8601 \"yyyy-MM-ddTHH:mm:ss-03:00\"\nconst formatarISOComFuso = (data) => {\n    const ano = data.getFullYear();\n    const mes = String(data.getMonth() + 1).padStart(2, '0');\n    const dia = String(data.getDate()).padStart(2, '0');\n    const horas = String(data.getHours()).padStart(2, '0');\n    const minutos = String(data.getMinutes()).padStart(2, '0');\n    const segundos = \"00\"; // Sempre zero, como no exemplo desejado\n    const fusoHorario = \"-03:00\"; // Indicando explicitamente GMT-3\n\n    return `${ano}-${mes}-${dia}T${horas}:${minutos}:${segundos}${fusoHorario}`;\n};\n\n// Criando as strings formatadas com GMT-3\nconst startDate = formatarISOComFuso(dataBrasil);\nconst endDate = formatarISOComFuso(dataEncerramento);\n\n// Retornando os dados no formato esperado\nreturn {\n    json: {\n        mensagem: conversationStory,\n        horarioFormatado: startDate,\n        encerramento: endDate\n    }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2360,
+        16600
+      ],
+      "id": "ec34dece-675f-425d-95cd-cdda9eb9febc",
+      "name": "Formata Entradas "
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "04c6ca35-7572-4699-bcb7-bbf2f2a6e6a4",
+              "name": "inicio_hora",
+              "value": "={{ $json.horarioFormatado }}",
+              "type": "string"
+            },
+            {
+              "id": "23251b2f-9127-4c38-bd93-55205fd70b8a",
+              "name": "final_hora",
+              "value": "={{ $json.encerramento }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e95312ad-060f-4a29-ba64-d5e1b0d80b5c",
+      "name": "Edita Campos",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1840,
+        16600
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pegando os valores do input do n8n\nconst inputData = $input.first().json;\nconst startDateTime = inputData.start.dateTime; // \"2025-03-06T11:35:00-03:00\"\nconst endDateTime = inputData.end.dateTime; // \"2025-03-06T12:35:00-03:00\"\n\n// Criando objetos Date para as datas\nconst dataInicio = new Date(startDateTime);\nconst dataFim = new Date(endDateTime);\n\n// Array com os dias da semana em português\nconst diasDaSemana = [\"domingo\", \"segunda-feira\", \"terça-feira\", \"quarta-feira\", \"quinta-feira\", \"sexta-feira\", \"sábado\"];\n\n// Extraindo e formatando a **data com dia da semana**\nconst diaSemana = diasDaSemana[dataInicio.getDay()];\nconst dia = String(dataInicio.getDate()).padStart(2, '0');\nconst mes = String(dataInicio.getMonth() + 1).padStart(2, '0');\nconst ano = dataInicio.getFullYear();\nconst dataFormatada = `${diaSemana}, ${dia}/${mes}/${ano}`;\n\n// Extraindo e formatando **apenas os horários**\nconst horaInicio = String(dataInicio.getHours()).padStart(2, '0');\nconst minutoInicio = String(dataInicio.getMinutes()).padStart(2, '0');\nconst horarioInicio = `${horaInicio}:${minutoInicio}`;\n\nconst horaFim = String(dataFim.getHours()).padStart(2, '0');\nconst minutoFim = String(dataFim.getMinutes()).padStart(2, '0');\nconst horarioFim = `${horaFim}:${minutoFim}`;\n\n// Retornando os dados formatados\nreturn {\n  json: {\n    dataFormatada: dataFormatada, // Exemplo: \"quinta-feira, 06/03/2025\"\n    horarioInicio: horarioInicio, // Exemplo: \"11:35\"\n    horarioFim: horarioFim // Exemplo: \"12:35\"\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1080,
+        16600
+      ],
+      "id": "6e3ccbe1-8e99-4427-8e26-d3868ecc0231",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const horarioOriginal = $('Switch').first().json.query.horario;\n\n// Função para parsear a data no formato \"dd/MM/yyyy HH:MM:SS\"\nfunction parseDataBr(dataString) {\n    const [data, hora] = dataString.split(' ');\n    const [dia, mes, ano] = data.split('/').map(Number);\n    const [horas, minutos, segundos] = hora.split(':').map(Number);\n    // mes - 1 porque em JavaScript os meses começam em 0\n    return new Date(ano, mes - 1, dia, horas, minutos, segundos);\n}\n\n// Converter para objeto Date com parsing correto\nconst dataInicio = parseDataBr(horarioOriginal);\n\n// Adicionar 1 hora\nconst dataFim = new Date(dataInicio);\ndataFim.setHours(dataFim.getHours() + 1);\n\n// Formatando para \"YYYY-MM-DDTHH:MM:SS-03:00\"\nconst formatarParaGoogleCalendar = (data) => {\n    const pad = (num) => num.toString().padStart(2, '0');\n    \n    const ano = data.getFullYear();\n    const mes = pad(data.getMonth() + 1);\n    const dia = pad(data.getDate());\n    const horas = pad(data.getHours());\n    const minutos = pad(data.getMinutes());\n    const segundos = pad(data.getSeconds());\n    \n    return `${ano}-${mes}-${dia}T${horas}:${minutos}:${segundos}-03:00`;\n};\n\nreturn [\n    {\n        json: {\n            Novo_Agendamento_Comeco: formatarParaGoogleCalendar(dataInicio),\n            Novo_Agendamento_fim: formatarParaGoogleCalendar(dataFim)\n        }\n    }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -600,
+        17780
+      ],
+      "id": "d34967cd-60bc-4250-8c1e-195edf863f1c",
+      "name": "Code4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a69dd6a0-1aeb-44cd-9c81-be0cc883ed5b",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "={{ $('Switch').first().json.query.email }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -1020,
+        17780
+      ],
+      "id": "dd598a95-9227-4d42-b3ac-71036a64da32",
+      "name": "Filtro Evento"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "mktandbuy@gmail.com",
+          "mode": "list",
+          "cachedResultName": "mktandbuy@gmail.com"
+        },
+        "options": {
+          "timeMin": "={{ $now }}"
+        }
+      },
+      "id": "076d81c3-62b9-4674-a592-23b8505506b4",
+      "name": "Buscar Eventos3",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.1,
+      "position": [
+        -2360,
+        17380
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3605f2eb-2f0f-4460-8981-48aa75d099d8",
+              "name": "horario_ocupado_start",
+              "value": "={{ $json.start.dateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "84741ba8-f1fa-45ff-81cb-79dd151d8426",
+              "name": "horario_ocupado_end",
+              "value": "={{ $json.end.dateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "7a30a813-51b2-4da3-832b-96e60ad659e0",
+              "name": "id_evento_calendar",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "a8ea4678-04d9-42f4-8553-2fb1493cc45f",
+              "name": "id_evento_calendar_status",
+              "value": "={{ $json.status }}",
+              "type": "string"
+            },
+            {
+              "id": "33d4d396-d1f4-4b1b-a58e-a8c6ec0dde5c",
+              "name": "email_attend",
+              "value": "={{ $json.attendees }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1840,
+        17380
+      ],
+      "id": "3364c99d-5e8d-478d-8b0a-890f702f8083",
+      "name": "Edit Fields9"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of items) {\n  try {\n    // Verifica se os valores existem\n    if (!item.json.horario_ocupado_start || !item.json.horario_ocupado_end) {\n      throw new Error(\"Horário não disponível\");\n    }\n\n    // Pegando os valores do JSON\n    const startDateTime = item.json.horario_ocupado_start; // Exemplo: \"2025-06-03T08:35:00-03:00\"\n    const endDateTime = item.json.horario_ocupado_end;\n    const eventId = item.json.id_evento_calendar || \"ID não disponível\";\n    const eventStatus = item.json.id_evento_calendar_status || \"Status não disponível\";\n    \n    // Extraindo e-mails dos participantes (converte string JSON para objeto, se necessário)\n    const emailAttendList = typeof item.json.email_attend === \"string\" \n      ? JSON.parse(item.json.email_attend) \n      : item.json.email_attend;\n    \n    // Pega o primeiro e-mail da lista, se houver\n    const email = emailAttendList?.[0]?.email || \"E-mail não disponível\";\n\n    // Função para formatar a data corretamente para \"dd/MM/yyyy HH:mm\" com fuso de São Paulo\n    function formatDateTime(isoString) {\n      if (!isoString) return \"Data inválida\"; // Caso a data seja nula ou indefinida\n\n      const date = new Date(isoString);\n      const opcoesFuso = { timeZone: \"America/Sao_Paulo\", hour12: false };\n      const dateBrasil = new Date(date.toLocaleString(\"en-US\", opcoesFuso));\n\n      if (isNaN(dateBrasil.getTime())) {\n        console.log(\"Erro ao converter data:\", isoString); // Debugging\n        return \"Data inválida\"; // Caso a conversão falhe\n      }\n\n      const day = String(dateBrasil.getDate()).padStart(2, '0');\n      const month = String(dateBrasil.getMonth() + 1).padStart(2, '0'); // Mês começa do 0\n      const year = dateBrasil.getFullYear();\n      const hours = String(dateBrasil.getHours()).padStart(2, '0');\n      const minutes = String(dateBrasil.getMinutes()).padStart(2, '0');\n\n      return `${day}/${month}/${year} ${hours}:${minutes}`;\n    }\n\n    // Formata as datas corretamente\n    const startFormatted = formatDateTime(startDateTime);\n    const endFormatted = formatDateTime(endDateTime);\n\n    // Adiciona os dados formatados ao resultado final\n    results.push({\n      json: {\n        email: email, // Exemplo: \"usuario@example.com\"\n        horario_agendado_inicio: startFormatted, // Exemplo: \"03/06/2025 08:35\"\n        horario_agendado_fim: endFormatted, // Exemplo: \"03/06/2025 08:35\"\n        id_evento: eventId, // Exemplo: \"cos92fmvp9dqk9q69b5o6q48o8\"\n        status_evento: eventStatus // Exemplo: \"confirmed\"\n      }\n    });\n\n  } catch (error) {\n    console.log(\"Erro ao processar item:\", error.message); // Debugging\n\n    // Em caso de erro, retorna valores padrão\n    results.push({\n      json: {\n        email: \"E-mail não disponível\",\n        horario_agendado_inicio: \"Data inválida\",\n        horario_agendado_fim: \"Data inválida\",\n        id_evento: \"ID não disponível\",\n        status_evento: \"Status não disponível\"\n      }\n    });\n  }\n}\n\n// Retorna os dados formatados para o próximo nó no n8n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1440,
+        17380
+      ],
+      "id": "9bc3072f-72c1-40c2-92ff-02104581b0ff",
+      "name": "Code7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a69dd6a0-1aeb-44cd-9c81-be0cc883ed5b",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "={{ $('Switch').first().json.query.email }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -1060,
+        17380
+      ],
+      "id": "52f40e12-779f-49b7-a5c6-99039563788c",
+      "name": "Filtro Evento2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const responseString = $('Edit Fields2').first().json.response;\n\n// Função para extrair horários ocupados da string\nconst extrairHorariosOcupados = (texto) => {\n    const regex = /(\\d{2}\\/\\d{2}\\/\\d{4}) (\\d{2}:\\d{2})/g;\n    let match, horariosOcupados = new Set();\n    \n    while ((match = regex.exec(texto)) !== null) {\n        const [data, hora] = match.slice(1);\n        horariosOcupados.add(`${data} ${hora}`);\n    }\n    return horariosOcupados;\n};\n\n// Função para formatar data em \"Dia da Semana (dd/MM)\"\nconst formatarDiaSemana = (data) => {\n    const diasSemana = [\"Domingo\", \"Segunda-Feira\", \"Terça-Feira\", \"Quarta-Feira\", \"Quinta-Feira\", \"Sexta-Feira\", \"Sábado\"];\n    return `${diasSemana[data.getDay()]} (${String(data.getDate()).padStart(2, '0')}/${String(data.getMonth() + 1).padStart(2, '0')})`;\n};\n\n// Função para formatar data para dd/MM/yyyy\nconst formatarData = (data) => {\n    return `${String(data.getDate()).padStart(2, '0')}/${String(data.getMonth() + 1).padStart(2, '0')}/${data.getFullYear()}`;\n};\n\n// Extrai horários ocupados da resposta\nconst horariosOcupados = extrairHorariosOcupados(responseString);\n\n// Gerar horários disponíveis\nconst horariosDisponiveis = {};\nconst agora = new Date();\n\nfor (let i = 1; i <= 7; i++) {\n    const data = new Date();\n    data.setDate(agora.getDate() + i);\n\n    const diaSemanaComData = formatarDiaSemana(data);\n    if (diaSemanaComData.includes(\"Sábado\") || diaSemanaComData.includes(\"Domingo\")) continue; // Pula finais de semana\n\n    const dataFormatada = formatarData(data);\n    horariosDisponiveis[diaSemanaComData] = [];\n\n    for (let hora = 9; hora < 18; hora++) {\n        const horarioStr = `${dataFormatada} ${String(hora).padStart(2, '0')}:00`;\n        if (!horariosOcupados.has(horarioStr)) {\n            horariosDisponiveis[diaSemanaComData].push(`${hora}:00`);\n        }\n    }\n}\n\n// Selecionar apenas 3 dias e 3 horários aleatórios por dia\nconst diasSelecionados = Object.keys(horariosDisponiveis).filter(dia => horariosDisponiveis[dia].length > 0).slice(0, 3);\nconst resultado = [];\n\nfor (const dia of diasSelecionados) {\n    const horarios = horariosDisponiveis[dia];\n    \n    if (horarios.length > 3) {\n        // Seleciona 3 horários aleatórios sem repetição\n        const horariosAleatorios = horarios.sort(() => Math.random() - 0.5).slice(0, 3);\n        resultado.push(`${dia}:\\n- Horários disponíveis: ${horariosAleatorios.join(\", \")}`);\n    } else {\n        resultado.push(`${dia}:\\n- Horários disponíveis: ${horarios.join(\", \")}`);\n    }\n}\n\n// Retorna os horários no formato desejado\nreturn [\n    {\n        json: {\n            horarios_disponiveis: resultado.join(\"\\n\\n\")\n        }\n    }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -820,
+        15740
+      ],
+      "id": "ae568142-a156-4b9f-82b5-ef39a09537fb",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const horarioData = `${$input.first().json.dia_data} da ${$input.first().json.horarioInicio} às ${$input.first().json.horariofinal}`;\nconst linkCall = $input.first().json.Link;\nconst assunto = $('Marca').first().json.summary;\n\nconst output = `\nHorário e Data: ${horarioData}\n\nLink da Call: ${linkCall}\n\nAssunto: ${assunto}\n`;\n\nreturn [{ json: { output } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -420,
+        16600
+      ],
+      "id": "e21f5aeb-d846-4b8e-9188-94b34dd2bcdd",
+      "name": "Code5"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "86ff282a-3ede-4417-98c1-0d10858bc5dc",
+              "name": "response",
+              "value": "Agendamento concluído",
+              "type": "string"
+            },
+            {
+              "id": "b413c98f-b97f-4b6d-9961-36f0cbb2fdf1",
+              "name": "Link",
+              "value": "={{ $('Google Calendar3').item.json.hangoutLink }}",
+              "type": "string"
+            },
+            {
+              "id": "e743c1c5-c7a6-48be-ace6-641c3187ad0d",
+              "name": "horarioInicio",
+              "value": "={{ $json.horarioInicio }}",
+              "type": "string"
+            },
+            {
+              "id": "cb720d03-a72d-4c4c-a5c9-3ee3ec799178",
+              "name": "horariofinal",
+              "value": "={{ $json.horarioFim }}",
+              "type": "string"
+            },
+            {
+              "id": "10768c40-58ca-4220-b564-bede3d5fff8a",
+              "name": "dia_data",
+              "value": "={{ $json.dataFormatada }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a66e390b-05cd-499a-acd6-9ab8f2aede92",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        620,
+        17780
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pegando os valores do input do n8n\nconst inputData = $input.first().json;\nconst startDateTime = inputData.start.dateTime; // \"2025-03-06T11:35:00-03:00\"\nconst endDateTime = inputData.end.dateTime; // \"2025-03-06T12:35:00-03:00\"\n\n// Criando objetos Date para as datas\nconst dataInicio = new Date(startDateTime);\nconst dataFim = new Date(endDateTime);\n\n// Array com os dias da semana em português\nconst diasDaSemana = [\"domingo\", \"segunda-feira\", \"terça-feira\", \"quarta-feira\", \"quinta-feira\", \"sexta-feira\", \"sábado\"];\n\n// Extraindo e formatando a **data com dia da semana**\nconst diaSemana = diasDaSemana[dataInicio.getDay()];\nconst dia = String(dataInicio.getDate()).padStart(2, '0');\nconst mes = String(dataInicio.getMonth() + 1).padStart(2, '0');\nconst ano = dataInicio.getFullYear();\nconst dataFormatada = `${diaSemana}, ${dia}/${mes}/${ano}`;\n\n// Extraindo e formatando **apenas os horários**\nconst horaInicio = String(dataInicio.getHours()).padStart(2, '0');\nconst minutoInicio = String(dataInicio.getMinutes()).padStart(2, '0');\nconst horarioInicio = `${horaInicio}:${minutoInicio}`;\n\nconst horaFim = String(dataFim.getHours()).padStart(2, '0');\nconst minutoFim = String(dataFim.getMinutes()).padStart(2, '0');\nconst horarioFim = `${horaFim}:${minutoFim}`;\n\n// Retornando os dados formatados\nreturn {\n  json: {\n    dataFormatada: dataFormatada, // Exemplo: \"quinta-feira, 06/03/2025\"\n    horarioInicio: horarioInicio, // Exemplo: \"11:35\"\n    horarioFim: horarioFim // Exemplo: \"12:35\"\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        17780
+      ],
+      "id": "ca763f9b-5197-4726-94f2-2f30c5d784df",
+      "name": "Code6"
+    },
+    {
+      "parameters": {
+        "jsCode": "const horarioData = `${$input.first().json.dia_data} da ${$input.first().json.horarioInicio} às ${$input.first().json.horariofinal}`;\nconst linkCall = $input.first().json.Link;\nconst assunto = $('Google Calendar3').first().json.summary;\n\nconst output = `\nHorário e Data: ${horarioData}\n\nLink da Call: ${linkCall}\n\nAssunto: ${assunto}\n`;\n\nreturn [{ json: { output } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        17780
+      ],
+      "id": "61cf63fb-42d2-4170-826f-2f1a3832a138",
+      "name": "Code8"
+    },
+    {
+      "parameters": {
+        "content": "### **1️⃣ Execute Workflow Trigger - Disparando o Fluxo**\n- **Nome do Nó:** `Execute Workflow Trigger`\n- **O que faz?**  \n  - É o **gatilho** que inicia o fluxo.  \n- **Por que existe?**  \n  - Para permitir que o fluxo seja **ativado a partir de outra automação** ou requisição externa.  \n- **O que acontece depois?**  \n  - Os dados recebidos são enviados para o **Switch**, que define o tipo de operação (agendamento, cancelamento, etc.).  \n",
+        "height": 360,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3800,
+        16300
+      ],
+      "typeVersion": 1,
+      "id": "aa814e3a-5eee-476a-b96f-fe0895346655",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### **2️⃣ Switch - Decidindo a Ação a Tomar**\n- **Nome do Nó:** `Switch`\n- **O que faz?**  \n  - Decide qual caminho seguir no fluxo com base na variável **Evento**.  \n- **Por que existe?**  \n  - Para garantir que o fluxo execute **apenas a operação necessária**.  \n- **Como funciona?**  \n  - Se `Evento = \"disponibilidade\"`, segue para verificação de horários disponíveis.  \n  - Se `Evento = \"agendamento\"`, segue para criar um novo evento.  \n  - Se `Evento = \"cancelamento\"`, segue para cancelar um evento existente.  \n  - Se `Evento = \"reagendamento\"`, segue para alterar um evento.  \n- **O que acontece depois?**  \n  - O fluxo se divide para tratar cada tipo de requisição separadamente.  \n",
+        "height": 480,
+        "width": 340
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3260,
+        16180
+      ],
+      "typeVersion": 1,
+      "id": "c7f037ea-f7f8-47da-b0e8-733cb24b56fe",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "### **3️⃣ Buscar Eventos - Consultando Horários Já Ocupados**\n- **Nome do Nó:** `Buscar Eventos`\n- **O que faz?**  \n  - Busca **todos os eventos já agendados** no Google Calendar.  \n- **Por que existe?**  \n  - Para garantir que **nenhum evento seja agendado em um horário que já está ocupado**.  \n- **Como funciona?**  \n  - Ele acessa o Google Calendar e retorna **todos os eventos futuros**.  \n- **O que acontece depois?**  \n  - Os dados dos eventos são organizados no nó **Edit Fields6**.  \n",
+        "height": 400,
+        "width": 280
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2420,
+        15280
+      ],
+      "id": "26fcd237-76b6-44d8-9e11-07291094fed5",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "### **3️⃣ Code1 - Processando os Dados do Google Calendar**\n- **Nome do Nó:** `Code1`\n- **O que faz?**  \n  - **Verifica e organiza os eventos existentes** no Google Calendar.  \n- **Por que existe?**  \n  - Para garantir que **os dados estejam corretos** e formatados adequadamente.  \n- **Como funciona?**  \n  - Converte as **datas e horários** para um formato utilizável.\n  - Extrai **e-mails dos participantes** da reunião.\n  - Retorna os dados organizados para os próximos nós.  \n- **O que acontece depois?**  \n  - Os dados seguem para o **Edit Fields2**, onde serão armazenados.  \n",
+        "height": 560
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1640,
+        15120
+      ],
+      "typeVersion": 1,
+      "id": "3504a0e4-2430-4d21-909d-c24c00d5e4c8",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "### **2️⃣ Edit Fields6 - Organizando os Dados**\n- **Nome do Nó:** `Edit Fields6`\n- **O que faz?**  \n  - **Formata os dados** retornados pelo **Google Calendar** para facilitar o processamento.  \n- **Por que existe?**  \n  - O Google Calendar fornece muitos dados, e **nem todos são necessários** para o fluxo.  \n- **Como funciona?**  \n  - Mantém apenas informações úteis, como:\n    - **Horário de início e fim** do evento.\n    - **ID do evento**.\n    - **Status do evento**.  \n- **O que acontece depois?**  \n  - Os dados seguem para o **Code1**, onde serão processados.  \n",
+        "height": 540
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2020,
+        15140
+      ],
+      "typeVersion": 1,
+      "id": "27122f02-40bc-4a5f-85d1-67b2de5c0d57",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "### **4️⃣ Edit Fields2 - Salvando Informações Processadas**\n- **Nome do Nó:** `Edit Fields2`\n- **O que faz?**  \n  - **Armazena** os dados processados pelo **Code1**.  \n- **Por que existe?**  \n  - Para garantir que os dados **possam ser reutilizados nos próximos passos** do fluxo.  \n- **Como funciona?**  \n  - Ele **mantém os valores formatados** prontos para o próximo nó.  \n- **O que acontece depois?**  \n  - Os dados seguem para o **Code2**, onde serão verificados para ações futuras.  \n",
+        "height": 460
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1280,
+        15220
+      ],
+      "typeVersion": 1,
+      "id": "a75bb63a-3c4f-462f-bc7a-161881dd2c24",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "### **5️⃣ Code2 - Identificando Links do Google Meet**\n- **Nome do Nó:** `Code2`\n- **O que faz?**  \n  - Verifica **se a mensagem contém um link do Google Meet** com **agendamento**.  \n- **Por que existe?**  \n  - Para identificar **chamadas agendadas via Meet** e tratá-las corretamente.  \n- **Como funciona?**  \n  - **Lê a mensagem** e verifica:\n    - Se contém um **link do Google Meet** (`meet.google.com`).\n    - Se há **indicadores de agendamento** (`?hs=`, `&hs=`, ou um código de data e horário).  \n- **O que acontece depois?**  \n  - O resultado (`isMeetSchedule`) é adicionado ao JSON para uso futuro.  \n",
+        "height": 580
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        15100
+      ],
+      "typeVersion": 1,
+      "id": "94773f0a-47e2-4dbc-809d-af493c2d161e",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "### **1️⃣ Formata Entradas - Ajustando Datas para o Google Calendar**\n- **Nome do Nó:** `Formata Entradas`\n- **O que faz?**  \n  - Converte **datas enviadas pelo usuário** para o formato correto usado no Google Calendar.  \n- **Por que existe?**  \n  - O Google Calendar exige datas em **ISO 8601** (`YYYY-MM-DDTHH:MM:SS-03:00`).  \n  - Esse nó **transforma o horário enviado pelo usuário no formato correto**.  \n- **Como funciona?**  \n  - Ele recebe uma **data em formato brasileiro** (`dd/MM/yyyy HH:mm:ss`).  \n  - Converte para **UTC** e depois ajusta para o fuso horário do Brasil.  \n  - Calcula a **data de término** do evento (adicionando +1 hora).  \n  - Retorna:\n    - `horarioFormatado` → Data e horário formatado.  \n    - `encerramento` → Data de término ajustada.  \n- **O que acontece depois?**  \n  - As datas seguem para o **Edita Campos**, onde são armazenadas.  \n",
+        "height": 600,
+        "width": 340
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2460,
+        15960
+      ],
+      "typeVersion": 1,
+      "id": "948948f0-e4ea-4bcf-bab1-fc9f0d7a4e66",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "### **2️⃣ Edita Campos - Organizando os Dados**\n- **Nome do Nó:** `Edita Campos`\n- **O que faz?**  \n  - Guarda as **datas processadas** pelo nó anterior.  \n- **Por que existe?**  \n  - Para garantir que as **datas formatadas fiquem disponíveis** para o Google Calendar.  \n- **Como funciona?**  \n  - Ele armazena:\n    - `inicio_hora` → Horário de início do evento.  \n    - `final_hora` → Horário de término do evento.  \n- **O que acontece depois?**  \n  - As datas seguem para o **Marca**, que cria o evento no Google Calendar.  \n",
+        "height": 520
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1900,
+        16020
+      ],
+      "typeVersion": 1,
+      "id": "fd7409e1-8e42-455e-9702-cb809bd29e46",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "content": "### **3️⃣ Marca - Criando um Evento no Google Calendar**\n- **Nome do Nó:** `Marca`\n- **O que faz?**  \n  - Cria **automaticamente** um novo evento no **Google Calendar**.  \n- **Por que existe?**  \n  - Para permitir que o **n8n agende reuniões automaticamente**.  \n- **Como funciona?**  \n  - Ele usa os horários salvos no nó anterior e cria um evento com:\n    - **Título personalizado** (`Call de Estruturação com {{nome}}`).  \n    - **Descrição da reunião** (`Plano estruturado de inteligência artificial`).  \n    - **E-mail do participante** (para envio do convite).  \n    - **Link do Google Meet** (gerado automaticamente).  \n- **O que acontece depois?**  \n  - O evento é criado no Google Calendar e segue para o **Code** para processamento adicional.  \n",
+        "height": 580,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1540,
+        15960
+      ],
+      "typeVersion": 1,
+      "id": "66f2ff86-0b75-491b-a535-444bd3af77a8",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "### **4️⃣ Code - Processando o Novo Agendamento**\n- **Nome do Nó:** `Code`\n- **O que faz?**  \n  - Formata os detalhes do **evento recém-criado** no Google Calendar.  \n- **Por que existe?**  \n  - O Google Calendar retorna **dados brutos**, que precisam ser formatados corretamente.  \n- **Como funciona?**  \n  - Ele processa as informações do evento e retorna:\n    - **Data formatada** (`quinta-feira, 06/03/2025`).  \n    - **Horário formatado** (`11:35 - 12:35`).  \n- **O que acontece depois?**  \n  - Os dados seguem para o **Edit Fields**, onde são organizados para exibição final.  \n",
+        "height": 560
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1140,
+        15980
+      ],
+      "typeVersion": 1,
+      "id": "fe608e2b-12e1-41b2-8dd8-87868d77c169",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "### **5️⃣ Edit Fields - Salvando Detalhes do Evento**\n- **Nome do Nó:** `Edit Fields`\n- **O que faz?**  \n  - Guarda e organiza os dados formatados pelo nó anterior.  \n- **Por que existe?**  \n  - Para preparar as informações para a resposta ao usuário.  \n- **Como funciona?**  \n  - Ele armazena:\n    - **Horário de início e fim do evento**.  \n    - **Link do Google Meet** gerado.  \n    - **Data formatada**.  \n- **O que acontece depois?**  \n  - Os dados seguem para o **Code5**, onde serão estruturados para envio.  \n",
+        "height": 500
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -840,
+        16040
+      ],
+      "typeVersion": 1,
+      "id": "bff15d88-cce6-4522-b28f-41204695d637",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "content": "### **6️⃣ Code5 - Criando a Mensagem de Resumo**\n- **Nome do Nó:** `Code5`\n- **O que faz?**  \n  - Gera a mensagem final com **os detalhes do agendamento**.  \n- **Por que existe?**  \n  - Para que o usuário receba **um resumo claro e estruturado** sobre sua reunião.  \n- **Como funciona?**  \n  - Ele monta a seguinte mensagem:\n    ```\n    Horário e Data: Quinta-feira, 06/03/2025 - 11:35 às 12:35\n    Link da Call: meet.google.com/xxxxx\n    Assunto: Call de Estruturação com João\n    ```\n- **O que acontece depois?**  \n  - A mensagem pode ser enviada para o usuário por e-mail ou WhatsApp.  \n",
+        "height": 540,
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        16000
+      ],
+      "typeVersion": 1,
+      "id": "871a8233-5ade-480a-a73d-c490a0265a25",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "content": "### **2️⃣ Edit Fields9 - Estruturando os Dados**\n- **Nome do Nó:** `Edit Fields9`\n- **O que faz?**  \n  - Organiza as informações dos eventos obtidos no Google Calendar.  \n- **Por que existe?**  \n  - Para filtrar e estruturar os eventos de forma que possam ser processados corretamente nos próximos nós.  \n- **Como funciona?**  \n  - Mantém apenas informações úteis, como:\n    - `horario_ocupado_start` → Horário de início do evento.  \n    - `horario_ocupado_end` → Horário de término do evento.  \n    - `id_evento_calendar` → Identificador do evento.  \n    - `email_attend` → Lista de e-mails dos participantes.  \n- **O que acontece depois?**  \n  - Os dados seguem para o **Code7**, onde serão processados.  \n",
+        "height": 500,
+        "width": 340
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1980,
+        16840
+      ],
+      "typeVersion": 1,
+      "id": "be16fd28-7d33-4337-b854-fbc2e19ae04e",
+      "name": "Sticky Note16"
+    },
+    {
+      "parameters": {
+        "content": "### **4️⃣ Filtro Evento2 - Verificando Conflitos**\n- **Nome do Nó:** `Filtro Evento2`\n- **O que faz?**  \n  - Checa se o evento **já está agendado** ou **possui conflitos de horário**.  \n- **Por que existe?**  \n  - Para evitar que **um evento duplicado** seja criado no Google Calendar.  \n- **Como funciona?**  \n  - Compara a data e o horário do evento novo com os já existentes.  \n  - Se houver **conflito**, o fluxo pode seguir um caminho alternativo.  \n- **O que acontece depois?**  \n  - Se **não houver conflito**, o fluxo segue para o **Google Calendar1**, onde o evento pode ser excluído ou modificado.  \n",
+        "height": 560
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        16780
+      ],
+      "typeVersion": 1,
+      "id": "dd179dea-3793-4790-a8bb-9a9920d0cd48",
+      "name": "Sticky Note17"
+    },
+    {
+      "parameters": {
+        "content": "### **5️⃣ Google Calendar1 - Removendo ou Alterando Eventos**\n- **Nome do Nó:** `Google Calendar1`\n- **O que faz?**  \n  - Exclui ou modifica um evento no Google Calendar, caso necessário.  \n- **Por que existe?**  \n  - Se houver conflitos de horário, pode ser necessário **remover ou reagendar um evento**.  \n- **Como funciona?**  \n  - Ele recebe o **ID do evento** filtrado e realiza a ação apropriada:\n    - **Excluir evento** se não for mais necessário.  \n    - **Alterar horário** caso precise ser remarcado.  \n- **O que acontece depois?**  \n  - Os dados seguem para o **Edit Fields3**, onde serão armazenados.  \n",
+        "height": 460,
+        "width": 360
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        16880
+      ],
+      "typeVersion": 1,
+      "id": "457d9caf-754c-465c-a8d6-db2ac5ebf618",
+      "name": "Sticky Note18"
+    },
+    {
+      "parameters": {
+        "content": "### **6️⃣ Edit Fields3 - Armazenando as Modificações**\n- **Nome do Nó:** `Edit Fields3`\n- **O que faz?**  \n  - Guarda os dados atualizados sobre os eventos no Google Calendar.  \n- **Por que existe?**  \n  - Para manter um histórico atualizado sobre quais eventos foram **alterados ou removidos**.  \n- **Como funciona?**  \n  - Ele armazena:\n    - `horario_ocupado_start` → Novo horário inicial.  \n    - `horario_ocupado_end` → Novo horário final.  \n    - `id_evento_calendar` → Identificador do evento no Google Calendar.  \n    - `cancelado` → Status do evento (confirmado ou removido).  \n- **O que acontece depois?**  \n  - Os dados são armazenados para uso futuro no fluxo.  \n",
+        "height": 540,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        16800
+      ],
+      "typeVersion": 1,
+      "id": "1c5c5f6a-ad5d-4040-9ac4-732828955ea2",
+      "name": "Sticky Note19"
+    },
+    {
+      "parameters": {
+        "content": "### **3️⃣ Code7 - Formatando as Datas e E-mails**\n- **Nome do Nó:** `Code7`\n- **O que faz?**  \n  - Processa os dados obtidos no Google Calendar, formatando corretamente horários e e-mails.  \n- **Por que existe?**  \n  - O Google Calendar retorna datas em **formato ISO 8601**, que precisam ser ajustadas para um formato legível.  \n- **Como funciona?**  \n  - Ele converte:\n    - **Horário UTC** → Ajusta para o fuso horário do Brasil.  \n    - **Formato de exibição** → Transforma para `dd/MM/yyyy HH:mm`.  \n  - Extrai o **primeiro e-mail da lista de participantes** para exibição no agendamento.  \n- **O que acontece depois?**  \n  - Os dados seguem para o **Filtro Evento2**, onde serão analisados.  \n",
+        "height": 540,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1540,
+        16800
+      ],
+      "typeVersion": 1,
+      "id": "1638e6b1-c9f2-4b3c-8c8e-70b4fb841d85",
+      "name": "Sticky Note20"
+    },
+    {
+      "parameters": {
+        "content": "### **1️⃣ Buscar Eventos3 - Obtendo Agendamentos do Google Calendar**\n- **Nome do Nó:** `Buscar Eventos3`\n- **O que faz?**  \n  - Obtém **todos os eventos já cadastrados** no Google Calendar para verificar disponibilidade.  \n- **Por que existe?**  \n  - Para garantir que **não existam conflitos de horário** ao tentar agendar um novo evento.  \n- **Como funciona?**  \n  - Realiza uma busca no Google Calendar, retornando:\n    - **Horário de início e fim** dos eventos.  \n    - **ID do evento**.  \n    - **E-mails dos participantes**.  \n- **O que acontece depois?**  \n  - Os dados são enviados para o **Edit Fields9**, onde serão organizados.  \n",
+        "height": 460,
+        "width": 340
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2460,
+        16880
+      ],
+      "typeVersion": 1,
+      "id": "6a2cd05c-c1f3-4376-a667-f8d8a363b292",
+      "name": "Sticky Note21"
+    },
+    {
+      "parameters": {
+        "content": "### **1️⃣ Buscar Eventos1 - Obtendo Eventos Agendados**\n- **Nome do Nó:** `Buscar Eventos1`\n- **O que faz?**  \n  - Obtém **todos os eventos já cadastrados** no Google Calendar.\n- **Por que existe?**  \n  - Para verificar se o evento já foi registrado antes de fazer alterações.\n- **Como funciona?**  \n  - Ele busca eventos e retorna:\n    - `horário de início` e `horário de término`.\n    - `ID do evento`.\n    - `E-mails dos participantes`.\n- **O que acontece depois?**  \n  - As informações seguem para o **Edit Fields7**, onde serão organizadas.  \n",
+        "height": 440,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2460,
+        17960
+      ],
+      "typeVersion": 1,
+      "id": "ed6e6ffc-be0e-4829-92f2-65cb164196c8",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "### **2️⃣ Edit Fields7 - Formatando Dados**\n- **Nome do Nó:** `Edit Fields7`\n- **O que faz?**  \n  - Filtra e estrutura os dados dos eventos obtidos.\n- **Por que existe?**  \n  - Para garantir que os dados estejam no formato correto antes de serem processados.\n- **Como funciona?**  \n  - Mantém somente informações essenciais, como:\n    - `horario_ocupado_start` → Início do evento.\n    - `horario_ocupado_end` → Fim do evento.\n    - `id_evento_calendar` → Identificador único.\n    - `email_attend` → Lista de e-mails.\n- **O que acontece depois?**  \n  - Os dados são enviados para o **Code3**, onde serão analisados.  \n",
+        "height": 520,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1940,
+        17940
+      ],
+      "typeVersion": 1,
+      "id": "48b28dfc-1c5f-42d8-834d-1a0bbc6b261c",
+      "name": "Sticky Note22"
+    },
+    {
+      "parameters": {
+        "content": "### **3️⃣ Code3 - Processando Informações do Evento**\n- **Nome do Nó:** `Code3`\n- **O que faz?**  \n  - Processa os dados e faz ajustes necessários nos horários e formato.\n- **Por que existe?**  \n  - Para converter o horário UTC do Google Calendar para um formato local legível.\n- **Como funciona?**  \n  - Ele ajusta os horários e extrai:\n    - **Horário formatado para o Brasil**.\n    - **E-mail principal dos participantes**.\n- **O que acontece depois?**  \n  - Os dados seguem para o **Filtro Evento**, onde serão validados.  \n",
+        "height": 500,
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1500,
+        17940
+      ],
+      "typeVersion": 1,
+      "id": "1abdf43f-2e8d-4b71-89ec-a92a6ae1e73b",
+      "name": "Sticky Note23"
+    },
+    {
+      "parameters": {
+        "content": "### **4️⃣ Filtro Evento - Evitando Conflitos**\n- **Nome do Nó:** `Filtro Evento`\n- **O que faz?**  \n  - Verifica se o evento já foi processado e evita duplicações.\n- **Por que existe?**  \n  - Para impedir que o mesmo evento seja atualizado várias vezes sem necessidade.\n- **Como funciona?**  \n  - Compara os eventos atuais e decide se deve continuar o fluxo.\n- **O que acontece depois?**  \n  - Se **não houver duplicação**, segue para **Code4**.\n  - Se **já existir**, pode interromper o fluxo.  \n",
+        "height": 440,
+        "width": 280
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1100,
+        17940
+      ],
+      "typeVersion": 1,
+      "id": "258c5299-7a25-4237-a36c-f223f5daa569",
+      "name": "Sticky Note24"
+    },
+    {
+      "parameters": {
+        "content": "### **5️⃣ Code4 - Gerando Dados para Atualização**\n- **Nome do Nó:** `Code4`\n- **O que faz?**  \n  - Prepara os dados para atualização do evento no Google Calendar.\n- **Por que existe?**  \n  - O Google Calendar precisa de um formato específico para atualizar eventos.\n- **Como funciona?**  \n  - Ajusta os horários e define o **novo status do evento**.\n- **O que acontece depois?**  \n  - Os dados seguem para **Google Calendar3** para serem aplicados.  \n",
+        "height": 400,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -700,
+        17940
+      ],
+      "typeVersion": 1,
+      "id": "cf5c955b-7fe9-471d-955e-e16603e593e7",
+      "name": "Sticky Note25"
+    },
+    {
+      "parameters": {
+        "content": "### **6️⃣ Google Calendar3 - Atualizando o Evento**\n- **Nome do Nó:** `Google Calendar3`\n- **O que faz?**  \n  - Atualiza os eventos existentes no Google Calendar.\n- **Por que existe?**  \n  - Para modificar eventos sem criar novos registros.\n- **Como funciona?**  \n  - Ele usa o **ID do evento** e aplica as alterações:\n    - **Mudança de horário**.\n    - **Atualização de participantes**.\n    - **Modificação do status**.\n- **O que acontece depois?**  \n  - Os dados seguem para **Code6**, onde são processados novamente.  \n",
+        "height": 500,
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -280,
+        17940
+      ],
+      "typeVersion": 1,
+      "id": "1dfc5caa-8cfa-43bb-bd46-030830541429",
+      "name": "Sticky Note26"
+    },
+    {
+      "parameters": {
+        "content": "### **7️⃣ Code6 - Validando Modificações**\n- **Nome do Nó:** `Code6`\n- **O que faz?**  \n  - Verifica se a atualização foi bem-sucedida.\n- **Por que existe?**  \n  - Para confirmar que o evento foi alterado corretamente.\n- **Como funciona?**  \n  - Ele recebe a resposta do Google Calendar e valida:\n    - **Se houve erro ou sucesso**.\n    - **Se o evento foi alterado conforme esperado**.\n- **O que acontece depois?**  \n  - Os dados seguem para **Edit Fields1**, onde são armazenados.  \n",
+        "height": 500
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        17940
+      ],
+      "typeVersion": 1,
+      "id": "c79dcb34-060d-41b4-8537-fbaf57d570c8",
+      "name": "Sticky Note27"
+    },
+    {
+      "parameters": {
+        "content": "### **8️⃣ Edit Fields1 - Armazenando Alterações**\n- **Nome do Nó:** `Edit Fields1`\n- **O que faz?**  \n  - Guarda os dados atualizados do evento.\n- **Por que existe?**  \n  - Para manter um histórico das mudanças feitas no Google Calendar.\n- **Como funciona?**  \n  - Ele salva:\n    - **Novo horário** do evento.\n    - **Status da atualização**.\n    - **ID do evento atualizado**.\n- **O que acontece depois?**  \n  - Os dados seguem para **Code8** para um último processamento.  \n",
+        "height": 500
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        540,
+        17940
+      ],
+      "typeVersion": 1,
+      "id": "c41c2dc3-bb6c-452c-a9a3-fc142d445510",
+      "name": "Sticky Note29"
+    },
+    {
+      "parameters": {
+        "content": "### **9️⃣ Code8 - Finalizando o Processo**\n- **Nome do Nó:** `Code8`\n- **O que faz?**  \n  - Processa os dados finais e fecha a atualização.\n- **Por que existe?**  \n  - Para garantir que o fluxo termine corretamente.\n- **Como funciona?**  \n  - Faz uma verificação final e retorna o status de sucesso ou erro.\n- **O que acontece depois?**  \n  - O fluxo finaliza, deixando o evento atualizado no Google Calendar.  \n",
+        "height": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        17940
+      ],
+      "typeVersion": 1,
+      "id": "a6bae728-5afc-4d03-93bf-671efc1740bf",
+      "name": "Sticky Note30"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Buscar Eventos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formata Entradas ",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Buscar Eventos3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Buscar Eventos1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Eventos": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Eventos1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Filtro Evento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marca": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata Entradas ": {
+      "main": [
+        [
+          {
+            "node": "Edita Campos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edita Campos": {
+      "main": [
+        [
+          {
+            "node": "Marca",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtro Evento": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Eventos3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields9": {
+      "main": [
+        [
+          {
+            "node": "Code7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code7": {
+      "main": [
+        [
+          {
+            "node": "Filtro Evento2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtro Evento2": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code6": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar3": {
+      "main": [
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7ad861a4-c661-4345-9d4d-27c7e95d36b8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "385c06b6bbed00452a824dd157a142ab661dedbca13fb1106183d4d0295a4f6e"
+  },
+  "id": "8OAElqirM1rh8P8s",
+  "tags": []
+}

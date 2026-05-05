@@ -1,0 +1,827 @@
+{
+  "name": "P8 | Disparador de Mensagens em Massa",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "d04ed731-f0d8-4803-bf32-aa03689644e3",
+      "name": "OpenAI4",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -700,
+        840
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "30e649ad-2007-43a2-b8d5-a8962410d235",
+      "name": "Replace Me",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        420,
+        940
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.text",
+        "options": {}
+      },
+      "id": "ea9da1ac-44c3-45d4-83a3-0b5157f69ac8",
+      "name": "Picota a Mensagem",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1EOHuoIFYjl_U5HwdlGzdrQM-5-2ULUMcpgSpnAOuJYs/edit",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EOHuoIFYjl_U5HwdlGzdrQM-5-2ULUMcpgSpnAOuJYs/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "25e799bb-e21a-43dd-9d14-20c8eda6c0d4",
+      "name": "Buscar Contatos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        -1200,
+        500
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "0dd688e8-ccab-416a-aada-0d5fa461386e",
+      "name": "Loop User",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1020,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "id": "77ca24ea-c777-4095-945f-8ea47268767e",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        420,
+        720
+      ],
+      "webhookId": "676c3a30-073e-4a0a-818b-a20693a5fdc3"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1EOHuoIFYjl_U5HwdlGzdrQM-5-2ULUMcpgSpnAOuJYs/edit",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EOHuoIFYjl_U5HwdlGzdrQM-5-2ULUMcpgSpnAOuJYs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Loop User').item.json.row_number }}",
+            "Status": "Enviado"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Nome",
+              "displayName": "Nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Whatsapp",
+              "displayName": "Whatsapp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9ff950bf-9027-4179-af50-43fe969f0d8e",
+      "name": "Atualiza Sucesso",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        260,
+        560
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"nome\": \"nome do cliente aqui\",\n\t\"whatsapp\": \"numero do whatsapp aqui\",\n  \t\"text\": \"texto da mensagem aqui\"\n}"
+      },
+      "id": "6c5ca8dc-d7f4-4c2c-8437-ed87b2264374",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        -840,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dee715f2-3a27-421b-b195-d8dbe487b750",
+              "name": "output.text",
+              "value": "={{ $json.output.text.split('\\n\\n') }}",
+              "type": "array"
+            },
+            {
+              "id": "4457d17b-3a1c-46c7-bf42-e220567c6ccc",
+              "name": "output.numero",
+              "value": "={{ $json.output.whatsapp }}",
+              "type": "string"
+            },
+            {
+              "id": "f190ab0d-d8b9-4004-b294-98e6966d5318",
+              "name": "output.name",
+              "value": "={{ $json.output.nome }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dba3cf32-46ec-459a-8867-bd76ee25de31",
+      "name": "Variáveis",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -540,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": "={{ $('Loop Mensagem').context.done }}"
+        }
+      },
+      "id": "58097687-6244-45ab-9355-74c743ab5506",
+      "name": "Loop Mensagem",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -120,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.random_number }}"
+      },
+      "id": "bb951dc5-05d6-4aec-a91c-86a4abf989a9",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        940
+      ],
+      "webhookId": "361ee23d-d547-4a09-973d-8ffdb7a3c459"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolution.fluxautomate.com.br/message/sendText/fluxnocode",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('Loop User').item.json.Whatsapp }}\",\n    \"text\": \"{{ $json['output.text'] }}\",\n    \"delay\": 1200\n}",
+        "options": {}
+      },
+      "id": "92eef0e4-de20-4297-b011-5590bfa01314",
+      "name": "Evolution",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        100,
+        640
+      ],
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1EOHuoIFYjl_U5HwdlGzdrQM-5-2ULUMcpgSpnAOuJYs/edit",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EOHuoIFYjl_U5HwdlGzdrQM-5-2ULUMcpgSpnAOuJYs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Loop User').item.json.row_number }}",
+            "Status": "Não Enviado"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Nome",
+              "displayName": "Nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Whatsapp",
+              "displayName": "Whatsapp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d86bc374-5e64-405e-b2dc-aee7e6f1c162",
+      "name": "Atualiza Não Sucesso",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        260,
+        720
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Busca os Clientes",
+        "height": 225.10606890517715,
+        "width": 302.4959969484381,
+        "color": 7
+      },
+      "id": "276e397f-0ec3-407b-a127-35b3fef5981c",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Processa a mensagem",
+        "height": 694.1919739164066,
+        "width": 457.24798939218897,
+        "color": 7
+      },
+      "id": "8cdc9836-9a27-4846-a3d7-ba276dec449d",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Separa as mensagens",
+        "height": 694.1919739164066,
+        "width": 301.3012910470426,
+        "color": 7
+      },
+      "id": "e91db7c9-a7ce-4cfb-b5f7-16e8cc4ecc56",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -565.0954808437855,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Envia as mensagens",
+        "height": 463.5693019017988,
+        "width": 810.7671484925577,
+        "color": 7
+      },
+      "id": "5e1d5921-3672-4053-94de-bcf4b13366c8",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -244,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Retorna para o próximo",
+        "height": 214.7504519589401,
+        "width": 809.2085114528281,
+        "color": 7
+      },
+      "id": "584e8e37-14a6-48c1-9a9c-7b7b2dd75028",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -243.5647399705283,
+        900
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Pagina Html",
+        "height": 454.80981358197926,
+        "width": 302.62680126755697,
+        "color": 7
+      },
+      "id": "4203bd05-e93b-4cc0-9165-9e963c81e5ad",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1359.8672122019939,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "6d52d1de-4fd5-4ee1-a72c-67b5bca6c022",
+      "name": "Respond to Webhook1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -1280,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Finalizado",
+        "options": {}
+      },
+      "id": "63bea527-27b9-4603-bb1d-f6ea8c7cfa39",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -820,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Enviar Mensagem</title>\n    <style>\n        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap');\n        \n        body {\n            background-color: #000;\n            color: #fff;\n            font-family: 'Montserrat', sans-serif;\n            display: flex;\n            flex-direction: column;\n            align-items: center;\n            justify-content: center;\n            height: 100vh;\n            margin: 0;\n            text-align: center;\n        }\n        .logo {\n            width: 200px;\n            margin-bottom: 20px;\n            padding-top: 30px;\n        }\n        .container {\n            width: 80%;\n            max-width: 500px;\n            display: flex;\n            flex-direction: column;\n            align-items: center;\n            justify-content: center;\n        }\n        textarea, .button {\n            width: 100%;\n            height: 200px;\n            padding: 20px;\n            border-radius: 10px;\n            border: none;\n            font-size: 16px;\n        }\n        .button {\n            height: 50px;\n            background-color: #02F181;\n            color: #000;\n            font-size: 18px;\n            border-radius: 5px;\n            cursor: pointer;\n            margin-top: 20px;\n            padding-top: 10px;\n            padding-bottom: 10px;\n        }\n        .button:disabled {\n            background-color: #555;\n            cursor: not-allowed;\n        }\n        .loading {\n            display: none;\n            margin-top: 10px;\n        }\n        .toast {\n            position: fixed;\n            bottom: 20px;\n            right: 20px;\n            background-color: rgba(2, 241, 129, 0.9);\n            color: #000;\n            padding: 15px 20px;\n            border-radius: 8px;\n            font-size: 16px;\n            font-weight: 600;\n            display: none;\n            opacity: 0;\n            transition: opacity 0.5s ease-in-out;\n        }\n        .toast.show {\n            display: block;\n            opacity: 1;\n        }\n    </style>\n</head>\n<body>\n    <img src=\"https://fluxautomate.com.br/wp-content/uploads/2024/10/Logo.svg\" alt=\"Logo\" class=\"logo\">\n    <div class=\"container\">\n        <textarea id=\"message\" placeholder=\"Digite sua mensagem...\"></textarea>\n        <button id=\"sendButton\" class=\"button\" onclick=\"sendMessage()\">Enviar Mensagem</button>\n        <div class=\"loading\" id=\"loading\">Enviando mensagem...</div>\n    </div>\n    <div class=\"toast\" id=\"toast\">Mensagem enviada com sucesso!</div>\n    \n    <script>\n        function sendMessage() {\n            var message = document.getElementById(\"message\").value;\n            var button = document.getElementById(\"sendButton\");\n            var loading = document.getElementById(\"loading\");\n            var toast = document.getElementById(\"toast\");\n\n            if (!message.trim()) {\n                alert(\"Por favor, preencha a mensagem antes de enviar.\");\n                document.getElementById(\"message\").focus();\n                return;\n            }\n\n            button.disabled = true;\n            loading.style.display = \"block\";\n\n            fetch(\"https://webhooks.fluxautomate.com.br/webhook/607ef9a8-8d5a-4cbc-97f9-7b6abf0e6ca1\", {\n                method: \"POST\",\n                headers: { \"Content-Type\": \"application/json\" },\n                body: JSON.stringify({ text: message })\n            })\n            .then(response => {\n                loading.style.display = \"none\";\n                button.disabled = false;\n                document.getElementById(\"message\").value = \"\";\n                \n                if (!response.ok) {\n                    throw new Error(\"Erro na requisição: \" + response.statusText);\n                }\n                return response.text(); // Pegando a resposta como texto\n            })\n            .then(data => {\n                showToast();\n            })\n            .catch(error => {\n                alert(\"Erro ao enviar a mensagem. Tente novamente.\");\n                console.error(\"Erro: \", error);\n                button.disabled = false;\n                loading.style.display = \"none\";\n            });\n        }\n\n        function showToast() {\n            var toast = document.getElementById(\"toast\");\n            toast.classList.add(\"show\");\n            setTimeout(() => {\n                toast.classList.remove(\"show\");\n            }, 3000);\n        }\n    </script>\n</body>\n</html>\n"
+      },
+      "id": "49da2e43-3669-47f7-8a60-c083d13ed927",
+      "name": "HTML",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -1200,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gera um número aleatório entre 1 e 10\nconst randomNumber = Math.floor(Math.random() * 7) + 1;\n\n// Retorna o número no formato esperado\nreturn [{ json: { random_number: randomNumber } }];\n"
+      },
+      "id": "1ba8fdf9-a572-4834-8e6f-5c7e7c798717",
+      "name": "Randon Timer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        100,
+        940
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "607ef9a8-8d5a-4cbc-97f9-7b6abf0e6ca1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "fa585c22-61be-41f9-8bcc-f6e6f5a2cba6",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1340,
+        500
+      ],
+      "webhookId": "607ef9a8-8d5a-4cbc-97f9-7b6abf0e6ca1"
+    },
+    {
+      "parameters": {
+        "path": "fcd1bfd1-28a7-4081-b88b-3894e8ab3950",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "7fb081c1-e1e2-4285-92de-54049d1b4dec",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1340,
+        720
+      ],
+      "webhookId": "fcd1bfd1-28a7-4081-b88b-3894e8ab3950"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<CONTATO>{{ $json.Whatsapp }}</CONTATO>\n<CLIENTE>{{ $json.Nome }} </CLIENTE>\n<EXEMPLO> {{ $('Webhook').item.json.body.text }} </EXEMPLO>",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um assistente comercial especializado em WhatsApp, responsável por criar mensagens personalizadas e dinâmicas para o {{ $json.Nome }}.\n\nSua função é reformular a mensagem fornecida abaixo, tornando-a mais atrativa, legível e variada, garantindo que não sejam enviadas mensagens idênticas e evitando que o WhatsApp classifique como spam.\n\nMensagem Original:\n{{ $('Webhook').item.json.body.text }}\n\nRegras para Reformulação:\n. Personalização: Inclua o nome do cliente [NOME] no início da mensagem para tornar a comunicação mais próxima e formal.\n. Uso de Formatação: Utilize negrito com asteriscos (*exemplo*) para destacar palavras ou frases importantes.\n. Inclusão de Emojis: Adicione emojis de forma estratégica e natural, tornando a mensagem mais envolvente e amigável, sem exageros.\n. Variação do Texto: Reformule trechos da mensagem para evitar repetição entre os envios, mantendo a naturalidade e o significado original.\n. Fidelidade ao Contexto: Nunca altere o assunto principal da mensagem. Mantenha datas, horários e informações essenciais inalterados.\n. Quebra de Linhas (\\n): Estruture a mensagem em estrofes curtas para facilitar a leitura no WhatsApp.\n. Correção Ortográfica: Garanta que a mensagem esteja gramaticalmente correta, corrigindo possíveis erros.\n. Tom Conversacional e Direto: Evite textos muito formais ou robóticos. A comunicação deve ser clara, objetiva e amigável.\n\nImportante:\n\n. Saída Esperada:\nMensagem reformulada com variação, formatação e emojis, mantendo o contexto original e otimizando a legibilidade.\n\n"
+        }
+      },
+      "id": "639c5fc7-5aa0-46b3-8b96-d0a1bf52c6d1",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        -860,
+        620
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Contatos": {
+      "main": [
+        [
+          {
+            "node": "Loop User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop User": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Variáveis": {
+      "main": [
+        [
+          {
+            "node": "Picota a Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Mensagem": {
+      "main": [
+        [
+          {
+            "node": "Randon Timer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Evolution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution": {
+      "main": [
+        [
+          {
+            "node": "Atualiza Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Atualiza Não Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualiza Sucesso": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualiza Não Sucesso": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Randon Timer": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Buscar Contatos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Picota a Mensagem": {
+      "main": [
+        [
+          {
+            "node": "Loop Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Variáveis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e556a350-268e-4cfd-a108-42a48c238077",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "RDdutR586jJYWfsD",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

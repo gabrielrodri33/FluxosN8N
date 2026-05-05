@@ -1,0 +1,108 @@
+{
+  "name": "P1 | Onboarding | 1. Formulario",
+  "nodes": [
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Landing Page - Flux Automate</title>\n  <style>\n    /* Base Styles */\n    body {\n      margin: 0;\n      padding: 0;\n      font-family: Arial, sans-serif;\n      background-color: #000;\n      color: #fff;\n      display: flex;\n      flex-direction: column;\n      align-items: center;\n    }\n\n    .header, .footer {\n      width: 100%;\n      text-align: center;\n      padding: 20px 0;\n    }\n\n    .header img {\n      max-width: 200px;\n    }\n\n    .body {\n      width: 90%;\n      max-width: 800px;\n      margin: 20px 0;\n      text-align: left;\n    }\n\n    .form-section {\n      margin-bottom: 20px;\n    }\n\n    .form-section h3 {\n      margin-bottom: 10px;\n    }\n\n    .form-group {\n      display: flex;\n      justify-content: space-between;\n      margin-bottom: 15px;\n    }\n\n    .form-group input {\n      padding: 10px;\n      font-size: 14px;\n      border: 1px solid #ccc;\n      border-radius: 5px;\n      width: 100%;\n      box-sizing: border-box;\n    }\n\n    .form-group label {\n      font-size: 14px;\n      margin-bottom: 5px;\n      display: block;\n    }\n\n    .half-width {\n      width: 48%;\n    }\n\n    .full-width {\n      width: 100%;\n    }\n\n    .two-thirds-width {\n      width: 68%;\n    }\n\n    .one-third-width {\n      width: 30%;\n    }\n\n    button {\n      width: 100%;\n      padding: 15px;\n      font-size: 16px;\n      color: #fff;\n      background-color: #28a745;\n      border: none;\n      border-radius: 5px;\n      cursor: pointer;\n    }\n\n    button:hover {\n      background-color: #218838;\n    }\n\n    .notification {\n      position: fixed;\n      top: 0;\n      left: 0;\n      width: 100%;\n      padding: 15px;\n      text-align: center;\n      font-size: 16px;\n      z-index: 1000;\n    }\n\n    .notification.error {\n      background-color: orange;\n      color: #000;\n    }\n\n    .notification.success {\n      background-color: #28a745;\n      color: #fff;\n    }\n\n    .footer {\n      font-size: 14px;\n      margin-top: 20px;\n    }\n  </style>\n</head>\n<body>\n  <!-- Header -->\n  <div class=\"header\">\n    <img src=\"https://fluxautomate.com.br/wp-content/uploads/2024/10/Logo.svg\" alt=\"Flux Automate Logo\">\n  </div>\n\n  <!-- Body -->\n<div class=\"body\">\n  <form id=\"contractForm\">\n  <!-- Dados da Empresa -->\n  <div class=\"form-section\">\n    <h3>Dados da Empresa</h3>\n    <div class=\"form-group\">\n      <div class=\"half-width\">\n        <label for=\"companyName\">Nome da Empresa</label>\n        <input type=\"text\" id=\"companyName\" name=\"companyName\" placeholder=\"Digite o nome da empresa\" required>\n      </div>\n      <div class=\"half-width\">\n        <label for=\"cpfCnpj\">CPF/CNPJ</label>\n        <input type=\"text\" id=\"cpfCnpj\" name=\"cpfCnpj\" placeholder=\"Digite o CPF ou CNPJ\" required>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <div class=\"two-thirds-width\">\n        <label for=\"street\">Nome da Rua</label>\n        <input type=\"text\" id=\"street\" name=\"street\" placeholder=\"Digite o nome da rua\" required>\n      </div>\n      <div class=\"one-third-width\">\n        <label for=\"number\">Número</label>\n        <input type=\"text\" id=\"number\" name=\"number\" placeholder=\"Digite o número\" required>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <div class=\"half-width\">\n        <label for=\"zip\">CEP</label>\n        <input type=\"text\" id=\"zip\" name=\"zip\" placeholder=\"Digite o CEP\" required>\n      </div>\n      <div class=\"half-width\">\n        <label for=\"neighborhood\">Bairro</label>\n        <input type=\"text\" id=\"neighborhood\" name=\"neighborhood\" placeholder=\"Digite o bairro\" required>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <div class=\"half-width\">\n        <label for=\"city\">Cidade</label>\n        <input type=\"text\" id=\"city\" name=\"city\" placeholder=\"Digite a cidade\" required>\n      </div>\n      <div class=\"half-width\">\n        <label for=\"state\">Estado</label>\n        <input type=\"text\" id=\"state\" name=\"state\" placeholder=\"Digite o estado\" required>\n      </div>\n    </div>\n\n\n  <!-- Objetivo -->\n  <div class=\"form-section\">\n    <h3>Objetivo</h3>\n    <div class=\"form-group\">\n      <div class=\"full-width\">\n        <label for=\"objective\">Objetivo</label>\n        <input type=\"text\" id=\"objective\" name=\"objective\" placeholder=\"Digite o objetivo\" required>\n      </div>\n    </div>\n  </div>\n\n    <!-- Servicos -->\n  <div class=\"form-section\">\n    <h3>Serviços</h3>\n    <div class=\"form-group\">\n      <div class=\"full-width\">\n        <label for=\"servicos\">Serviços</label>\n        <input type=\"text\" id=\"servicos\" name=\"servicos\" placeholder=\"Digite os serviços\" required>\n      </div>\n    </div>\n  </div>\n\n  <!-- Pagamento -->\n  <div class=\"form-section\">\n    <h3>Pagamento e Vigência</h3>\n    <div class=\"form-group\">\n      <div class=\"half-width\">\n        <label for=\"payment\">Pagamento</label>\n        <input type=\"text\" id=\"payment\" name=\"payment\" placeholder=\"Digite o pagamento\" required>\n      </div>\n      <div class=\"half-width\">\n        <label for=\"vigencia\">Vigência do contrato</label>\n        <input type=\"text\" id=\"vigencia\" name=\"vigencia\" placeholder=\"Digite o vigência do contrato\" required>\n      </div>\n    </div>\n  </div>\n  \n  <!-- Dados do Cliente -->\n  \n  <div class=\"form-section\">\n    <h3>Dados do Cliente</h3>\n    <div class=\"form-group\">\n      <div class=\"half-width\">\n        <label for=\"contractorName\">Nome do Contratante</label>\n        <input type=\"text\" id=\"contractorName\" name=\"contractorName\" placeholder=\"Digite o nome do contratante\" required>\n      </div>\n      <div class=\"half-width\">\n        <label for=\"email\">E-mail</label>\n        <input type=\"email\" id=\"email\" name=\"email\" class=\"input-field\" placeholder=\"Digite seu e-mail\" required/>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <div class=\"half-width\">\n        <label for=\"telefone\">Telefone do Contratante</label>\n        <input type=\"text\" id=\"telefone\" name=\"telefone\" placeholder=\"Digite o telefone\" required>\n      </div>\n      <div class=\"half-width\">\n        <label for=\"date\">Data da Assinatura</label>\n        <input type=\"date\" id=\"date\" name=\"date\" required>\n      </div>\n    </div>\n  </div>\n\n  <!-- Botão -->\n  <button type=\"submit\">GERAR CONTRATO</button>\n</form>\n</div>\n\n  <!-- Footer -->\n  <div class=\"footer\">\n    Flux Automate © TODOS DIREITOS RESERVADOS. 2024\n  </div>\n\n  <!-- Scripts -->\n  <script>\n // Seleciona o formulário pelo ID\nconst form = document.getElementById('contractForm');\n\nform.addEventListener('submit', async (e) => {\n  e.preventDefault();\n\n  // Criar o FormData corretamente\n  const formData = new FormData(form);\n\n  // Verificar campos obrigatórios\n  let isValid = true;\n  for (const [key, value] of formData.entries()) {\n    if (!value.trim()) {\n      isValid = false;\n      document.getElementsByName(key)[0].focus();\n      showNotification('Preencha todos os campos!', 'error');\n      return;\n    }\n  }\n\n  // Validação específica do campo email\n  const email = formData.get('email');\n  const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n\n  if (!emailRegex.test(email)) {\n    document.getElementsByName('email')[0].focus();\n    showNotification('Por favor, insira um e-mail válido.', 'error');\n    return;\n  }\n\n  // Submissão do formulário\n  try {\n    const response = await fetch('https://n8n.fluxautomate.com.br/webhook-test/gerar_contrato', {\n      method: 'POST',\n      body: JSON.stringify(Object.fromEntries(formData)),\n      headers: { 'Content-Type': 'application/json' }\n    });\n\n    if (response.ok) {\n      showNotification('Dados enviados com sucesso!', 'success');\n      form.reset();\n    } else {\n      showNotification('Erro ao enviar os dados.', 'error');\n    }\n  } catch (error) {\n    showNotification('Erro de conexão.', 'error');\n  }\n});\n\n\n    function showNotification(message, type) {\n      const notification = document.createElement('div');\n      notification.className = `notification ${type}`;\n      notification.textContent = message;\n      document.body.appendChild(notification);\n      setTimeout(() => notification.remove(), 3000);\n    }\n  </script>\n</body>\n</html>\n"
+      },
+      "id": "04565d0d-7f91-46d0-be5e-7c0139aa565f",
+      "name": "HTML",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        580,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "3a25f8ab-526d-493f-91db-f45a640f5538",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Html\n**Gerando uma página Html de formulário",
+        "height": 271,
+        "width": 768,
+        "color": 6
+      },
+      "id": "6727bba9-edc6-4039-b2d5-6c141e558d8a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        260,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "path": "formulario_contrato",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "8f10c4b1-31b0-41ea-b445-dc45679ea1e4",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        360,
+        800
+      ],
+      "webhookId": "4166c3d2-2e96-4c6b-aac7-d0c3e0cfc57a"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "647ab154-4b28-42d2-9692-b74585e4afd1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "G7xvcNUFNENoHmVc",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

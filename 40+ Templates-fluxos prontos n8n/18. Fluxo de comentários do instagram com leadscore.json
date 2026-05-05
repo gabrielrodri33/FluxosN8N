@@ -1,0 +1,1036 @@
+{
+  "name": "P5 | Comentários Instagram | V2",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "id": "cbb0f319-0abd-4559-a9e3-e2204e8f6599",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.instagram.com/v21.0/{{ $item(\"0\").$node[\"Dados Insta\"].json[\"ID Postagem\"] }}/replies",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer IGQWRQNW00NDFVUmxESTB5dFIzNVNUY1U1M0wyQTIxemhNOTRKaENEdWVmOXd2UEl5X3FsUng1ZAWFDSXVaSUh3ckgwcVlxTUpSMFlhdlVmYlFmOEk2YVpseG1pLTNzWlU4c2dFbU9EcWt4MkJrSWFHTVNaazltOVEZD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.output.split(':')[1] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "125fcc25-d6f4-4b49-ad3b-3d9f53ac1446",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2360,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5dd13d41-1255-476a-8bb1-acb56b3e043e",
+              "name": "ID Meu Insta",
+              "value": "={{ $json.body.entry[0].id }}",
+              "type": "string"
+            },
+            {
+              "id": "1a11b521-cfd8-471e-8846-1ce3bd74302f",
+              "name": "ID Insta que comentou",
+              "value": "={{ $json.body.entry[0].changes[0].value.from.id }}",
+              "type": "string"
+            },
+            {
+              "id": "d84d76fd-5ef3-4363-b431-9f717b1192f5",
+              "name": "Name do Insta que comentou",
+              "value": "={{ $json.body.entry[0].changes[0].value.from.username }}",
+              "type": "string"
+            },
+            {
+              "id": "28835900-f412-4b0e-829d-6e2909fe276d",
+              "name": "ID Postagem",
+              "value": "={{ $json.body.entry[0].changes[0].value.id }}",
+              "type": "string"
+            },
+            {
+              "id": "a371e454-757c-4f0e-8eae-8f3e8323d6e1",
+              "name": "Mensagem",
+              "value": "={{ $json.body.entry[0].changes[0].value.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "29b26b9b-1833-4dda-9653-0c260a86d959",
+      "name": "Dados Insta",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1200,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Valida Webhooks",
+        "height": 261.37907835618455,
+        "width": 487.75568709541625,
+        "color": 3
+      },
+      "id": "4c0e0419-804a-42e5-a1cc-a602816c8974",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        620,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Recebe Webhooks de Comentários",
+        "height": 269.84002288146854,
+        "width": 487.75568709541625,
+        "color": 3
+      },
+      "id": "d3b8d826-8b6c-4f64-a843-be94a70385e4",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        620,
+        536.9218890505683
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Filtrando e Tratando Comentário",
+        "height": 355.64857964160535,
+        "width": 977.702657921265,
+        "color": 5
+      },
+      "id": "ce8976fc-d8fc-40ea-aa32-9304e8bfef8a",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        238.1582571719598
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {}
+      },
+      "id": "4197496a-bc98-40b5-b9ca-c1e0d8dd8c19",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1580,
+        660
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ohJcTmmbqUJwwRxxVyd1fiARJfF_4DT5G7b_JmxJHXU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ohJcTmmbqUJwwRxxVyd1fiARJfF_4DT5G7b_JmxJHXU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $now.format('dd/MM/yyyy') }}",
+            "Post ID": "={{ $json['ID Postagem'] }}",
+            "Resposta": "={{ $json.Resposta }}",
+            "Comentário": "={{ $json['Comentário'] }}",
+            "Score do Comentário": "={{ $json.Score }}",
+            "ID Insta que comentou": "={{ $json['ID Insta de quem comentou'] }}",
+            "Insta que Comentou": "={{ $json['Quem Comentou'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post ID",
+              "displayName": "Post ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Insta que Comentou",
+              "displayName": "Insta que Comentou",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID Insta que comentou",
+              "displayName": "ID Insta que comentou",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score do Comentário",
+              "displayName": "Score do Comentário",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comentário",
+              "displayName": "Comentário",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resposta",
+              "displayName": "Resposta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "780c9779-e46b-424b-9c76-713846c81562",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2960,
+        360
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Tools",
+        "height": 179.12473395803693,
+        "width": 975.2376644750104,
+        "color": 7
+      },
+      "id": "e93849ea-0572-4e28-900c-2e9496bc3c4e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1142.23451875878,
+        626.81618651958
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Resposta Instagram",
+        "height": 658.255342032366,
+        "width": 518.9686956084286,
+        "color": 6
+      },
+      "id": "12e99b70-1d2b-4167-92be-81213bf71e79",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2153.2312443797728,
+        239.59551159795012
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Salvar na planilha",
+        "height": 624.963817600964,
+        "width": 478.08030554329036,
+        "color": 7
+      },
+      "id": "da24e976-fe9e-493b-8e3c-997ded99e488",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2700,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d3b1acbe-11ac-4b08-9f51-d51ce42a2c38",
+              "leftValue": "={{ $json.body.entry[0].changes[0].value.from.id }}",
+              "rightValue": "17841407114431495",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "e0735554-596d-4e6e-a378-3cb4c273da98",
+              "leftValue": "={{ $json.body.entry[0].id }}",
+              "rightValue": "17841407114431495",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "87d49ac0-da56-4970-a241-836776e40b56",
+              "leftValue": "={{ $json.body.object }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "e99dc50f-d3b3-463e-bc74-a3832c56467a",
+              "leftValue": "={{ $json.body.entry[0].changes[0].field }}",
+              "rightValue": "comments",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c53eab01-9dd7-4c47-ba14-abfe40eaa5fb",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://graph.instagram.com/v21.0/{{ $json['ID Postagem'] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer IGQWRQNW00NDFVUmxESTB5dFIzNVNUY1U1M0wyQTIxemhNOTRKaENEdWVmOXd2UEl5X3FsUng1ZAWFDSXVaSUh3ckgwcVlxTUpSMFlhdlVmYlFmOEk2YVpseG1pLTNzWlU4c2dFbU9EcWt4MkJrSWFHTVNaazltOVEZD"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4e3816fe-f292-4289-9588-1c28aec4dd75",
+      "name": "Desabilitar Comentário",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d50aad72-ad9f-4fb5-9062-66ef2d6dab39",
+              "name": "Comentário",
+              "value": "={{ $('Dados Insta').item.json['Mensagem'] }}",
+              "type": "string"
+            },
+            {
+              "id": "5292e5a5-7f8f-4828-b1fa-36be9b1885bc",
+              "name": "Score",
+              "value": "Positivo",
+              "type": "string"
+            },
+            {
+              "id": "0adcc1ac-5439-4607-97cc-5e9ef76de77a",
+              "name": "Quem Comentou",
+              "value": "={{ $('Dados Insta').item.json['Name do Insta que comentou'] }}",
+              "type": "string"
+            },
+            {
+              "id": "b60037e1-5dc2-4be9-a9a9-9f6076b9d833",
+              "name": "ID Insta de quem comentou",
+              "value": "={{ $('Dados Insta').item.json['ID Insta que comentou'] }}",
+              "type": "string"
+            },
+            {
+              "id": "26e72b28-75fd-422f-9176-f184328fc57c",
+              "name": "ID Postagem",
+              "value": "={{ $('Dados Insta').item.json['ID Postagem'] }}",
+              "type": "string"
+            },
+            {
+              "id": "da1fc012-35f5-4e47-a5be-fc99183181c2",
+              "name": "Resposta",
+              "value": "={{ $('AI Agent').item.json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "80be8060-0619-4dee-b973-df14feb3bd2c",
+      "name": "Edit Fields2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2740,
+        560
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "c7c02fa9-ed39-45e8-8856-7c6cd0a3f88e",
+      "name": "Calculator",
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "agent": "openAiFunctionsAgent",
+        "promptType": "define",
+        "text": "={{ $json.Mensagem }}",
+        "options": {
+          "systemMessage": "=**Não responda nada que não esteja em <INSTRUCAO></INSTRUCAO>, não dê nenhuma informação que esteja fora de <INSTRUCAO></INSTRUCAO.**\n\n**Aja apenas como descrito dentro de <INSTRUCAO></INSTRUCAO>.**\n\n<INSTRUCAO>  \nVocê é o agente virtual da conta do Instagram da empresa de automações. Sua função é responder comentários nos posts com base nas seguintes diretrizes:\n\n**Diretrizes de Resposta:**\n\n1. **Comentários positivos:** Responda com entusiasmo e gratidão, agradecendo o feedback e incentivando a interação com a marca. Evite respostas técnicas ou excessivamente detalhadas. Exemplos:\n   - \"Que bom que gostou, ficamos muito felizes com seu feedback!\"\n   - \"Agradecemos muito pelo seu comentário, é ótimo saber que curte nosso trabalho!\"\n   - \"Obrigado! Conte com a gente para automatizar ainda mais seu negócio!\"\n\n2. **Comentários técnicos ou muito específicos:** Redirecione o usuário para o direct (DM) para conversas mais aprofundadas. Exemplos:\n   - \"Me chame no direct para que eu possa te explicar melhor!\"\n   - \"Mande um DM para que possamos falar sobre isso com mais detalhes!\"\n   - \"Entre em contato pelo direct para conversarmos melhor sobre isso.\"\n\n3. **Formato da saída:** Retorne apenas uma mensagem:\n\nRegras Importantes:\n\nNunca forneça informações detalhadas sobre os cursos ou serviços diretamente nos comentários.\nSempre seja educado e profissional nas respostas.\nQuando houver dúvida sobre como proceder, responda incentivando o contato via direct (DM).\nExemplos de Comentários e Respostas:\n\nHUMAN: \"Que incrível esse conteúdo, adorei!\" AI:\nResponsta AI:\n    \"mensagem\": \"Que bom que gostou, ficamos muito felizes com seu feedback!\"\n\nHUMAN: \"Gostaria de saber quantos fluxos tem no curso.\" AI:\nResponsta AI:\n    \"mensagem\": \"Me chame no direct para que eu possa te explicar melhor!\"\n\nHUMAN: \"Isso é muito útil, parabéns pelo trabalho!\" AI:\nResponsta AI:\n    \"mensagem\": \"Agradecemos muito pelo seu comentário, é ótimo saber que curte \n\nHUMAN: \"Quero entender como configurar um fluxo no N8N.\" AI:\nResponsta AI:\n    \"mensagem\": \"Mande um DM para que possamos falar sobre isso com mais detalhes!\"\n\nResponda APENAS  uma mensagem final e siga estritamente as diretrizes acima.\n</INSTRUCAO>"
+        }
+      },
+      "id": "e1da398a-721f-45fb-885d-b4f002cde2b6",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        1820,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d50aad72-ad9f-4fb5-9062-66ef2d6dab39",
+              "name": "Comentário",
+              "value": "={{ $('Dados Insta').item.json['Mensagem'] }}",
+              "type": "string"
+            },
+            {
+              "id": "5292e5a5-7f8f-4828-b1fa-36be9b1885bc",
+              "name": "Score",
+              "value": "Negativo",
+              "type": "string"
+            },
+            {
+              "id": "0adcc1ac-5439-4607-97cc-5e9ef76de77a",
+              "name": "Quem Comentou",
+              "value": "={{ $('Dados Insta').item.json['Name do Insta que comentou'] }}",
+              "type": "string"
+            },
+            {
+              "id": "b60037e1-5dc2-4be9-a9a9-9f6076b9d833",
+              "name": "ID Insta de quem comentou",
+              "value": "={{ $('Dados Insta').item.json['ID Insta que comentou'] }}",
+              "type": "string"
+            },
+            {
+              "id": "26e72b28-75fd-422f-9176-f184328fc57c",
+              "name": "ID Postagem",
+              "value": "={{ $('Dados Insta').item.json['ID Postagem'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "009f38fb-38e7-4211-bf3a-0f0fb58e0ed0",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2740,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d50aad72-ad9f-4fb5-9062-66ef2d6dab39",
+              "name": "Comentário",
+              "value": "={{ $('Dados Insta').item.json['Mensagem'] }}",
+              "type": "string"
+            },
+            {
+              "id": "5292e5a5-7f8f-4828-b1fa-36be9b1885bc",
+              "name": "Score",
+              "value": "Neutro",
+              "type": "string"
+            },
+            {
+              "id": "0adcc1ac-5439-4607-97cc-5e9ef76de77a",
+              "name": "Quem Comentou",
+              "value": "={{ $('Dados Insta').item.json['Name do Insta que comentou'] }}",
+              "type": "string"
+            },
+            {
+              "id": "b60037e1-5dc2-4be9-a9a9-9f6076b9d833",
+              "name": "ID Insta de quem comentou",
+              "value": "={{ $('Dados Insta').item.json['ID Insta que comentou'] }}",
+              "type": "string"
+            },
+            {
+              "id": "26e72b28-75fd-422f-9176-f184328fc57c",
+              "name": "ID Postagem",
+              "value": "={{ $('Dados Insta').item.json['ID Postagem'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d138b75d-1208-4e7c-80db-e21a331d57fe",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2740,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.Mensagem }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Neutro"
+            },
+            {
+              "category": "Negativo"
+            },
+            {
+              "category": "Positivo"
+            }
+          ]
+        },
+        "options": {
+          "fallback": "other",
+          "systemPromptTemplate": "Não responda nada que não esteja em <INSTRUCAO></INSTRUCAO>. Não dê nenhuma informação que esteja fora de <INSTRUCAO></INSTRUCAO>.\n\n<INSTRUCAO> Você é um classificador de comentários do Instagram. Sua única função é identificar a categoria do comentário e classificá-lo em uma das três opções: **positivo**, **negativo**, ou **neutro**.  \n\nRegras de classificação:  \n\n1. **Classifique como \"positivo\"** se o comentário expressar sentimentos de aprovação, entusiasmo, elogios ou algo positivo em relação ao post. Exemplos:\n   - \"Que post incrível!\"\n   - \"Adorei isso, parabéns!\"\n   - \"Muito bom, estou aprendendo bastante.\"\n\n2. **Classifique como \"negativo\"** se o comentário expressar insatisfação, críticas, reclamações, xingamentos, ou algo pejorativo. Exemplos:\n   - \"Isso é uma perda de tempo.\"\n   - \"O conteúdo de vocês é péssimo.\"\n   - \"Não acredito que postaram isso, que vergonha.\"\n\n3. **Classifique como \"neutro\"** se o comentário for objetivo, sem expressar sentimentos positivos ou negativos, ou se utilizar palavras-chave que indiquem interação automatizada. Exemplos:\n   - \"meta\"\n   - \"google\"\n   - \"automação\"\n   - \"seguindo instruções para receber informações.\"\n   - \"Quero participar.\"\n\nRegras importantes:  \n- Retorne APENAS um dos três valores: **\"positivo\"**, **\"negativo\"**, ou **\"neutro\"**.  \n- Nunca forneça explicações ou informações adicionais.  \n- Sempre que houver dúvida ou o comentário for ambíguo, classifique como **\"neutro\"**.  \n\nExemplos de classificação:  \n\nUser: \"Esse conteúdo é maravilhoso, obrigado por compartilhar!\"  \nAI: positivo  \n\nUser: \"Isso não faz sentido, vocês só querem enganar as pessoas.\"  \nAI: negativo  \n\nUser: \"meta\"  \nAI: neutro  \n\nUser: \"Muito bom, parabéns pela qualidade do trabalho!\"  \nAI: positivo  \n\nUser: \"Como faço para participar dessa promoção?\"  \nAI: neutro  \n\nUser: \"Que vergonha postar algo assim, não volto mais aqui.\"  \nAI: negativo  \n\nFormato de saída:  \nRetorne APENAS um dos valores abaixo, sem nenhum texto adicional:  \n\n\"positivo\"  \n\"negativo\"  \n\"neutro\"  \n</INSTRUCAO>\n"
+        }
+      },
+      "id": "b58b28de-4b5f-4fc7-a0e4-5684857b5a42",
+      "name": "Classificador",
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "path": "05c1de47-c6ac-41a9-830a-4c3c9f544193",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "ff987ecf-5802-4e8c-8be3-411a91cd651b",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        680,
+        320
+      ],
+      "webhookId": "05c1de47-c6ac-41a9-830a-4c3c9f544193"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "05c1de47-c6ac-41a9-830a-4c3c9f544193",
+        "options": {}
+      },
+      "id": "ed20ee35-87b3-413d-8e1d-706026d17da8",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        680,
+        640
+      ],
+      "webhookId": "a67f095e-e185-48be-a1da-00eb2ae406f3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2e6fe9e3-bdc9-4416-ba66-b7c7d4d01b29",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "\"mensagem\"",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "485f28f9-0e90-4160-9671-23c71cece434",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2200,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.instagram.com/v21.0/{{ $item(\"0\").$node[\"Dados Insta\"].json[\"ID Postagem\"] }}/replies",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer IGQWRQNW00NDFVUmxESTB5dFIzNVNUY1U1M0wyQTIxemhNOTRKaENEdWVmOXd2UEl5X3FsUng1ZAWFDSXVaSUh3ckgwcVlxTUpSMFlhdlVmYlFmOEk2YVpseG1pLTNzWlU4c2dFbU9EcWt4MkJrSWFHTVNaazltOVEZD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a08696af-ed89-4b0e-8411-e436d5d140fd",
+      "name": "HTTP Request2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2360,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.instagram.com/v21.0/{{ $('Dados Insta').item.json[\"ID Meu Insta\"] }}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer IGQWRQNW00NDFVUmxESTB5dFIzNVNUY1U1M0wyQTIxemhNOTRKaENEdWVmOXd2UEl5X3FsUng1ZAWFDSXVaSUh3ckgwcVlxTUpSMFlhdlVmYlFmOEk2YVpseG1pLTNzWlU4c2dFbU9EcWt4MkJrSWFHTVNaazltOVEZD"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"comment_id\": \"{{ $('Dados Insta').item.json['ID Postagem'] }}\"\n  },\n  \"message\": {\n    \"text\": \"Grato por comentar em nosso post!\"\n  }\n}",
+        "options": {}
+      },
+      "id": "9049703d-04ba-4e1c-b0cd-741890a23857",
+      "name": "HTTP Request1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2520,
+        640
+      ],
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {
+    "Webhook1": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.fluxautomate.com.br",
+            "user-agent": "Webhooks/1.0 (https://fb.me/webhooks)",
+            "content-length": "346",
+            "accept": "*/*",
+            "content-type": "application/json",
+            "x-forwarded-for": "66.220.149.19",
+            "x-forwarded-host": "n8n.fluxautomate.com.br",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "a19ad8bfbb74",
+            "x-hub-signature": "sha1=605a9893a2cef5e0897a852ca7d895ccfdccf0a8",
+            "x-hub-signature-256": "sha256=5af7a2715330dbe6757209023da0d2b4f32ced0ba212aa0790fa00dfa8f32832",
+            "x-real-ip": "66.220.149.19",
+            "accept-encoding": "gzip"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "entry": [
+              {
+                "id": "17841407114431495",
+                "time": 1734638812,
+                "changes": [
+                  {
+                    "value": {
+                      "from": {
+                        "id": "1281680046167197",
+                        "username": "somoscentoeonze"
+                      },
+                      "media": {
+                        "id": "17921422172564586",
+                        "media_product_type": "FEED"
+                      },
+                      "id": "17981481173635630",
+                      "text": "As campanhas estão top por aí em"
+                    },
+                    "field": "comments"
+                  }
+                ]
+              }
+            ],
+            "object": "instagram"
+          },
+          "webhookUrl": "https://webhooks.fluxautomate.com.br/webhook-test/05c1de47-c6ac-41a9-830a-4c3c9f544193",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados Insta": {
+      "main": [
+        [
+          {
+            "node": "Classificador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Classificador",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Dados Insta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Desabilitar Comentário": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classificador": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Desabilitar Comentário",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "b4965b7c-5b69-4eb4-8a9d-575c78d802b7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "UyKBCXwUSc60rb3K",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

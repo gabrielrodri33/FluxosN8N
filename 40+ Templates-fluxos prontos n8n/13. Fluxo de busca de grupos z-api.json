@@ -1,0 +1,304 @@
+{
+  "name": "P17 | Buscar Grupos de Whatsapp Z-api",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "ca188345-2eeb-4473-afdd-971cf1cbd28a",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        720,
+        320
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "53bdc0ec-aad4-4f12-b6b4-80cb3c707db8",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1360,
+        320
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "c7fb9c0b-07e5-4803-81b0-41801d5b902c",
+      "name": "Replace Me",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.z-api.io/instances/3D19D6632A91E0131C5872B70F2FFCF9/token/9E0E3819549F6CE8749D439E/chats",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "pageSize",
+              "value": "100"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Client-Token"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "afad1658-1c94-4862-92d0-4755702bc2c3",
+      "name": "Buscar Grupos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        920,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fb8de0a0-b9b5-431c-9963-00ce636d6c80",
+              "leftValue": "={{ $json.isGroup }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1d7989d4-5d17-4dd4-aac9-2ee15065851a",
+      "name": "É um grupo?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1qbrkqOv-_94eUYcDtv5ncOYN4jUm-fO3mZI039WLUU4",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CQsER-D_TYHNzmItEcYYbwh8rzXRBiL3t2nWKDs-WjE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Grupo": "={{ $json.name }}",
+            "ID": "={{ $json.phone }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Grupo",
+              "displayName": "Grupo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "86ae531a-ad5f-4636-97ce-7aad3270acdb",
+      "name": "Adicionar na planilha",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1580,
+        340
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEhFXfgFEWcIFmhQ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3D19D6632A91E0131C5872B70F2FFCF9/token/9E0E3819549F6CE8749D439E/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Client-Token"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "120363337390680846-group"
+            },
+            {
+              "name": "message",
+              "value": "teste"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7e14b471-2ed5-46b3-b0f5-ee8bf6b290ef",
+      "name": "Enviar Mensagem em Grupo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        920,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Buscar todos os Grupos",
+        "height": 368,
+        "width": 1333
+      },
+      "id": "f4eb746f-89f5-492d-9f9e-6ca3ce07f20e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        660,
+        200
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Buscar Grupos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Adicionar na planilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Grupos": {
+      "main": [
+        [
+          {
+            "node": "É um grupo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "É um grupo?": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adicionar na planilha": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "be9881a0-a19c-4426-9bbf-758133074fa6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "VayWahTTRncnIBSZ",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

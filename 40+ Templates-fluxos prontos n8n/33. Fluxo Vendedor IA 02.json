@@ -1,0 +1,2084 @@
+{
+  "name": "33. Fluxo Vendedor IA 02",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "groupMessages": true
+        }
+      },
+      "id": "bbbacc34-3d15-4e0a-aab2-99325834463e",
+      "name": "Chat Memory Manager",
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        540,
+        -840
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "user",
+              "message": "={{ $json.messages }}"
+            }
+          ]
+        }
+      },
+      "id": "c19677ce-c94a-414a-a154-829437bf4281",
+      "name": "Chat Memory Manager1",
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        280,
+        -840
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "ad378210-36db-431e-81ae-ff213a57a133",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        -420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node['Webhook'].json.body.server_url }}/message/sendText/{{ $node['Webhook'].json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $node['Webhook'].json.body.apikey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $node['Webhook'].json.body.data.key.remoteJid }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{ $node['Webhook'].json.body.data.message.audioMessage ? Math.min(Math.trunc($node['Webhook'].json.body.data.message.audioMessage.seconds * 1000), 15000) : Math.min(Math.trunc($json.output.length / 10 * 1000), 15000) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "df590574-8d11-45b9-be56-9e78226eb0be",
+      "name": "Resposta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3040,
+        -560
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output",
+        "options": {}
+      },
+      "id": "ffdac294-b8a1-4174-b6c9-997c7bff25eb",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2780,
+        -800
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b212d8ae-d2c3-4c95-9be9-7c0f73e5344c",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2820,
+        -580
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "939acbed-02e9-424e-86f7-1761089d247e",
+              "name": "=output",
+              "value": "={{ $node[\"Mentoria\"].json.output ||  $node[\"IA Agent\"].json.output}}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9f0a6b62-c686-44ec-80d4-7a7ca75ed67c",
+      "name": "Transforma Output em Array",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2600,
+        -800
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "475b297c-4626-4fd3-b6d1-b41eb531d118",
+              "name": "histórico",
+              "value": "={{ $json.messages }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fdb4d856-a96c-4aed-9047-2a8607cfd8d1",
+      "name": "Historico de Chat",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        860,
+        -840
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0cdb1c63-c4a4-4941-9de9-b15a86719ab2",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f687a30-f3ae-4383-9f14-bfd89461af38",
+      "name": "Remove Vazios",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2620,
+        -580
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4902cd37-00ea-4b00-99c8-37919940c1b7",
+              "name": "message.remotejid",
+              "value": "={{ $json.body.data.key.remoteJid }}",
+              "type": "string"
+            },
+            {
+              "id": "bf4a8c96-7ba0-4e3c-a78f-37abf97d3314",
+              "name": "message.data",
+              "value": "={{ new Date($json.body.date_time).plus('3' 'hours').toDateTime(s).toISO()}}",
+              "type": "string"
+            },
+            {
+              "id": "a541c4c8-e656-4507-afb1-b2303ef11fe6",
+              "name": "message.type",
+              "value": "={{ $json.body.data.message.conversation ? 'text' : $json.body.data.message.audioMessage ? 'audio' :  $json.body.data.message.imageMessage ? 'image' : $json.body.data.message.documentWithCaptionMessage.message.documentMessage ? 'document' : ''}}",
+              "type": "string"
+            },
+            {
+              "id": "ed2aab43-be30-4f18-8a71-f9d15e97b946",
+              "name": "message.content_id",
+              "value": "={{ $json.body.data.key.id }}",
+              "type": "string"
+            },
+            {
+              "id": "9cd67f17-9498-43ac-b896-8a2752ff38de",
+              "name": "message.fromMe",
+              "value": "={{ $json.body.data.key.fromMe }}",
+              "type": "string"
+            },
+            {
+              "id": "0839df3c-b540-4556-b547-50659cea8a89",
+              "name": "message.device",
+              "value": "={{ $json.body.data.source }}",
+              "type": "string"
+            },
+            {
+              "id": "75bd060b-112a-4f11-921b-6aff991a77c9",
+              "name": "message.content",
+              "value": "={{ $json.body.data.message.conversation || $json.body.data.message.speechToText}}",
+              "type": "string"
+            },
+            {
+              "id": "a48d6fbe-b721-4ae3-9beb-c0e5dc386863",
+              "name": "message.quote",
+              "value": "={{ $json.body.data.contextInfo.quotedMessage.conversation }}",
+              "type": "string"
+            },
+            {
+              "id": "a6a4f220-ed34-413a-9820-64a8aad8ae48",
+              "name": "message.quote_id",
+              "value": "={{ $json.body.data.contextInfo.stanzaId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b83e0c76-aa58-4db7-9870-d51a14f706d3",
+      "name": "Mensagens Ajustadas",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2220,
+        -840
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "c85865fa-b265-47ab-8a2d-bc5b9f5f18ac",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -260,
+        -540
+      ],
+      "webhookId": "2bd0b5c5-524d-4639-94ed-62d9cf77c4d1"
+    },
+    {
+      "parameters": {},
+      "id": "cedb1901-4b9d-4511-8723-5a0ca7cb3dc8",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        20,
+        -1160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $json.body.data.key.remoteJid }}_block",
+        "value": "true",
+        "keyType": "string",
+        "expire": true,
+        "ttl": 900
+      },
+      "id": "638e5479-b85d-48d4-8a40-1852b8266568",
+      "name": "Bloqueia Bot por 15 minutos",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        -1020
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "block",
+        "key": "={{ $json.body.data.key.remoteJid }}_block",
+        "options": {}
+      },
+      "id": "9d052745-c853-4eed-9be1-adccdf151371",
+      "name": "Consulta ID do bloqueio",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        -680
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "0342d9c6-b93e-41d8-8dad-055df0f8d132",
+      "name": "No Operation, do nothing1",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -860,
+        -1020
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "200ca73b-5caf-4c0b-827e-5a33eb78bfc0",
+              "name": "messages",
+              "value": "={{ JSON.stringify($json.messages.map(value => JSON.parse(value).content).join('\\n')) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "id": "36c495bd-3cc1-4dbd-a7d8-32ed483e2113",
+      "name": "messages",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        100,
+        -840
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('Mensagens Ajustadas').item.json.message.remotejid }}_buffer"
+      },
+      "id": "820cd009-d09e-4284-9a68-ccc889f7f44a",
+      "name": "Delete Buffer",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -840
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "messages",
+        "key": "={{ $('Mensagens Ajustadas').item.json.message.remotejid }}_buffer",
+        "options": {}
+      },
+      "id": "0e3d05a0-29cb-480c-87fc-f6a472431924",
+      "name": "Get Buffer",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -840
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $node['Mensagens Ajustadas'].json.message.remotejid }}_buffer",
+        "messageData": "={{ JSON.stringify($node['Mensagens Ajustadas'].json.message) }}",
+        "tail": true
+      },
+      "id": "0391424b-2843-4909-9122-2697ad33ecab",
+      "name": "Insert Buffer",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -840
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "2f421422-6ac5-42a3-922c-f7436ca21673",
+      "name": "No Operation, do nothing2",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        -460
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3d37613c-e389-438a-b7d6-8a7c8a8f0246",
+                    "leftValue": "={{ $node['Consulta ID do bloqueio'].json.block }}",
+                    "rightValue": "false",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notExists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "prosseguir"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "bloqueado"
+        }
+      },
+      "id": "ea8c6d35-ccc9-4f26-bfb4-3fe445faabe4",
+      "name": "Bloqueio Existe?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -860,
+        -680
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.fromMe }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "enviado"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7a03a129-9962-4695-9e78-a7e140eb3f32",
+                    "leftValue": "={{ $json.message.fromMe }}",
+                    "rightValue": "false",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "recebido"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7a570ff9-2097-44b1-9508-0980a0d036b4",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1220,
+        -840
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b7cacbaa-8d8d-4de5-8851-b5fa5d9c89bf",
+              "leftValue": "={{ $node['Mensagens Ajustadas'].json.message.type }}",
+              "rightValue": "document",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bf4c0146-1001-47c6-83dd-0e8bb1d1bafd",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1460,
+        -840
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node['Webhook'].json.body.server_url }}/message/sendText/{{ $node['Webhook'].json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $node['Webhook'].json.body.apikey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $node['Webhook'].json.body.data.key.remoteJid }}"
+            },
+            {
+              "name": "text",
+              "value": "=Não consigo ler arquivos. 🥲"
+            },
+            {
+              "name": "delay",
+              "value": "={{1200}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7a346d83-d2b5-49f2-93dc-332ba5c0c244",
+      "name": "No document",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1420,
+        -580
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('Mensagens Ajustadas').item.json.message.remotejid }}_buffer"
+      },
+      "id": "3dbb458e-ab45-447f-8217-940863c6bc15",
+      "name": "Delete Buffer1",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -660,
+        -1460
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "mode": "delete",
+        "deleteMode": "all"
+      },
+      "id": "6bc69fba-c6c7-43ed-964c-0e89ebb5063e",
+      "name": "Chat Memory Manager2",
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        -460,
+        -1460
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $node['Webhook'].json.body.data.key.remoteJid }}_FollowUp",
+        "value": "1"
+      },
+      "id": "48fde420-8f6a-43a4-8652-d1883123c71a",
+      "name": "Redis",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        3520,
+        -720
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $node['Mensagens Ajustadas'].json.message.remotejid }}_FollowUp",
+        "value": "0"
+      },
+      "id": "b38c5ccd-f962-4298-a840-32ddd975f6c6",
+      "name": "Zera FollowUP",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -1720,
+        -840
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "separator": "\\n"
+        }
+      },
+      "id": "8aa6cf92-2780-4c68-9879-eee0e9331019",
+      "name": "Item List Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserItemList",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        -780
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "c2955b05-294e-4c83-b3a3-ba7c8c2af544",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3040,
+        -720
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Exclui o Rediz de Buffer e Histórico de chat memory\n\n",
+        "height": 351.00454887490673,
+        "width": 772.8021626510553,
+        "color": 3
+      },
+      "id": "9a7e97be-e074-4246-80c7-caf43669fef8",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -820,
+        -1620
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Agente de FollowUp\nAqui podemos adicionar um agente para determinar para qual sequência de followup esse usuário vai\n",
+        "height": 239.99854549009552
+      },
+      "id": "e8bc249e-6464-4f3f-b8eb-43ed3d454a0c",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        -1020
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Sistema Solicitou ajuda de um humano para responder de forma mais precisa a pergunta: {{ $('Mensagens Ajustadas').item.json.message.content }}."
+            }
+          ]
+        }
+      },
+      "id": "72643530-b67a-4cb4-ad91-78aa7a27c376",
+      "name": "Chat Memory Manager3",
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        2880,
+        -1280
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a414a63d-540a-46a9-b27c-abf8075ae6ec",
+                    "leftValue": "={{ $json.body.data.key.fromMe }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "eu mesmo"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.data.key.fromMe }}",
+                    "rightValue": "559883088359",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "=outros"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3b0ca674-f67c-43e1-a7f5-c9ecc4bcd80a",
+      "name": "verifica remoteJid",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -2640,
+        -880
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node['Webhook'].json.body.server_url }}/message/sendText/{{ $node['Webhook'].json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $node['Webhook'].json.body.apikey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "=5598983443157"
+            },
+            {
+              "name": "text",
+              "value": "=Estou com *dificuldade des responder* essa pergunta\n\nPergunta: {{ $('Mensagens Ajustadas').item.json.message.content }}\nRemoteJid: {{ $node['Mensagens Ajustadas'].json.message.remotejid }}\nID mensagem inicial: {{ $node['Mensagens Ajustadas'].json.message.content_id }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{1200}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c5c6046b-eb13-47b4-871b-5522252624b1",
+      "name": "Solicita Ajuda ADM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2700,
+        -1280
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=O ADM já respondeu a solicitação do sistema sobre pergunta do usuário, responsta do ADM: \"{{ $node['Mensagens Ajustadas'].json.message.content }}\". e o usuário já foi respondido."
+            }
+          ]
+        }
+      },
+      "id": "3950b2a5-20d3-49c8-82fa-81f1aae99634",
+      "name": "Insere Resposta ADM no Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        -1140,
+        -1240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f9b6cde0-d788-4146-bb93-9d5db7221077",
+              "leftValue": "={{ $json.body.data.key.remoteJid }}",
+              "rightValue": "559883088359@s.whatsapp.net",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "7a0dfc81-9f8f-44f9-9fda-8166d5712e8a",
+              "leftValue": "={{ $json.body.data.key.remoteJid }}",
+              "rightValue": "559883443157s.whatsapp.net",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c6108621-4cfd-41dd-8e7e-43fd252e33be",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2480,
+        -720
+      ]
+    },
+    {
+      "parameters": {
+        "inputText": "=message: {{ $('Mensagens Ajustadas').item.json.message.content }}\nResposta Mencionada: {{ $('Mensagens Ajustadas').item.json.message.quote }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Ajuda ADM",
+              "description": "Quando é uma resposta de um administrador sobre uma ajuda solicitada anteriormente por uma IA"
+            },
+            {
+              "category": "normal",
+              "description": "Não parece uma ajuda de um administrador."
+            }
+          ]
+        },
+        "options": {
+          "multiClass": false,
+          "systemPromptTemplate": "=# Papel\nSeu papel é revisar e verificar se a Mensagem gerada por outra IA foi precisa ou acabou inventando/supondo respostas que não possuia.\n\nVocê é uma IA projetada para fornecer respostas precisas e confiáveis. Se você não souber a resposta para uma pergunta ou se a pergunta estiver fora do seu escopo de conhecimento, simplesmente responda com: 'Ajuda Humana'. Nunca invente uma resposta ou faça suposições.\n\n# Regra\nSua resposta só pode ser 'Ajuda ADM' ou 'Normal'\n\n# Modelo de uma mensagem de Ajuda ADM\n\n\"Estou com *dificuldade des responder* essa pergunta\n\nPergunta: message:  pergunta inicial que levou a solicitação de ajuda\nRemoteJid: Identificador do numero do usuário que fez a pergunta inicial\"\n\nVerifique se esse padrão se encontra abaixo: {{ $('Mensagens Ajustadas').item.json.message.quote }}"
+        }
+      },
+      "id": "a0991545-c64e-49af-b0a3-06417e4925e0",
+      "name": "Juiz Resposta Mencionada",
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1,
+      "position": [
+        -2280,
+        -1220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node['Webhook'].json.body.server_url }}/message/sendText/{{ $node['Webhook'].json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $node['Webhook'].json.body.apikey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $json.message.quote.match(/RemoteJid:\\s(\\S+)/)[1] }}"
+            },
+            {
+              "name": "text",
+              "value": "=Opa, Já recebi uma resposta sobre isso"
+            },
+            {
+              "name": "delay",
+              "value": "={{1200}}"
+            },
+            {
+              "name": "quoted.key.id",
+              "value": "={{ $json.message.quote.match(/ID mensagem inicial:\\s(\\S+)/) ? $json.message.quote.match(/ID mensagem inicial:\\s(\\S+)/)[1] : 'null' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1451494e-79df-44ac-82ea-f2dce69d4021",
+      "name": "Responde Usuário (AJuda ADM) 01",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1840,
+        -1240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node['Webhook'].json.body.server_url }}/message/sendText/{{ $node['Webhook'].json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $node['Webhook'].json.body.apikey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $node['Mensagens Ajustadas'].json.message.quote.match(/RemoteJid:\\s(\\S+)/)[1] }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.message.content }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{1200}}"
+            },
+            {
+              "name": "quoted.key.id",
+              "value": "={{ $node['Mensagens Ajustadas'].json.message.quote.match(/ID mensagem inicial:\\s(\\S+)/) ? $node['Mensagens Ajustadas'].json.message.quote.match(/ID mensagem inicial:\\s(\\S+)/)[1] : 'null' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8ac7f300-dc2c-4490-bc8b-c09930d2cf7e",
+      "name": "Responde Usuário (AJuda ADM) 02",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1300,
+        -1240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node['Webhook'].json.body.server_url }}/message/sendText/{{ $node['Webhook'].json.body.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $node['Webhook'].json.body.apikey}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $node['Mensagens Ajustadas'].json.message.remotejid }}"
+            },
+            {
+              "name": "text",
+              "value": "=Ops, essa pergunta eu não sei te responder agora...\n\nMas perguntei para a gerência aqui, assim que me responderem, falo com você sobre isso."
+            },
+            {
+              "name": "delay",
+              "value": "={{1200}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "302a771e-9225-4aa4-a315-b64c13c08747",
+      "name": "Avisa que Solicitou Ajuda",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3220,
+        -1280
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.quote }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Tem Resposta Mencionada"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7a03a129-9962-4695-9e78-a7e140eb3f32",
+                    "leftValue": "={{ $json.message.quote }}",
+                    "rightValue": "false",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notExists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Não Tem Resposta Mencionada"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fcecf7fd-a8be-4926-8c0e-c37c5e402d3f",
+      "name": "Switch3",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -2060,
+        -840
+      ]
+    },
+    {
+      "parameters": {
+        "inputText": "=message: {{ $('Mensagens Ajustadas').item.json.message.content }}\nResposta IA: {{ JSON.stringify($json.output).replaceAll(',',' ').replaceAll('\"','').replace('[','').replace(']','') }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Ajuda Humana",
+              "description": "Quando a resposta IA não foi Precisa e pode chamar um humano para responder com mais exatidão."
+            },
+            {
+              "category": "normal",
+              "description": "Resposta faz sentido, é precisa e/ou satisfaz o questionamento e não necessita de ajuda humana."
+            }
+          ]
+        },
+        "options": {
+          "multiClass": false,
+          "systemPromptTemplate": "# Papel\nSeu papel é revisar e verificar se a Mensagem gerada por outra IA foi precisa ou acabou inventando/supondo respostas que não possuia.\n\nVocê é uma IA projetada para fornecer respostas precisas e confiáveis. Se você não souber a resposta para uma pergunta ou se a pergunta estiver fora do seu escopo de conhecimento, simplesmente responda com: 'Ajuda Humana'. Nunca invente uma resposta ou faça suposições.\n\n# Regra\nSua resposta só pode ser 'Ajuda Humana' ou 'Normal'"
+        }
+      },
+      "id": "d59c9b5d-15e6-4da4-b6b6-2276e6b1bb06",
+      "name": "Juiz",
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        -1160
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "memory",
+        "sessionTTL": 1000,
+        "contextWindowLength": 0
+      },
+      "id": "d938816d-859e-4163-b9ab-e0c6f4ef2cd5",
+      "name": "Redis Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [
+        620,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "Follow_up-VendedorIA",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "remotejid",
+              "keyValue": "={{ $node['Webhook'].json.body.data.key.remoteJid }}"
+            }
+          ]
+        }
+      },
+      "id": "51307429-57b9-4f64-81e8-3571b0ea7ed5",
+      "name": "Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3700,
+        -720
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d22120ee-51d9-4193-8654-b3fee28110c1",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a78b2891-8efe-4175-a54b-02e95c33f991",
+      "name": "If2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3920,
+        -720
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "Follow_up-VendedorIA",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "remotejid",
+              "fieldValue": "={{ $node['Webhook'].json.body.data.key.remoteJid }}"
+            }
+          ]
+        }
+      },
+      "id": "4e18ea01-e36c-4c1a-ac1d-f033b699f541",
+      "name": "Supabase1",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4240,
+        -840
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=# Papel\nSua principal função é responder um usuário, ele fez uma pergunta, a IA não soube responder e solicitou ajuda de um ADM, esse ADM por sua vez já mandou a resposta, seu papel é entender a pergunta e a resposta e gerar uma mensagem simples para o usuário com a resposta do ADM.\n\nPergunta: {{ $node['Mensagens Ajustadas'].json.message.quote.match(/Pergunta:\\s([\\s\\S]*?)\\nRemoteJid:/)[1] }}\nResposta ADM: {{ $('Mensagens Ajustadas').item.json.message.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6dd108e7-ae7d-4608-88be-75aa2ead8d9b",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.5,
+      "position": [
+        -1620,
+        -1240
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "38e6cbe3-09bf-4431-b3b9-a706613f39c7",
+        "options": {}
+      },
+      "id": "941a27b5-d440-4a82-a024-c7f68baa350e",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2820,
+        -880
+      ],
+      "webhookId": "38e6cbe3-09bf-4431-b3b9-a706613f39c7"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ JSON.parse($json.messages.first()).content_id }}",
+                    "rightValue": "={{ $('Mensagens Ajustadas').item.json.message.content_id }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "nda"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a0fcf2a8-9578-44c9-9070-a4787aed152e",
+                    "leftValue": "={{ JSON.parse($json.messages.last()).data }}",
+                    "rightValue": "={{ $now.minus(5, 'seconds') }}",
+                    "operator": {
+                      "type": "dateTime",
+                      "operation": "before"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "prosseguir"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "esperar"
+        }
+      },
+      "id": "46f05c46-a9b1-4f2f-8eff-86598bbe35f2",
+      "name": "Switch2",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -320,
+        -840
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Get, send and update data in Redis",
+        "operation": "set",
+        "key": "={{ $json.body.data.key.remoteJid }}_block",
+        "value": "true"
+      },
+      "id": "50a04ae6-3568-4c96-84e4-04924bf086b3",
+      "name": "Se auto-bloquear",
+      "type": "n8n-nodes-base.redisTool",
+      "typeVersion": 1,
+      "position": [
+        2660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Se Auto Bloquear\n\n\nPrompt\n<Após lead ser qualificado>\napós você concluir todo o processo acima, use a tool {Se auto-bloquear}\n<Após lead ser qualificado>\n",
+        "height": 567.1679231291859,
+        "width": 575.1687172100005
+      },
+      "id": "b964961e-06d8-4fa4-acb3-d13f262be71b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2480,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "=message: {{ $('Mensagens Ajustadas').item.json.message.content }}\nmessage_id: {{ $('Mensagens Ajustadas').item.json.message.content_id }}\nmessage quote: {{ $('Mensagens Ajustadas').item.json.message.quote ? $('Mensagens Ajustadas').item.json.message.quote : 'sem msg'}}\nmessage quote_id: {{ $('Mensagens Ajustadas').item.json.message.quote ? $('Mensagens Ajustadas').item.json.message.quote_id : 'sem msg'}}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=<Papel>\nSeu papel é ser mais do que um atendente que passa informações. Filtre dados como o tamanho da agência/operação, quantos clientes ativos, quantos gestores, e qual o maior problema que ele pensa em resolver com a mentoria. Tente passar que a mentoria não é para todos, por isso as perguntas. Após isso, pode passar as informações, de forma a valorizar o produto como um bom vendedor.\n\nFaça apenas uma pergunta, caso o usuário responda, vá para a próxima pergunta de acordo com o que ele já respondeu.\n\nVocê é uma IA projetada para fornecer respostas precisas e confiáveis. Se você não souber a resposta para uma pergunta ou se a pergunta estiver fora do seu escopo de conhecimento, simplesmente responda com: 'Ajuda Humana'. Nunca invente uma resposta ou faça suposições.\n\n</Papel>\n\n<Formatos Disponíveis>\nTemos mentoria e consultoria de implementação.\n</Formatos Disponíveis>\n\n<Consultoria de Implementação>\nQuando você quer implementar um dos fluxos do curso na sua operação de forma guiada. Fazemos uma call para implementar juntos; dessa forma, é mais fácil a absorção do conhecimento do curso, colocando em prática e podendo tirar dúvidas.\n</Consultoria de Implementação>\n\n<Mentoria Agência Automática>\nEssa mentoria tem acesso de 3 meses, com calls a cada 15 dias de suporte, análise dos seus fluxos 1 vez por mês de forma individual e trilhas de aplicação exclusivas disponíveis na plataforma com foco único: automatizar a maior parte do trabalho operacional de uma agência de tráfego pago.\n</Mentoria Agência Automática>\n\n<Objetivo Final>\nSeu objetivo final é agendar uma call com o usuário que tem interesse na mentoria. Conduza a conversa de forma a entender as necessidades do usuário e, então, proponha o agendamento.\n</Objetivo Final>\n\n<Interação com Mensagens>\nElogios, agradecimentos e mensagens respondidas na thread com elogio, você pode reagir a elas com um emoji de coração.\n\nCaso queira interagir com a mensagem principal:\n\n\t•\tmessage_id: {{ $('Mensagens Ajustadas').item.json.message.content_id }}\n\nCaso queira interagir com a mensagem respondida da thread:\n\n\t•\tmessage_quote_id: {{ $('Mensagens Ajustadas').item.json.message.quote ? $('Mensagens Ajustadas').item.json.message.quote_id : 'sem msg' }}\n\nEm caso de problemas ao reagir\n\nGeralmente o erro vai estar no fromMe. Tente como 'true' e depois como 'false' se retornar erro. Caso o erro persista, nunca diga ao usuário que houve um erro. Apenas agradeça o elogio, caso necessário. Nunca diga ao usuário que curtiu sua mensagem; apenas curta e não informe sobre isso.\n</Interação com Mensagens>\n\n<Padrão de Resposta>\nTodas as respostas que você enviar ou receber do usuário precisam estar formatadas em JSON, em um array de strings onde cada string seja uma parte da resposta. Cada resposta deve conter apenas uma pergunta ou afirmação. Adeque cada uma das strings para que seja legível ao usuário, lembrando que a mensagem final será enviada via WhatsApp. Não use, de forma alguma, padrão markdown para links ou imagens, pois não funciona no WhatsApp e prejudica a legibilidade. Pode usar emojis, quebras de linhas, no início e no final das palavras que queira deixar em negrito, caso tenha necessidade. Busque utilizar as pontuações como separador. Deixe a mensagem humanizada.\n\nPor favor, certifique-se de cumprir esta etapa.\n\n</Padrão de Resposta>\n\n<Tom da Conversa>\nUse um tom amigável e profissional, garantindo que a interação seja alinhada com a imagem da empresa.\n</Tom da Conversa>\n\n<Exemplos de Respostas>\nExemplo de formato de resposta em JSON:\n[\n  \"Olá! 😊 Poderia me contar um pouco sobre o tamanho da sua agência?\"\n]\n</Exemplos de Respostas>\n"
+        }
+      },
+      "id": "be11fd06-0c4d-4d68-9377-ed2bae7c92ab",
+      "name": "Mentoria",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        1440,
+        -1080
+      ]
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $node['Historico de Chat'].json['histórico'] }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "mentoria",
+              "description": "qual o usuário quer agendar uma call ou quer falar sobre mentoria"
+            },
+            {
+              "category": "suporte_curso",
+              "description": "apenas quando o usuário é aluno, para tirar duvida de coisas específicas como acessos, como acessar, perda de senha, sobre aulas, atualização, arquivos das auals..."
+            },
+            {
+              "category": "duvidas_sobre_curso",
+              "description": "quando o usuário demonstra estar no processo de compra ainda, tirando dúvidas sobre o curso"
+            },
+            {
+              "category": "implementação",
+              "description": "quando o usuário quer fazer uma implementação, quer contratar o serviço para criação de fluxos para sua ageência/operação/empresa."
+            }
+          ]
+        },
+        "options": {
+          "multiClass": false,
+          "fallback": "other",
+          "systemPromptTemplate": "Please classify the message history provided by the user into one of the following categories: {categories}, and use the provided formatting instructions below. Don't explain, and only output the json. only one, no more {categories}"
+        }
+      },
+      "id": "4e6c9d91-c66d-46b0-ac03-98d173cb27c4",
+      "name": "Text Classifier",
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        -840
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Chat Memory Manager1": {
+      "main": [
+        [
+          {
+            "node": "Chat Memory Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory Manager": {
+      "main": [
+        [
+          {
+            "node": "Historico de Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Mentoria",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Juiz",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Juiz Resposta Mencionada",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Remove Vazios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resposta": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transforma Output em Array": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Historico de Chat": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Vazios": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensagens Ajustadas": {
+      "main": [
+        [
+          {
+            "node": "Switch3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consulta ID do bloqueio": {
+      "main": [
+        [
+          {
+            "node": "Bloqueio Existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bloqueia Bot por 15 minutos": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Buffer": {
+      "main": [
+        [
+          {
+            "node": "messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Buffer": {
+      "main": [
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Buffer": {
+      "main": [
+        [
+          {
+            "node": "Get Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "messages": {
+      "main": [
+        [
+          {
+            "node": "Chat Memory Manager1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bloqueio Existe?": {
+      "main": [
+        [
+          {
+            "node": "Insert Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Bloqueia Bot por 15 minutos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Consulta ID do bloqueio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Buffer1": {
+      "main": [
+        [
+          {
+            "node": "Chat Memory Manager2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zera FollowUP": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item List Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Mentoria",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verifica remoteJid": {
+      "main": [
+        [
+          {
+            "node": "Mensagens Ajustadas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Solicita Ajuda ADM": {
+      "main": [
+        [
+          {
+            "node": "Chat Memory Manager3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Mensagens Ajustadas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensagens Ajustadas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Juiz Resposta Mencionada": {
+      "main": [
+        [
+          {
+            "node": "Responde Usuário (AJuda ADM) 01",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Zera FollowUP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responde Usuário (AJuda ADM) 01": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responde Usuário (AJuda ADM) 02": {
+      "main": [
+        [
+          {
+            "node": "Insere Resposta ADM no Chat Memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory Manager3": {
+      "main": [
+        [
+          {
+            "node": "Avisa que Solicitou Ajuda",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch3": {
+      "main": [
+        [
+          {
+            "node": "Juiz Resposta Mencionada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Zera FollowUP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Juiz": {
+      "main": [
+        [
+          {
+            "node": "Solicita Ajuda ADM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Transforma Output em Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Chat Memory Manager1",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Mentoria",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager2",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Insere Resposta ADM no Chat Memory",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager3",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Supabase1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Responde Usuário (AJuda ADM) 02",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "verifica remoteJid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mentoria": {
+      "main": [
+        [
+          {
+            "node": "Juiz",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Mentoria",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mentoria",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mentoria",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mentoria",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mentoria",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "05e4b857-cd74-4f4c-985f-470d79a2f63d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "385c06b6bbed00452a824dd157a142ab661dedbca13fb1106183d4d0295a4f6e"
+  },
+  "id": "8OAElqirM1rh8P8s",
+  "tags": []
+}

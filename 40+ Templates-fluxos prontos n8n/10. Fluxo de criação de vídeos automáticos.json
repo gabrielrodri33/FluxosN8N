@@ -1,0 +1,2650 @@
+{
+  "name": "P3 | Criador de Videos Automáticos V1",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "3de04d51-5da3-407d-b9ee-037c81b83247",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        800,
+        360
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379076,
+        "additionalOptions": {}
+      },
+      "id": "203df061-34fb-43fe-b7f3-dbf86c9f6d02",
+      "name": "Capturar Dados da Tabela História",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        1020,
+        360
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a34bf465-09de-45ac-8dcd-e1a3f0987c55",
+              "leftValue": "={{ $json['História'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f8d38eb-8981-4685-9970-0b31c84615d7",
+      "name": "If Historia está vazio",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1240,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "94ed4c74-34b7-4ae5-9a03-f0287e5a6702",
+              "leftValue": "={{ $json['Pronto para ir'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "974c2cba-99a3-4fff-bd7e-8294c2e73ede",
+      "name": "If pronto para ir?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1700,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = items[0].json;\n\nconst fonte = data[\"Fonte\"];\nconst promptTipoHistoria = data[\"Prompt\"][0].value;\n\nreturn [\n  {\n    json: {\n      fonte: fonte,\n      prompt: promptTipoHistoria\n    }\n  }\n];"
+      },
+      "id": "58e04ce3-4630-447e-9a1b-3c273f0c5817",
+      "name": "Preparar o prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.prompt }}\n\n{{ $json.fonte }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "id": "c8fde8a1-1832-4ff0-ab10-883a4b9d7cca",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.5,
+      "position": [
+        2200,
+        40
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "b6d08a14-00ed-49de-abc3-cbf558f1982f",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        2580,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const openaiData = items[0].json.message.content;\nconst baserowData = items[1].json;\n\nconst combineContentValues = (data) => {\n  return Object.values(data).flatMap(value => {\n    if (Array.isArray(value)) {\n      return value.join(\", \");\n    } else if (typeof value === 'object' && value !== null) {\n      return [];\n    } else {\n      return value;\n    }\n  }).join(\"\\n\");\n};\n\nconst combinedOutput = combineContentValues(openaiData);\n\nreturn [\n  {\n    json: {\n      id: baserowData.id,\n      combinedOutput: combinedOutput.trim()\n    }\n  }\n];"
+      },
+      "id": "7d9fb454-b811-43ae-8599-d631b332013d",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "databaseId": 149560,
+        "tableId": 379076,
+        "rowId": "={{ $json.id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 2876715,
+              "fieldValue": "={{ $json.combinedOutput }}"
+            }
+          ]
+        }
+      },
+      "id": "493c5ccc-39fb-466b-bc42-48ab321f8b45",
+      "name": "Inserir a historia na tabela",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        3020,
+        160
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379078,
+        "additionalOptions": {}
+      },
+      "id": "3e5c87e8-f222-4713-81ca-94352dec1ec0",
+      "name": "Capturar dados tabela tipo de historia",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        3280,
+        0
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "2030ca00-ef3a-487d-a237-fc74197bc77c",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        3520,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const mergedData = items;\n\nconst data1 = mergedData[0].json;\nconst data2 = mergedData.length > 1 ? mergedData[1].json : {};\n\nlet historiaCompleta = \"\";\n\nfor (const item of mergedData) {\n  if (item.json[\"História\"]) {\n    historiaCompleta = item.json[\"História\"];\n    break;\n  }\n}\n\nconst cenasPromptsJsonString = data1[\"Cenas Prompts JSON\"] || \"\";\nconst historiaArray = data1[\"Histórias\"] || [];\n\nconst cenasPromptsJson = cenasPromptsJsonString.split(\"\\n\").join(\"\\n\");\nconst historia = historiaArray.map(item => item.value).join(\"\\n\");\n\nconst prompt = `\n  ${cenasPromptsJson}\n\n  ${historiaCompleta}\n`;\n\nreturn [\n  {\n    json: {\n      prompt: prompt.trim()\n    }\n  }\n];"
+      },
+      "id": "727ae4cd-ab3c-47f0-9819-260ad194a75c",
+      "name": "Preparar prompt 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3740,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.prompt }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "id": "c02d18f7-5d7f-47ef-a70d-f077f255a6f1",
+      "name": "OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.5,
+      "position": [
+        3960,
+        140
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "oRZXyr7YrdIAWzzB",
+          "name": "Open AI - Tulinho"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const pairs = items[0].json.message.content.pairs;\nconst result = [];\n\nfor (const pair of pairs) {\n  for (const prompt of pair.aiImagePrompts) {\n    result.push({ json: { aiImagePrompt: prompt, original: pair.original } });\n  }\n}\n\nreturn result;"
+      },
+      "id": "8c76466c-1943-4975-ae1b-8ba38630a106",
+      "name": "Converter Array",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4340,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "databaseId": 149560,
+        "tableId": 379077,
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 2864092,
+              "fieldValue": "={{ $json.original }}"
+            },
+            {
+              "fieldId": 2864093,
+              "fieldValue": "={{ $json.aiImagePrompt }}"
+            }
+          ]
+        }
+      },
+      "id": "37b7ee82-759f-490a-bfd6-942e894dc187",
+      "name": "Inserir cenas na tabela",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        4560,
+        140
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379077,
+        "additionalOptions": {}
+      },
+      "id": "2349f1ef-0870-4897-9a45-08179b70aaf8",
+      "name": "Capturar dados tabela cenas",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        600
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "47939c77-d6f3-4cc8-b51e-96065fe110f6",
+              "leftValue": "={{ $json.Imagem }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ba12ed6a-1cbd-43bc-8480-66098aa7340c",
+      "name": "If Imagem está vazia",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return items\n  .map(item => {\n    return {\n      json: {\n        \"prompt\": item.json['AI Image Prompts']\n      }\n    };\n  });"
+      },
+      "id": "c0d0aacf-e5a7-43dd-ab3d-4c223c515399",
+      "name": "Converter array",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379078,
+        "additionalOptions": {}
+      },
+      "id": "a95f1f81-a713-4f4e-9095-74d8601f1bf8",
+      "name": "Capturar dados tabela tipo de história",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        2700,
+        380
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = items[0].json;\n\nconst outputData = {\n  width: inputData[\"Largura Imagem\"],\n  height: inputData[\"Altura Imagem\"],\n  modelId: inputData[\"Model ID\"],\n};\n\nreturn [{ json: outputData }];"
+      },
+      "id": "2b037344-7ee3-4cd3-bb88-e47a35b2d217",
+      "name": "Extrair dimensão da imagem + model ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2900,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = items[0].json;\n\nreturn items.slice(1).map(item => {\n  return {\n    json: {\n      prompt: inputData.prompt,\n      width: parseInt(inputData.width),\n      height: parseInt(inputData.height),\n      modelId: inputData.modelId\n    }\n  };\n});"
+      },
+      "id": "869ecb8f-ca5f-439d-8b77-81815ffd95d6",
+      "name": "Mesclar os outputs por delay do merge",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3360,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "inputs",
+              "value": "=Prompt: {{ $('Loop Over Items').item.json['AI Image Prompts'] }}\n\nStyle: hyper-surreal escape"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "817a7dc6-5a00-408a-9fe0-39519d1186b1",
+      "name": "Call hugginface inference api1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        5160,
+        640
+      ],
+      "notesInFlow": true,
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "yqD5egWE0ZL7Vnq7",
+          "name": "Hugging Face"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": " "
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "274dd0c6-8a57-4779-ba81-bac3839eb056",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        4540,
+        480
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "ccf4629f-6ae8-46cd-94e7-6309290c24d8",
+      "name": "Replace Me",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        5660,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 20
+      },
+      "id": "b85f22ee-04ff-40e6-91c3-7eb2c9c93096",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        5840,
+        680
+      ],
+      "webhookId": "0d50ca23-fc09-4426-bbde-44758e66fb68"
+    },
+    {
+      "parameters": {},
+      "id": "d6baea96-19c1-4eb5-a410-bfab5bd398ca",
+      "name": "Merge2",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        3140,
+        500
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b22cfd0f-b10b-46cd-bb05-2f23af2d8352",
+      "name": "Merge3",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        4040,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379077,
+        "additionalOptions": {}
+      },
+      "id": "17ffacba-7994-426b-b5bb-30845d5b2e5c",
+      "name": "Capturar dados tabela Cenas",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        3600,
+        360
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst seenIds = new Set();\nconst uniquePrompts = [];\n\nfor (const item of items) {\n    const data = item.json;\n    if (!seenIds.has(data.id)) {\n        seenIds.add(data.id);\n        uniquePrompts.push({\n            id: data.id,\n            'AI Image Prompts': data['AI Image Prompts']\n        });\n    }\n}\n\nreturn uniquePrompts.map(prompt => ({ json: prompt }));"
+      },
+      "id": "85b348ad-619e-4621-838a-2adc5a94e202",
+      "name": "Extrair AI Image Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3800,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst prompts = items.filter(item => item.json.id !== undefined);\nconst properties = items.filter(item => item.json.width !== undefined);\n\nconst mergedResults = prompts.map((prompt, index) => {\n    const property = properties[index % properties.length];\n    return {\n        json: {\n            ...prompt.json,\n            width: property.json.width,\n            height: property.json.height,\n            modelId: property.json.modelId,\n        }\n    };\n});\n\nreturn mergedResults;"
+      },
+      "id": "7a8d3c25-ab3d-4354-bb1d-ff55c4fefca7",
+      "name": "Mesclar os outputs por delay do merge3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4260,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "fluxautomate",
+        "fileName": "={{ $('ID Image').item.json.image_id }}.jpg",
+        "additionalFields": {}
+      },
+      "id": "88b12ef3-1c87-44c8-9dbc-2a53232f39f4",
+      "name": "S3",
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        5380,
+        620
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "s3": {
+          "id": "BoyPfd3VkFegCZkB",
+          "name": "S3 Flux"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2c14b86-a602-4c10-b4e2-30fce2293f6e",
+              "name": "image_id",
+              "value": "={{ Math.random().toString(36).substr(2, 12).toUpperCase() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5281cebe-690e-43a8-a71b-fa771477ccdd",
+      "name": "ID Image",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4980,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "databaseId": 149560,
+        "tableId": 379077,
+        "rowId": "={{ $('Loop Over Items').item.json.id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 2876673,
+              "fieldValue": "={{ $('ID Image').item.json.image_id }}"
+            },
+            {
+              "fieldId": 2876674,
+              "fieldValue": "=https://pub-1b30d2c290b547169903cefb3b08b439.r2.dev/{{ $('ID Image').item.json.image_id }}.jpg"
+            }
+          ]
+        }
+      },
+      "id": "ef69a77d-199b-48a2-bffb-b9cbc19e0fb4",
+      "name": "Baserow",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        5520,
+        620
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.all();\n\nif (inputData.length > 0) {\n  const firstItem = inputData[0].json;\n\n  const larguraOutput = firstItem[\"Largura Output\"] && firstItem[\"Largura Output\"].length > 0\n    ? firstItem[\"Largura Output\"][0].value\n    : null;\n\n  const alturaOutput = firstItem[\"Altura Output\"] && firstItem[\"Altura Output\"].length > 0\n    ? firstItem[\"Altura Output\"][0].value\n    : null;\n\n  return [\n    {\n      larguraOutput,\n      alturaOutput\n    }\n  ];\n} else {\n  return [\n    {\n      larguraOutput: null,\n      alturaOutput: null\n    }\n  ];\n}"
+      },
+      "id": "cde50e65-af09-43ae-bbe2-fd2ae7695111",
+      "name": "Extrair Altura e Largura Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5420,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379076,
+        "additionalOptions": {}
+      },
+      "id": "ddcb2e0b-6b80-4a39-8565-8c00decea90e",
+      "name": "Capturar dados tabela historia",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        5240,
+        180
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379077,
+        "additionalOptions": {}
+      },
+      "id": "a8f3269f-3ac9-4298-855a-88028b9f16f8",
+      "name": "Capturar url imagem gerada",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        4960,
+        360
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "91acfef4-368e-44e4-9652-7830f30f91d3",
+      "name": "Merge4",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        5680,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.all();\n\nconst uniqueItems = [];\nconst seenIds = new Set();\n\nfor (const item of inputData) {\n  const id = item.json.id;\n  const imagem = item.json.Imagem;\n\n  if (!seenIds.has(id)) {\n    seenIds.add(id);\n    uniqueItems.push({ id, imagem });\n  }\n}\n\n\nreturn uniqueItems;"
+      },
+      "id": "2da98ece-e4b5-49ff-81b4-a7eec5b910dd",
+      "name": "Extrair ID linha + URL imagem",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5180,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let elementId = 1;\nconst processedLinks = new Set();\nlet elements = [];\n\nlet validLarguraOutput = null;\nlet validAlturaOutput = null;\n\nitems.forEach(item => {\n  const larguraOutput = item.json[\"larguraOutput\"];\n  const alturaOutput = item.json[\"alturaOutput\"];\n\n  if (larguraOutput && alturaOutput) {\n    validLarguraOutput = parseInt(larguraOutput, 10);\n    validAlturaOutput = parseInt(alturaOutput, 10);\n  }\n});\n\nitems.forEach(item => {\n  const id = item.json[\"id\"];\n  const imagem = item.json[\"imagem\"];\n\n  if (id && imagem) {\n    let larguraOutput = validLarguraOutput;\n    let alturaOutput = validAlturaOutput;\n\n    if (!processedLinks.has(imagem) && larguraOutput && alturaOutput) {\n      processedLinks.add(imagem);\n      elements.push({\n        id: elementId++,\n        type: \"image\",\n        src: imagem,\n        duration: 2,\n        zoom: 2,\n        width: larguraOutput,\n        height: alturaOutput,\n        position: \"center-center\"\n      });\n    }\n  }\n});\n\nlet videos = [];\nfor (let i = 0; i < elements.length; i += 3) {\n  const scenes = [];\n  for (let j = 0; j < 3 && i + j < elements.length; j++) {\n    scenes.push({\n      comment: `Scene #${Math.floor(i / 3) + 1}`,\n      elements: [elements[i + j]]\n    });\n  }\n\n  if (scenes.length > 0) {\n    const videoJson = {\n      resolution: \"full-hd\",\n      quality: \"high\",\n      scenes: scenes\n    };\n    videos.push({ json: videoJson });\n  }\n}\n\nreturn videos;"
+      },
+      "id": "7f28ec1c-284e-4d46-adcc-6cc2de443570",
+      "name": "Preparar input para API video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5880,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.json2video.com/v2/movies",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "8a0881a8-8a27-4f1b-991f-d2a85e0a98b0",
+      "name": "Gerar videos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6060,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "id": "82fa2f59-9dba-4e47-a648-2924a9e57e4a",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        6260,
+        340
+      ],
+      "webhookId": "25dfc518-8caa-4b5e-96f0-f8fc44e343f5"
+    },
+    {
+      "parameters": {
+        "url": "https://api.json2video.com/v2/movies",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "project",
+              "value": "={{ $json.project }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "92529141-2b3c-4f50-aefc-50a2013df0ea",
+      "name": "Buscar videos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6460,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "databaseId": 149560,
+        "tableId": 379079,
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 2864098,
+              "fieldValue": "={{ $json.movie.url }}"
+            }
+          ]
+        }
+      },
+      "id": "87d19606-82da-46ce-9e0e-8475f9f53db2",
+      "name": "Inserir video na tabela",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        6680,
+        340
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379079,
+        "additionalOptions": {}
+      },
+      "id": "58f8ee8c-6f70-4b5e-9845-a49c8dbd8597",
+      "name": "Capturar dados da tabela videos api",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        2220,
+        1000
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "425f9238-9768-48c7-a17e-481bfdd12e6f",
+              "leftValue": "={{ $json['Áudio'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fa3bac4d-f4b7-40d9-9f74-dd254ffaeca9",
+      "name": "If Audio = Vazio",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2420,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379077,
+        "additionalOptions": {}
+      },
+      "id": "eaa4f04e-8bd8-4dfe-956f-fc2e2a206e3d",
+      "name": "Capturar dados tabela cena",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        2880,
+        980
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const uniqueScenes = {};\nconst data = items;\n\ndata.forEach(item => {\n  const scene = item.json;\n  if (!uniqueScenes[scene.Cenas]) {\n    uniqueScenes[scene.Cenas] = scene.Cenas;\n  }\n});\n\nconst uniqueScenesArray = Object.values(uniqueScenes);\n\nreturn uniqueScenesArray.map(scene => ({ json: { Cena: scene } }));"
+      },
+      "id": "306238d1-7ab3-41ae-abd1-856837f51d6c",
+      "name": "Extrair conteudo da coluna cenas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3100,
+        980
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "0654d0e2-7d16-43ad-9683-0684543bcb14",
+      "name": "Loop Over Items1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3320,
+        980
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "36be898c-5fab-4566-a7d3-a13f1733b288",
+      "name": "Replace Me1",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        5640,
+        1080
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/pqHfZKP75CvOlQylNhV4",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "sk_fe1cadf89327524d7e3a80232b48a120082bcc163de951c4"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.Cena }}"
+            },
+            {
+              "name": "model_id",
+              "value": "eleven_multilingual_v2"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2eb9ebd6-d796-482c-82a8-6ab103c58bb7",
+      "name": "Gerar Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3580,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1Qp73Y-v1hMYVCAAVbJp-IzL3lpLWNDtT",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "375848f9-283c-4743-bce6-fc72a375d6a0",
+      "name": "Upload Audio",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3800,
+        1000
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2ODbFDlqPgB7hD9i",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "value": "={{$json.id}}",
+          "mode": "id"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      },
+      "id": "196c1369-14db-4c24-82ec-8ad11e706de9",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4020,
+        720
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2ODbFDlqPgB7hD9i",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379079,
+        "additionalOptions": {}
+      },
+      "id": "92b3caa6-2fb2-4871-a1dc-43fb07c90e78",
+      "name": "Capturar dados tabela videos",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        4220,
+        840
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "2fa7f0ea-500d-47c8-a934-e6258d450730",
+      "name": "Merge5",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        4520,
+        980
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst videoItems = items.filter(item => item.json.hasOwnProperty('ID Vídeo'));\nconst audioItem = items.find(item => item.json.mimeType === 'audio/mpeg');\n\nlet videoItemToUpdate = null;\n\nfor (let video of videoItems) {\n  if (!video.json.Áudio) {\n    if (videoItemToUpdate === null || video.json.id < videoItemToUpdate.json.id) {\n      videoItemToUpdate = video;\n    }\n  }\n}\n\nlet result = {};\n\nif (videoItemToUpdate) {\n  videoItemToUpdate.json.Áudio = audioItem.json.webContentLink;\n  result = {\n    id: videoItemToUpdate.json.id,\n    Áudio: videoItemToUpdate.json.Áudio\n  };\n}\n\nreturn [result];"
+      },
+      "id": "4d9a6ee0-2fd0-4486-bbdb-2810c9ed06e8",
+      "name": "Extrair ID coluna + URL audio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4920,
+        980
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "databaseId": 149560,
+        "tableId": 379079,
+        "rowId": "={{ $json.id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 2864099,
+              "fieldValue": "={{ $json[\"Áudio\"] }}"
+            }
+          ]
+        }
+      },
+      "id": "4d122ab9-e6e1-4203-be26-21f1e1267bfd",
+      "name": "Baserow1",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        5440,
+        1020
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "585a5fd7-dbd7-41ca-85c9-1a3e72c7f25a",
+              "leftValue": "={{ $json[\"Vídeo + Áudio\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1d3500b9-c30d-4faa-99f6-c777e94a8fdc",
+      "name": "If video + audio = vazio",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2800,
+        1580
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = items;\n\nlet filteredData = inputData.map(item => ({\n  id: item.json.id,\n  video: item.json.Vídeo,\n  audio: item.json.Áudio\n}));\n\nlet uniqueData = [];\nlet ids = new Set();\n\nfilteredData.forEach(item => {\n  if (!ids.has(item.id)) {\n    uniqueData.push(item);\n    ids.add(item.id);\n  }\n});\n\nreturn uniqueData.map(data => ({ json: data }));"
+      },
+      "id": "1e804f20-1efa-4657-af78-2aa8c8718bae",
+      "name": "Extrair id + link Vídeo e Áudio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3360,
+        1560
+      ]
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379078,
+        "additionalOptions": {}
+      },
+      "id": "6970d472-f544-44dc-8c83-97f49310266a",
+      "name": "Capturar dados tipo de historia",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        3660,
+        1340
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = items[0].json;\n\nconst outputData = {\n  width: inputData[\"Largura Output\"],\n  height: inputData[\"Altura Output\"]\n};\n\nreturn [{ json: outputData }];"
+      },
+      "id": "e8352ce2-4141-477b-89f5-3d7b40e6abe8",
+      "name": "Extrair dimensão da imagem",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3860,
+        1340
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "3699341c-8732-48dc-8bbf-048e29964c7b",
+      "name": "Merge6",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        4100,
+        1540
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst { width, height } = items[0].json;\n\nconst videoRequests = [];\n\nitems.slice(1).forEach((item, index) => {\n  const scenes = [\n    {\n      comment: `Scene #${index + 1}`,\n      elements: [\n        {\n          type: 'video',\n          src: item.json.video,\n          duration: -2\n        }\n      ],\n    }\n  ];\n\n  const audioElements = [\n    {\n      type: 'audio',\n      src: item.json.audio,\n      duration: -1\n    }\n  ];\n\n  const requestPayload = {\n    id: 'Vídeo + Áudio',\n    fps: 25,\n    cache: false,\n    draft: false,\n    width: parseInt(width, 10),\n    height: parseInt(height, 10),\n    scenes: scenes,\n    quality: 'high',\n    elements: audioElements,\n    settings: {},\n    resolution: 'custom'\n  };\n\n  videoRequests.push({ json: requestPayload });\n});\n\nreturn videoRequests;"
+      },
+      "id": "e556d2c5-6c82-491a-8314-e9b7a6dec901",
+      "name": "Preparar input para JSON2Video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4460,
+        1540
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.json2video.com/v2/movies",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "2c02bc7b-10bd-43be-9bbd-0ca1143d9c3c",
+      "name": "Gerar videos1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4760,
+        1540
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "id": "128e2884-0e94-4c58-89ce-7bbda25e35e0",
+      "name": "Wait2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4960,
+        1540
+      ],
+      "webhookId": "25dfc518-8caa-4b5e-96f0-f8fc44e343f5"
+    },
+    {
+      "parameters": {
+        "url": "https://api.json2video.com/v2/movies",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "project",
+              "value": "={{ $json.project }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a8d7f20f-88b3-491c-8920-40215f0bf76a",
+      "name": "Buscar videos1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5160,
+        1540
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst uniqueIds = new Set();\n\nitems.forEach((item) => {\n  if (item.json && typeof item.json === 'object' && item.json.id) {\n    uniqueIds.add(item.json.id);\n  }\n});\n\nconst uniqueIdsArray = Array.from(uniqueIds);\n\nreturn uniqueIdsArray.map(id => ({ json: { id } }));"
+      },
+      "id": "516fc3f9-64d1-490e-a27b-2b0083fbdd5d",
+      "name": "Extrair ID linha",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5560,
+        1340
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "3f2d3e9a-c116-43f0-a1f5-2d22abd5558f",
+      "name": "Merge7",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        5780,
+        1520
+      ]
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379079,
+        "additionalOptions": {}
+      },
+      "id": "50e4ce5c-4ede-489b-91a2-2159714446d3",
+      "name": "Capturar dados tabela videos1",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        5400,
+        1340
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function mergeOutputs(inputs) {\n    let mergedOutput = [];\n    let ids = inputs.filter(input => input.json.id !== undefined);\n    let movies = inputs.filter(input => input.json.movie !== undefined);\n\n    ids.forEach((id, index) => {\n        if (index < movies.length) {\n            mergedOutput.push({\n                ...id.json,\n                ...movies[index].json\n            });\n        } else {\n            mergedOutput.push(id.json);\n        }\n    });\n\n    movies.slice(ids.length).forEach(movie => {\n        mergedOutput.push(movie.json);\n    });\n\n    return mergedOutput;\n}\n\nlet inputs = $input.all();\n\nif (!inputs || inputs.length === 0) {\n    throw new Error(\"No inputs received.\");\n}\n\nlet output = mergeOutputs(inputs);\n\nreturn output;"
+      },
+      "id": "f33b6242-b2ed-43ed-b645-cbd7cb82c13c",
+      "name": "Mesclar outputs por delay do merge 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6000,
+        1520
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "databaseId": 149560,
+        "tableId": 379079,
+        "rowId": "={{ $json.id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 2876686,
+              "fieldValue": "={{ $json.movie.url }}"
+            }
+          ]
+        }
+      },
+      "id": "a27599f9-3fa2-480c-bb99-c58d067b170c",
+      "name": "Inserir videos na coluna Video + Audio",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        6240,
+        1520
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function processInput(items) {\n  let seenIds = new Set();\n\n  let result = [];\n\n  if (Array.isArray(items)) {\n    items.forEach(item => {\n      let currentItem = item.json || {};\n\n      if (currentItem.id && currentItem[\"Vídeo + Áudio\"]) {\n        if (!seenIds.has(currentItem.id)) {\n          seenIds.add(currentItem.id);\n          result.push({ id: currentItem.id, \"Vídeo + Áudio\": currentItem[\"Vídeo + Áudio\"] });\n        }\n      }\n    });\n  }\n  return result;\n}\n\nlet items = $input.all();\n\nlet output = processInput(items);\n\nreturn output;"
+      },
+      "id": "97bf33e9-02ca-40a1-9bba-fb08cb9286d8",
+      "name": "Extrair ID e Áudio + Vídeo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3100,
+        2260
+      ]
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379076,
+        "additionalOptions": {}
+      },
+      "id": "774b2c7f-b45e-4388-b275-b4fe8695564a",
+      "name": "Capturar dados tabela historias",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        3600,
+        1980
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.all();\n\nif (inputData.length > 0) {\n  const firstItem = inputData[0].json;\n\n  const larguraOutput = firstItem[\"Largura Output\"] && firstItem[\"Largura Output\"].length > 0\n    ? firstItem[\"Largura Output\"][0].value\n    : null;\n\n  const alturaOutput = firstItem[\"Altura Output\"] && firstItem[\"Altura Output\"].length > 0\n    ? firstItem[\"Altura Output\"][0].value\n    : null;\n\n  return [\n    {\n      larguraOutput,\n      alturaOutput\n    }\n  ];\n} else {\n  return [\n    {\n      larguraOutput: null,\n      alturaOutput: null\n    }\n  ];\n}"
+      },
+      "id": "99de5ad0-c74a-4549-9ce2-7a689b9f5b5d",
+      "name": "Extrair altura e largura output 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3880,
+        1980
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "98922c13-c0d7-4399-8687-458cc97a9ac5",
+      "name": "Merge8",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        4160,
+        2240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let elementId = 1;\nconst processedLinks = new Set();\nlet elements = [];\nlet validLarguraOutput = null;\nlet validAlturaOutput = null;\n\nitems.forEach(item => {\n  const larguraOutput = item.json[\"larguraOutput\"];\n  const alturaOutput = item.json[\"alturaOutput\"];\n\n  if (larguraOutput && alturaOutput) {\n    validLarguraOutput = parseInt(larguraOutput, 10);\n    validAlturaOutput = parseInt(alturaOutput, 10);\n  }\n});\n\nitems.forEach(item => {\n  const id = item.json[\"id\"];\n  const videoUrl = item.json[\"Vídeo + Áudio\"];\n\n  if (id && videoUrl) {\n    let larguraOutput = validLarguraOutput;\n    let alturaOutput = validAlturaOutput;\n\n    if (!processedLinks.has(videoUrl) && larguraOutput && alturaOutput) {\n      processedLinks.add(videoUrl);\n      elements.push({\n        id: elementId++,\n        type: \"video\",\n        src: videoUrl,\n        duration: -1,\n        zoom: 0,\n        width: larguraOutput,\n        height: alturaOutput,\n        position: \"center-center\"\n      });\n    }\n  }\n});\n\nlet scenes = [];\nelements.forEach(element => {\n  scenes.push({\n    elements: [element]\n  });\n});\n\nconst outputJson = {\n  id: \"Vídeo Completo\",\n  fps: 25,\n  cache: false,\n  draft: false,\n  width: validLarguraOutput,\n  height: validAlturaOutput,\n  scenes: scenes,\n  quality: \"high\",\n  elements: [\n    {\n      type: \"subtitles\",\n      language: \"pt-BR\",\n      settings: {\n        \"all-caps\": true,\n        position: \"mid-bottom-center\",\n        \"font-size\": 75,\n        \"font-family\": \"Luckiest Guy\",\n        \"outline-width\": 5\n      }\n    }\n  ],\n  settings: {},\n  resolution: \"custom\"\n};\n\nreturn [{ json: outputJson }];"
+      },
+      "id": "cc37074b-3a63-427e-a148-b39308410abc",
+      "name": "Preparar input para JSON2Video 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4400,
+        2240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.json2video.com/v2/movies",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "3a4ffb55-21f2-4a09-9876-b43bbdb3545b",
+      "name": "Gerar videos2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4680,
+        2240
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "minutes"
+      },
+      "id": "7fcdf495-96ed-4384-8e41-dc00ea02ad67",
+      "name": "Wait3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4880,
+        2240
+      ],
+      "webhookId": "25dfc518-8caa-4b5e-96f0-f8fc44e343f5"
+    },
+    {
+      "parameters": {
+        "url": "https://api.json2video.com/v2/movies",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "project",
+              "value": "={{ $json.project }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "06b1afe2-00e6-46b1-9029-30f4751c122c",
+      "name": "Buscar videos2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5080,
+        2240
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "081059c3-d1ae-4979-93ab-fcb698605455",
+      "name": "Merge9",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        5700,
+        2220
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function mergeOutputs(inputs) {\n    let mergedOutput = [];\n    let ids = inputs.filter(input => input.json.id !== undefined);\n    let movies = inputs.filter(input => input.json.movie !== undefined);\n\n    ids.forEach((id, index) => {\n        if (index < movies.length) {\n            mergedOutput.push({\n                ...id.json,\n                ...movies[index].json\n            });\n        } else {\n            mergedOutput.push(id.json);\n        }\n    });\n\n    movies.slice(ids.length).forEach(movie => {\n        mergedOutput.push(movie.json);\n    });\n\n    return mergedOutput;\n}\n\nlet inputs = $input.all();\n\nif (!inputs || inputs.length === 0) {\n    throw new Error(\"No inputs received.\");\n}\n\nlet output = mergeOutputs(inputs);\n\nreturn output;"
+      },
+      "id": "28658cee-a3f2-44c3-8d83-d697e868a71a",
+      "name": "Mesclar outputs por delay do merge ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5920,
+        2220
+      ]
+    },
+    {
+      "parameters": {
+        "databaseId": 149560,
+        "tableId": 379076,
+        "additionalOptions": {}
+      },
+      "id": "681fae54-7772-4059-bf52-d8d66fed5ab7",
+      "name": "Capturar dados tabela historias1",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        5320,
+        2040
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst ids = items.map(item => item.json.id);\n\nconst uniqueIds = [...new Set(ids)];\n\nreturn uniqueIds.map(id => ({ json: { id } }));"
+      },
+      "id": "b592c38b-e08a-47c4-ab5a-dd598ae873fe",
+      "name": "Extrair ID linha 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5480,
+        2040
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "databaseId": 149560,
+        "tableId": 379076,
+        "rowId": "={{ $json.id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 2876666,
+              "fieldValue": "={{ $json.movie.url }}"
+            }
+          ]
+        }
+      },
+      "id": "3ff0ac20-9263-4cd3-8387-4151425965d5",
+      "name": "Inserir videos na tabela",
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        6160,
+        2220
+      ],
+      "credentials": {
+        "baserowApi": {
+          "id": "JI4LEKdN3srB4aLS",
+          "name": "Baserow Flux Automate"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Capturar Dados da Tabela História",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capturar Dados da Tabela História": {
+      "main": [
+        [
+          {
+            "node": "If Historia está vazio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Historia está vazio": {
+      "main": [
+        [
+          {
+            "node": "If pronto para ir?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Capturar dados tabela cenas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If pronto para ir?": {
+      "main": [
+        [
+          {
+            "node": "Preparar o prompt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Preparar o prompt": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Inserir a historia na tabela",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inserir a historia na tabela": {
+      "main": [
+        [
+          {
+            "node": "Capturar dados tabela tipo de historia",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Capturar dados tabela tipo de historia": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Preparar prompt 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar prompt 2": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Converter Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converter Array": {
+      "main": [
+        [
+          {
+            "node": "Inserir cenas na tabela",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capturar dados tabela cenas": {
+      "main": [
+        [
+          {
+            "node": "If Imagem está vazia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Imagem está vazia": {
+      "main": [
+        [
+          {
+            "node": "Converter array",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Capturar dados da tabela videos api",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converter array": {
+      "main": [
+        [
+          {
+            "node": "Capturar dados tabela tipo de história",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Capturar dados tabela tipo de história": {
+      "main": [
+        [
+          {
+            "node": "Extrair dimensão da imagem + model ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair dimensão da imagem + model ID": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mesclar os outputs por delay do merge": {
+      "main": [
+        [
+          {
+            "node": "Capturar dados tabela Cenas",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Capturar url imagem gerada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ID Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Mesclar os outputs por delay do merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "Mesclar os outputs por delay do merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capturar dados tabela Cenas": {
+      "main": [
+        [
+          {
+            "node": "Extrair AI Image Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair AI Image Prompt": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mesclar os outputs por delay do merge3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call hugginface inference api1": {
+      "main": [
+        [
+          {
+            "node": "S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID Image": {
+      "main": [
+        [
+          {
+            "node": "Call hugginface inference api1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3": {
+      "main": [
+        [
+          {
+            "node": "Baserow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baserow": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capturar dados tabela historia": {
+      "main": [
+        [
+          {
+            "node": "Extrair Altura e Largura Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capturar url imagem gerada": {
+      "main": [
+        [
+          {
+            "node": "Capturar dados tabela historia",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extrair ID linha + URL imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair Altura e Largura Output": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair ID linha + URL imagem": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge4": {
+      "main": [
+        [
+          {
+            "node": "Preparar input para API video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar input para API video": {
+      "main": [
+        [
+          {
+            "node": "Gerar videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerar videos": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Buscar videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar videos": {
+      "main": [
+        [
+          {
+            "node": "Inserir video na tabela",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capturar dados da tabela videos api": {
+      "main": [
+        [
+          {
+            "node": "If Audio = Vazio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Audio = Vazio": {
+      "main": [
+        [
+          {
+            "node": "Capturar dados tabela cena",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If video + audio = vazio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capturar dados tabela cena": {
+      "main": [
+        [
+          {
+            "node": "Extrair conteudo da coluna cenas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair conteudo da coluna cenas": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Gerar Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerar Audio": {
+      "main": [
+        [
+          {
+            "node": "Upload Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Audio": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Capturar dados tabela videos",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge5",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Capturar dados tabela videos": {
+      "main": [
+        [
+          {
+            "node": "Merge5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge5": {
+      "main": [
+        [
+          {
+            "node": "Extrair ID coluna + URL audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair ID coluna + URL audio": {
+      "main": [
+        [
+          {
+            "node": "Baserow1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baserow1": {
+      "main": [
+        [
+          {
+            "node": "Replace Me1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If video + audio = vazio": {
+      "main": [
+        [
+          {
+            "node": "Extrair id + link Vídeo e Áudio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extrair ID e Áudio + Vídeo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair id + link Vídeo e Áudio": {
+      "main": [
+        [
+          {
+            "node": "Capturar dados tipo de historia",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge6",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Capturar dados tipo de historia": {
+      "main": [
+        [
+          {
+            "node": "Extrair dimensão da imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair dimensão da imagem": {
+      "main": [
+        [
+          {
+            "node": "Merge6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge6": {
+      "main": [
+        [
+          {
+            "node": "Preparar input para JSON2Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerar videos1": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Buscar videos1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar input para JSON2Video": {
+      "main": [
+        [
+          {
+            "node": "Gerar videos1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar videos1": {
+      "main": [
+        [
+          {
+            "node": "Capturar dados tabela videos1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge7",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Extrair ID linha": {
+      "main": [
+        [
+          {
+            "node": "Merge7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capturar dados tabela videos1": {
+      "main": [
+        [
+          {
+            "node": "Extrair ID linha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge7": {
+      "main": [
+        [
+          {
+            "node": "Mesclar outputs por delay do merge 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mesclar outputs por delay do merge 2": {
+      "main": [
+        [
+          {
+            "node": "Inserir videos na coluna Video + Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair ID e Áudio + Vídeo": {
+      "main": [
+        [
+          {
+            "node": "Capturar dados tabela historias",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge8",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Capturar dados tabela historias": {
+      "main": [
+        [
+          {
+            "node": "Extrair altura e largura output 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair altura e largura output 2": {
+      "main": [
+        [
+          {
+            "node": "Merge8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge8": {
+      "main": [
+        [
+          {
+            "node": "Preparar input para JSON2Video 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerar videos2": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "Buscar videos2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar videos2": {
+      "main": [
+        [
+          {
+            "node": "Capturar dados tabela historias1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge9",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge9": {
+      "main": [
+        [
+          {
+            "node": "Mesclar outputs por delay do merge ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mesclar outputs por delay do merge ": {
+      "main": [
+        [
+          {
+            "node": "Inserir videos na tabela",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar input para JSON2Video 3": {
+      "main": [
+        [
+          {
+            "node": "Gerar videos2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capturar dados tabela historias1": {
+      "main": [
+        [
+          {
+            "node": "Extrair ID linha 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair ID linha 2": {
+      "main": [
+        [
+          {
+            "node": "Merge9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "46ed97f4-a53b-4b38-83dd-12e9dc4acb07",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "kfWY6axqpr3Zkkt4",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

@@ -1,0 +1,244 @@
+{
+  "name": "P14 | Backup dos projetos N8N",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "0dfd71e2-b262-42cc-942a-16455272614d",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -820,
+        580
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "mergeByIndex"
+      },
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -160,
+        600
+      ],
+      "typeVersion": 1,
+      "id": "a4fca7f7-fbe7-4853-92cf-7287c66f2c42"
+    },
+    {
+      "parameters": {
+        "mode": "jsonToBinary",
+        "options": {
+          "useRawData": false
+        }
+      },
+      "name": "Move Binary Data",
+      "type": "n8n-nodes-base.moveBinaryData",
+      "position": [
+        0,
+        600
+      ],
+      "typeVersion": 1,
+      "id": "21eb22bb-4163-4de4-b2fc-9c4987880437"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "binaryData": true,
+        "name": "={{$node[\"Merge\"].data[\"name\"]}}",
+        "resolveData": true,
+        "parents": [
+          "={{ $item(\"0\").$node[\"Google Drive1\"].json[\"id\"] }}"
+        ],
+        "options": {}
+      },
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        220,
+        600
+      ],
+      "typeVersion": 1,
+      "id": "e40171d2-afd5-4478-adac-508a14e767fa",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2ODbFDlqPgB7hD9i",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "filters": {},
+        "requestOptions": {}
+      },
+      "id": "dd040f39-523d-4d30-948f-737be78437fb",
+      "name": "n8n",
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        580
+      ],
+      "credentials": {
+        "n8nApi": {
+          "id": "ijc9mbjrQHky0M4W",
+          "name": "n8n account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "workflowId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "requestOptions": {}
+      },
+      "id": "11d04990-a452-4965-b970-5edc96740c88",
+      "name": "n8n1",
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        720
+      ],
+      "credentials": {
+        "n8nApi": {
+          "id": "ijc9mbjrQHky0M4W",
+          "name": "n8n account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "=N8N - BACKUP DIA - {{ $now.format('dd/MM/yyyy') }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/folders/1asa9Cc2eaqh0OItW18SNDB2tznyBcery",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "id": "01a92066-5a90-4bd0-827c-8646badea245",
+      "name": "Google Drive1",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -660,
+        580
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2ODbFDlqPgB7hD9i",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Move Binary Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move Binary Data": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n": {
+      "main": [
+        [
+          {
+            "node": "n8n1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Drive1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive1": {
+      "main": [
+        [
+          {
+            "node": "n8n",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "799ce1d7-bce2-4bdc-a6d7-fcc67c5909b6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "619b17cd1b492527794139da1bcb865e53d9b06f94f0bce867b7bc44cff77b3b"
+  },
+  "id": "fafp8m1j6Ssp44Lo",
+  "tags": [
+    {
+      "createdAt": "2025-02-12T12:24:52.743Z",
+      "updatedAt": "2025-02-12T12:57:02.254Z",
+      "id": "IEEotBOwvCC1isJA",
+      "name": "FLUX"
+    }
+  ]
+}

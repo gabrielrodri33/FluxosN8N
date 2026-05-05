@@ -1,0 +1,772 @@
+{
+  "name": "FinanFlow",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.woovi.com/api/v1/qrcode-static",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $json['NOME EMPRESA'] }}-{{ new Date().toLocaleString('pt-BR', { month: 'long' }).toUpperCase() }}"
+            },
+            {
+              "name": "value",
+              "value": "={{ $json['VALOR CONTRATO FIXO'] * 100 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1d2d92b3-6ada-4a2a-af73-9fe3efde979e",
+      "name": "Woovi - Criar Cobrança",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        440
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CBVyIYJLTwPaD5YV",
+          "name": "Woovi pix"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "6a4aa1bf-8d8c-4812-acef-2299aa6af106",
+        "options": {}
+      },
+      "id": "6df5b56a-cd6f-4321-bcfe-c6b9260aa151",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        1000
+      ],
+      "webhookId": "43694bdb-c620-47d0-a053-2f5b88f2710e"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "eb4dce37-e651-4ff8-bb07-11758b1202f2",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -880,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ak7Cj-bPdFTmYqhzU9S6zrnPYDbHMFkuiFF7hzs1Lyc",
+          "mode": "list",
+          "cachedResultName": "Cópia de [Template] Planilha Mestre 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ak7Cj-bPdFTmYqhzU9S6zrnPYDbHMFkuiFF7hzs1Lyc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ new Date().toLocaleString('pt-BR', { month: 'long' }).toUpperCase() }}/{{ $now.format('yy') }}",
+          "mode": "name"
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRange",
+              "headerRow": 2,
+              "firstDataRow": 3
+            }
+          }
+        }
+      },
+      "id": "936a496c-e2cf-4999-bf46-710e611a9059",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -660,
+        440
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gCxCmNiKSbwwhT9d",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8297030f-cd8a-4063-9af8-ebbbfc8b5e23",
+              "leftValue": "={{ $json['Pago s/n'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "ad287c0f-5c74-4650-ad2f-e4eae769a82e",
+              "leftValue": "={{ $json['NOME EMPRESA'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "24a3c650-ba45-4b2e-8bb3-17d670346510",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -440,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "99ee966f-d27a-4be1-9dd9-b17e96cf9ca5",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -220,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ new Date($now.year + \"-\" + $now.month + \"-\" + $json['Dia do Pagamento']) }}",
+                    "rightValue": "={{ $now }}",
+                    "operator": {
+                      "type": "dateTime",
+                      "operation": "before"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "vencida"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e9cff7df-eab7-4643-8c28-119c86bba2b0",
+                    "leftValue": "={{ new Date($now.year + \"-\" + $now.month + \"-\" + $json['Dia do Pagamento']) }}",
+                    "rightValue": "={{ $now }}",
+                    "operator": {
+                      "type": "dateTime",
+                      "operation": "after"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "não venceu"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0d1863a0-cde3-4e87-8910-c96a252b2c03",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        0,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ak7Cj-bPdFTmYqhzU9S6zrnPYDbHMFkuiFF7hzs1Lyc",
+          "mode": "list",
+          "cachedResultName": "Cópia de [Template] Planilha Mestre 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ak7Cj-bPdFTmYqhzU9S6zrnPYDbHMFkuiFF7hzs1Lyc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1742216767,
+          "mode": "list",
+          "cachedResultName": "BASE DE CLIENTES",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1G341QyY005IKrmL03K2r8JzIecTg6uPKb4cuVW6huP4/edit#gid=1742216767"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "=NOME EMPRESA",
+              "lookupValue": "={{ $json['NOME EMPRESA'] }}"
+            }
+          ]
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRange",
+              "headerRow": 2,
+              "firstDataRow": 3
+            }
+          }
+        }
+      },
+      "id": "ff6cb0f4-505c-40cd-96aa-f37726e9fbc9",
+      "name": "Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        440
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gCxCmNiKSbwwhT9d",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "URL DA API EVOLUTION AQUI/message/sendButtons/NOME DA INSTANCIA AQUI",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('Google Sheets1').item.json.NUMERO }}\",\n    \"title\": \"🔔 Lembrete de Fatura - Growth Tap\",\n    \"description\": \"Olá *{{ $node['Google Sheets1'].json['NOME EMPRESA'] }}*, dia {{ $('Google Sheets').item.json['Dia do Pagamento'] }} é o vencimento da sua mensalidade conosco no valor de R$ {{ ($json.pixQrCode.value / 100).toFixed(2) }}.\\n\\npara efetuar o pagamento você pode *copiar a chave pix* abaixo tocando no botão\",\n    \"footer\": \"nome da sua empresa\",\n    \"buttons\": [{\n  \"type\": \"copy\",\n    \"displayText\": \"Copia Pix\",\n    \"copyCode\": \"{{ $json.pixQrCode.brCode }}\"\n}]}",
+        "options": {}
+      },
+      "id": "406ac690-db91-4cca-85d1-2b41ae7c4217",
+      "name": "Envia para o Cliente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        440
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "QsMA36CZf6OStYr1",
+          "name": "Evo growthtapoficial"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        320
+      ],
+      "id": "08cc9261-c81d-4d40-a253-84ed90b50df6",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ak7Cj-bPdFTmYqhzU9S6zrnPYDbHMFkuiFF7hzs1Lyc",
+          "mode": "list",
+          "cachedResultName": "Cópia de [Template] Planilha Mestre 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ak7Cj-bPdFTmYqhzU9S6zrnPYDbHMFkuiFF7hzs1Lyc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ new Date().toLocaleString('pt-BR', { month: 'long' }).toUpperCase() }}/{{ $now.format('yy') }}",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "6549d336-ea8a-4647-ab75-d8b67f5b01dc",
+      "name": "Google Sheets2",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -660,
+        1000
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gCxCmNiKSbwwhT9d",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8297030f-cd8a-4063-9af8-ebbbfc8b5e23",
+              "leftValue": "={{ $json['NOME EMPRESA'] }}",
+              "rightValue": "={{ $('Webhook').item.json.body.pixQrCode.name.split('-')[0] }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "a126a1fa-db38-417a-9b3d-ad6ea6994bae",
+      "name": "Filter1",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -420,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1ak7Cj-bPdFTmYqhzU9S6zrnPYDbHMFkuiFF7hzs1Lyc",
+          "mode": "list",
+          "cachedResultName": "Cópia de [Template] Planilha Mestre 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ak7Cj-bPdFTmYqhzU9S6zrnPYDbHMFkuiFF7hzs1Lyc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ new Date().toLocaleString('pt-BR', { month: 'long' }).toUpperCase() }}/{{ $now.format('yy') }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "row_number": "={{ $json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "OUTUBRO/2024",
+              "displayName": "OUTUBRO/2024",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "27",
+              "displayName": "27",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AA1",
+              "displayName": "AA1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AA",
+              "displayName": "AA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "15",
+              "displayName": "15",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "O1",
+              "displayName": "O1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "O",
+              "displayName": "O",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED",
+          "locationDefine": {
+            "values": {
+              "headerRow": 2,
+              "firstDataRow": 3
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        20,
+        1000
+      ],
+      "id": "51133c17-0c0e-4814-adcd-51f5db2b02aa",
+      "name": "Google Sheets3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gCxCmNiKSbwwhT9d",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "070f3f4a-d18c-4f23-93a6-b014bd17946b",
+              "name": "row_number",
+              "value": "={{ $json.row_number }}",
+              "type": "string"
+            },
+            {
+              "id": "35b877cf-faf1-4b2b-913d-c39905dbb657",
+              "name": "Pago s/n",
+              "value": "={{ true }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -200,
+        1000
+      ],
+      "id": "405e8899-bcd8-49cb-9c5a-48a726b55ed8",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "content": "## FORMULA PARA O NOME DA ABA DO SHEETS\n\n\n{{ new Date().toLocaleString('pt-BR', { month: 'long' }).toUpperCase() }}/{{ $now.format('yy') }}",
+        "height": 540,
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -740,
+        60
+      ],
+      "typeVersion": 1,
+      "id": "f7ab4d4c-ab7c-4a44-bc79-8e8078892f75",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Trocar itens nesse node\n\nURL da evolution\nNome da instância\nAutenticação tipo HEADER",
+        "height": 480,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        140
+      ],
+      "typeVersion": 1,
+      "id": "91136dc8-65b6-40ae-b428-47503973d9e9",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Trocar itens nesse node\n\nAutenticação tipo HEADER",
+        "height": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        140
+      ],
+      "typeVersion": 1,
+      "id": "a5c657a7-8826-4d3c-8378-86d83605d0e3",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Woovi - Criar Cobrança": {
+      "main": [
+        [
+          {
+            "node": "Envia para o Cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Woovi - Criar Cobrança",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envia para o Cliente": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Filter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "303b8613-cf63-4561-86ad-75bbe5a331f9",
+  "meta": {
+    "instanceId": "5bcc2b51086efa7f7996db4b9b3eb9a3e38566109bf17c1ec685f2a5c0be07da"
+  },
+  "id": "5Lyzl8vcCsEeGyPb",
+  "tags": []
+}

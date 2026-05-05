@@ -1,0 +1,2721 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "47d14fa0-51b0-4901-a4cb-ba1705560e04",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -6700,
+        1700
+      ],
+      "id": "34037dfa-5155-4474-a1a8-e888a3d7ef8d",
+      "name": "Webhook",
+      "webhookId": "47d14fa0-51b0-4901-a4cb-ba1705560e04"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ea9512f2-e67c-4ef7-992f-893c75cfee8f",
+              "leftValue": "={{ $json.fromMe }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -5420,
+        1700
+      ],
+      "id": "5fb35794-1ec0-43ea-a1b3-c8b2ea9b05e1",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6de225a3-3524-4810-8ce2-6b96d1dff463",
+              "leftValue": "={{ $json.combinedText1 }}",
+              "rightValue": "={{ $json.combinedText2 }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        1940
+      ],
+      "id": "12df2f2f-6dbc-4256-8ce0-8119c7f78a4f",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "=base64",
+        "options": {
+          "fileName": "transcricao.ogg",
+          "mimeType": "audio/ogg"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -3040,
+        2440
+      ],
+      "id": "15393d32-01c7-409b-96cb-b3c7922737e7",
+      "name": "Base64 to Audio"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {
+          "fileName": "imagem.jpeg",
+          "mimeType": "image/jpeg"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -3040,
+        3180
+      ],
+      "id": "501e125c-e244-4717-ac33-8234e66d46d9",
+      "name": "Base64 to Image"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "LEADS",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "number",
+              "condition": "eq",
+              "keyValue": "={{ $json.remoteJid }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "timeout",
+              "fieldValue": "={{ $now.plus($json.time_out, minutes) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -5100,
+        1300
+      ],
+      "id": "de7e7c9e-f646-41d5-b147-4018dd945ef9",
+      "name": "Supabase",
+      "alwaysOutputData": true,
+      "retryOnFail": false,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "tableId": "LEADS",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "number",
+              "fieldValue": "={{ $('Dados').item.json.remoteJid }}"
+            },
+            {
+              "fieldId": "timeout",
+              "fieldValue": "={{ $now.plus($json.time_out, minutes) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -4160,
+        1280
+      ],
+      "id": "1646c86b-a4ac-4c53-a747-f344e40a4fe5",
+      "name": "Supabase1",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "LEADS",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "number",
+              "keyValue": "={{ $('Dados').item.json.remoteJid }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -5140,
+        2180
+      ],
+      "id": "6ad1f170-402b-402b-b333-f12ee221da8a",
+      "name": "Supabase2",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9052c4ba-c9eb-468b-a15e-2eb63821823e",
+              "leftValue": "={{ $json.isEmpty() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4740,
+        2180
+      ],
+      "id": "2338f99f-9b4d-46bd-9c6d-24c6f9858461",
+      "name": "Number exist?"
+    },
+    {
+      "parameters": {
+        "tableId": "LEADS",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "created_at",
+              "fieldValue": "={{ $('Dados').item.json.date_time }}"
+            },
+            {
+              "fieldId": "number",
+              "fieldValue": "={{ $('Dados').item.json.remoteJid }}"
+            },
+            {
+              "fieldId": "lead_name",
+              "fieldValue": "={{ $('If').item.json.nome }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -4280,
+        2520
+      ],
+      "id": "cca223a4-ac35-4f2a-848f-c8d29ab18841",
+      "name": "Supabase3",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d5160a5e-d2cc-455a-b97f-c93e32746ecd",
+              "leftValue": "={{ $now }}",
+              "rightValue": "={{ $json.timeout }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "after"
+              }
+            },
+            {
+              "id": "9d3259e9-f4f2-46b0-81ca-ed62c053f425",
+              "leftValue": "={{ $json.timeout }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -4280,
+        2280
+      ],
+      "id": "b02cbace-a92e-4fa8-9b00-9c06412b7b44",
+      "name": "In manual service?",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5d408baf-2ff4-43fb-94a1-79601221051a",
+              "name": "base64",
+              "value": "={{ $('Webhook').item.json.body.data.message.base64 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3280,
+        2440
+      ],
+      "id": "ab7d8671-5468-46a0-bf0a-7c09f804b38c",
+      "name": "Base64 Audio"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "176cb5f8-02ec-4db5-bd04-6889859eb6aa",
+              "name": "base64",
+              "value": "={{ $('Webhook').item.json.body.data.message.base64 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3280,
+        3180
+      ],
+      "id": "4eabdfc2-f164-489f-99cc-3ceef6ea7e5d",
+      "name": "Base64 Image"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1020,
+        2780
+      ],
+      "id": "63803c38-ae69-41da-a0c2-f597ca355a62",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9052c4ba-c9eb-468b-a15e-2eb63821823e",
+              "leftValue": "={{ $json.isEmpty() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4740,
+        1300
+      ],
+      "id": "67b280f2-a248-4adc-bd40-137003d0f682",
+      "name": "Number exist?1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -4160,
+        1080
+      ],
+      "id": "32273956-63d1-4863-9fdd-2094bd9c583e",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "amount": 20
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1200,
+        2400
+      ],
+      "id": "d9bbf621-1af8-4ced-9ea0-c04a0567fc2e",
+      "name": "Delay",
+      "webhookId": "a4ab3b31-e6b4-4a53-9c49-89020c15cf5d"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $('Dados').item.json.remoteJid }}",
+        "messageData": "={{ $('Dados').item.json.conversation }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -1820,
+        2180
+      ],
+      "id": "4741b94d-9886-423c-af8c-ab007033ffba",
+      "name": "Memória de Texto"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $('Dados').item.json.remoteJid }}",
+        "messageData": "={{ $json.text }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -2360,
+        2440
+      ],
+      "id": "92da53a5-77a2-44c5-a721-44f9c689a4fe",
+      "name": "Memória de Áudio"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $('Dados').item.json.remoteJid }}",
+        "messageData": "={{ $json.content }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -2360,
+        3180
+      ],
+      "id": "e5bf91d8-2148-446e-8433-f9f8455e4518",
+      "name": "Memória de Imagem"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Dados').item.json.messageType }}",
+                    "rightValue": "conversation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0807bcd7-a626-40ca-ae74-45f5565d9209",
+                    "leftValue": "={{ $('Dados').item.json.messageType }}",
+                    "rightValue": "audioMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c8a4fecd-1016-4894-a4b4-859d9b73612c",
+                    "leftValue": "={{ $('Dados').item.json.messageType }}",
+                    "rightValue": "imageMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Image"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -3880,
+        2200
+      ],
+      "id": "2553efdc-9f48-42b9-80cf-64145fd42281",
+      "name": "Tipo de Mensagem",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8df33b65-c374-45c8-a755-e7d5806f6564",
+              "leftValue": "={{ $json.remoteJid }}",
+              "rightValue": "={{ $json.remoteJid }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -5820,
+        1700
+      ],
+      "id": "7e772c57-b827-4052-9789-9c5c97e1a52f",
+      "name": "Limitador de Número"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2911e082-e712-4b85-bcf7-611f60d1559f",
+              "name": "remoteJid",
+              "value": "={{ $json.body.data.key.remoteJid }}",
+              "type": "string"
+            },
+            {
+              "id": "f2af5f89-8957-4811-9839-8ef571b38e5c",
+              "name": "fromMe",
+              "value": "={{ $json.body.data.key.fromMe }}",
+              "type": "boolean"
+            },
+            {
+              "id": "16a9c5c0-5a35-4db2-ab94-ef251115696f",
+              "name": "conversation",
+              "value": "={{ $json.body.data.message.conversation }}",
+              "type": "string"
+            },
+            {
+              "id": "20937be5-8999-4d95-91cb-5aa9490f166c",
+              "name": "date_time",
+              "value": "={{ $json.body.date_time }}",
+              "type": "string"
+            },
+            {
+              "id": "fa5a0f16-b265-40ab-9299-135659bbf90e",
+              "name": "messageType",
+              "value": "={{ $json.body.data.messageType }}",
+              "type": "string"
+            },
+            {
+              "id": "95ca6185-7794-4411-82c5-d30676a6ca52",
+              "name": "evo.instance",
+              "value": "={{ $json.body.instance }}",
+              "type": "string"
+            },
+            {
+              "id": "66fcd40d-88da-4117-958d-7b4a29454136",
+              "name": "evo.server_url",
+              "value": "={{ $json.body.server_url }}",
+              "type": "string"
+            },
+            {
+              "id": "477ee9d8-59d3-4dd4-9eab-038367517cb1",
+              "name": "evo.apikey",
+              "value": "={{ $json.body.apikey }}",
+              "type": "string"
+            },
+            {
+              "id": "89c694a3-3a94-4bf2-8d8d-016bafa3040e",
+              "name": "time_out",
+              "value": 15,
+              "type": "number"
+            },
+            {
+              "id": "303974ab-9903-4fae-af14-73438a4d98b8",
+              "name": "nome",
+              "value": "={{ $json.body.data.pushName }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -6240,
+        1700
+      ],
+      "id": "5b4e9dab-833c-4ee4-8a52-04ffffeb952a",
+      "name": "Dados"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recebe todos os itens de entrada\nconst items = $input.all();\n\n// Verifica se há itens de entrada\nif (!items || items.length === 0) {\n  return []; // Retorna um array vazio se não houver entrada\n}\n\n// Array para armazenar os resultados\nconst output = [];\n\n// Processa cada item de entrada\nitems.forEach(item => {\n  // Assume que o texto está no campo \"splitPart\" do item\n  const text = item.json.splitPart || \"\";\n\n  // Conta o número de caracteres na mensagem\n  const characterCount = text.length;\n\n  // Calcula o tempo em milissegundos: 100 caracteres = 7 segundos (7000 ms)\n  const milliseconds = Math.floor((characterCount / 100) * 7000);\n\n  // Adiciona o resultado ao array de saída\n  output.push({ json: { milliseconds } });\n});\n\n// Retorna os resultados\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2960,
+        3480
+      ],
+      "id": "19ee0971-f26b-4f1d-8132-a1f80d09291f",
+      "name": "Contabilizar Caracteres"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://SEU-DOMINIO/message/sendText/NOME-DA-SUA-INSTANCIA",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apiKey ",
+              "value": "={{ $('Dados').first().json.evo.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Dados').first().json.remoteJid }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $('Loop Over Items').item.json.result }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{ $json.milliseconds }}"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3400,
+        3480
+      ],
+      "id": "3aa7286a-e0cb-4bf6-b238-c666671f3e5f",
+      "name": "Enviar Texto"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.7,
+      "position": [
+        -2740,
+        2440
+      ],
+      "id": "cae5258a-71e2-41b1-bbf9-1db9c40133a7",
+      "name": "Transcreve Áudio"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "text": "Descreva todo o conteúdo da imagem",
+        "inputType": "base64",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.7,
+      "position": [
+        -2720,
+        3180
+      ],
+      "id": "b92c11ee-9e9d-42ed-8e87-6b5f3045b53f",
+      "name": "Analisa a Imagem"
+    },
+    {
+      "parameters": {
+        "content": "## **SDR.IA - Inteligência Artificial do Atendimento**\n\n### **Nome do Nó:** `SDR.IA`\n\n- **O que faz?**\n    - Usa **inteligência artificial (OpenAI GPT-4o)** para interpretar a mensagem do cliente e escolher a ação correta.\n- **Por que existe?**\n    - Para permitir que o bot entenda a mensagem do usuário e escolha a melhor resposta.\n- **Como funciona?**\n    - O nó recebe a mensagem filtrada e, com base no conteúdo, decide **se é necessário agendar, reagendar, cancelar ou conferir disponibilidade**.\n- **O que acontece depois?**\n    - Dependendo da resposta da IA, a mensagem é enviada para um dos nós seguintes (`dia_semana`, `agendamento`, `cancelamento`, etc.).",
+        "height": 820,
+        "width": 1040,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        920,
+        1060
+      ],
+      "id": "ae7f9903-59e2-4e2e-94cc-0f47b31fb9af",
+      "name": "Sticky Note27"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/ID-DA-VOZ",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "SUA CHAVE API KEY DO ELEVEN LABS"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $('Loop Over Items').item.json.result }}"
+            },
+            {
+              "name": "model_id",
+              "value": "eleven_flash_v2_5"
+            },
+            {
+              "name": "speed",
+              "value": "1.0"
+            },
+            {
+              "name": "stability",
+              "value": "0.5"
+            },
+            {
+              "name": "similarity",
+              "value": "0.2"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1360,
+        4460
+      ],
+      "id": "55c46559-2aba-44cf-9e7b-ed66fe360341",
+      "name": "Eleven Labs"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "957d4389-8eca-479c-8829-625728cf38be",
+                    "leftValue": "={{ $json.randomNumber }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Texto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "002d5ccf-2569-4b9e-8a80-1410f7874c0e",
+                    "leftValue": "={{ $json.randomNumber }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Texto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b274180e-e92f-4562-8d5e-b8bd3dccb55b",
+                    "leftValue": "={{ $json.randomNumber }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5ff762af-4df5-4cc3-a8b5-ee10b3bed4b6",
+                    "leftValue": "={{ $json.randomNumber }}",
+                    "rightValue": 4,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2420,
+        3460
+      ],
+      "id": "17eda197-630e-4b0e-b995-4e7aec713001",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "destinationKey": "base64",
+        "options": {
+          "encoding": "base64"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        4460
+      ],
+      "id": "16f0990d-ccd3-4078-848e-653913975f9d",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsCode": "function generateRandomNumber() {\n    return Math.floor(Math.random() * 4) + 1;\n}\n\nreturn [{ json: { randomNumber: generateRandomNumber() } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1900,
+        3480
+      ],
+      "id": "461067f8-9e40-44f8-af77-3c902dcc1274",
+      "name": "Número Aleatório"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://SEU-DOMINIO/message/sendWhatsAppAudio/NOME-DA-SUA-INSTANCIA",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('Dados').first().json.evo.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Dados').first().json.remoteJid }}"
+            },
+            {
+              "name": "audio",
+              "value": "={{ $json.base64 }}"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2220,
+        4460
+      ],
+      "id": "57335835-00f3-4deb-8761-ff323276d59f",
+      "name": "Enviar Audio",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtém o conteúdo da mensagem do item anterior\nconst message = $input.item.json;\nlet messageText = '';\n\n// Verifica se a mensagem está em diferentes formatos possíveis\nif (typeof message === 'string') {\n  messageText = message;\n} else if (message.content) {\n  messageText = message.content;\n} else if (message.text) {\n  messageText = message.text;\n} else if (message.message) {\n  messageText = message.message;\n}\n\n// LOG PARA DEPURAÇÃO (Remova depois de testar)\nconsole.log(\"Texto analisado:\", messageText);\n\n// Expressões regulares para identificar datas, dias da semana e horários\nconst dateRegex = /\\b(?:\\d{1,2})[/-](?:\\d{1,2})[/-](?:\\d{2,4})\\b/g; // Captura formatos: 07/03/2025, 6-3-2025\nconst weekDayRegex = /\\b(?:segunda|terça|quarta|quinta|sexta|sábado|domingo)-feira\\b/gi; // Captura: Sexta-feira\nconst timeRegex = /\\b(?:\\d{1,2}[:h]\\d{2})\\b/g; // Captura: 09:00, 10h30, 14:00\nconst meetLinkRegex = /meet\\.google\\.com\\/[a-zA-Z0-9-]+/g; // Captura links completos do Meet\n\n// Verifica se há pelo menos um desses padrões no texto\nconst hasDate = dateRegex.test(messageText);\nconst hasWeekDay = weekDayRegex.test(messageText);\nconst hasTime = timeRegex.test(messageText);\nconst hasMeetLink = meetLinkRegex.test(messageText);\n\n// LOG PARA DEPURAÇÃO\nconsole.log(\"Contém Data?\", hasDate);\nconsole.log(\"Contém Dia da Semana?\", hasWeekDay);\nconsole.log(\"Contém Horário?\", hasTime);\nconsole.log(\"Contém Link do Meet?\", hasMeetLink);\n\n// Se qualquer um dos padrões for encontrado, define como true\nconst hasScheduleInfo = hasDate || hasWeekDay || hasTime || hasMeetLink;\n\n// Adiciona o resultado como uma nova propriedade ao item\n$input.item.json.isMeetSchedule = hasScheduleInfo;\n\n// Retorna o item modificado\nreturn $input.item;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        3500
+      ],
+      "id": "54878d03-0ef9-4960-b887-9cece6a315a8",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "function getDayOfWeek(query) {\n    const [day, month, year] = query.split('/').map(Number);\n    const date = new Date(year, month - 1, day);\n    return date.toLocaleDateString('pt-BR', { weekday: 'long' });\n}\n\n// Array para armazenar os próximos 10 dias\nconst next10Days = [];\n\nfor (let i = 0; i < 10; i++) {\n    const date = new Date();\n    date.setDate(date.getDate() + i);\n\n    next10Days.push(` ${date.toLocaleDateString('pt-BR', { weekday: 'long' })}, ${date.toLocaleDateString('pt-BR')}`);\n}\n\nreturn [{ json: { resultado: next10Days.join('\\n') } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        180,
+        1940
+      ],
+      "id": "7986d025-b290-47a8-a78f-0a8b9d72ea45",
+      "name": "Organizar Dias"
+    },
+    {
+      "parameters": {
+        "name": "agendamento",
+        "description": "=Chame esta ferramenta após o usuário informar nome e email e data do agendamento. \n\nNa variável \"nome\", você vai preencher o nome do usuário\n\nNa variável \"email\" você vai preencher o email do usuário\n\nNa variável \"dia\" você vai preencher o dia desejado que ele tem mais facilidade em fazer a call\n\nNa variável \"histórico\" você vai subir o histórico das ultimas 3 mensagens.\n\n\nA data do agendamento você vai transformar para seguinte formato, exemplo: dd/mm/yyyy HH:MM:SS -03:00\n\nEm seguida você vai inserir uma hora a mais depois no horario de agendamento e na variavel \"end\" você vai prencher com o horario no mesmo formato da variavel start",
+        "workflowId": {
+          "__rl": true,
+          "value": "pEmfDrdbeB16KG0V",
+          "mode": "list",
+          "cachedResultName": "AGENDAMENTO"
+        },
+        "fields": {
+          "values": [
+            {
+              "name": "Evento",
+              "stringValue": "agendamento"
+            },
+            {
+              "name": "Nome",
+              "stringValue": "={{ $fromAI(\"nome\",\"email do cliente para fazer agendamento\",\"string\",\"\")}}"
+            },
+            {
+              "name": "Email",
+              "stringValue": "={{ $fromAI(\"email\",\"email do cliente para fazer agendamento\",\"string\",\"\")}}"
+            },
+            {
+              "name": "Hora_desejada",
+              "stringValue": "={{ $fromAI(\"hora\",\"email do cliente para fazer agendamento\",\"string\",\"\")}}"
+            },
+            {
+              "name": "whatsappid",
+              "stringValue": "={{ $json.sessionId }}"
+            },
+            {
+              "name": "Historico_conversas",
+              "stringValue": "={{ $('Dados').item.json.conversation }}"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "jsonSchemaExample": "{\n  \"nome\": \"\",\n  \"email\": \"\",\n  \"tipo_evento\": \"reagendamento\",\n  \"horario\": \"\",\n  \"conversationStory\": \"\"\n}\n"
+      },
+      "id": "52bb60ab-d407-4d5b-b86f-95cda5351f75",
+      "name": "agendamento",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1380,
+        1680
+      ]
+    },
+    {
+      "parameters": {
+        "name": "REagendar",
+        "description": "=Após o usuário informar que quer REAGENDAR ou que já tem horário, e colete o nome, email e nova data Chame esta tool\n\nNa variável \"nome\", você vai preencher o nome do usuário e na variavel \"email\" você vai preencher com email do usuário\n\nA data do agendamento você vai transformar para seguinte formato, exemplo: 2024-10-18T14:30:00-03:00 e vai preencher a variavel \"start\"\n\nEm seguida você vai inserir uma hora a mais depois no horario de agendamento e na variavel \"end\" você vai prencher com o horario no mesmo formato da variavel start",
+        "workflowId": {
+          "__rl": true,
+          "value": "pEmfDrdbeB16KG0V",
+          "mode": "list",
+          "cachedResultName": "AGENDAMENTO"
+        },
+        "fields": {
+          "values": [
+            {
+              "name": "Evento",
+              "stringValue": "reagendamento"
+            },
+            {
+              "name": "Email",
+              "stringValue": "={{ $fromAI(\"email_cliente\",\"email do cliente para fazer agendamento\",\"string\",\"\")}}"
+            },
+            {
+              "name": "Nome",
+              "stringValue": "={{ $fromAI(\"nome_cliente\",\"nome do cliente para fazer agendamento\",\"string\",\"\")}}"
+            },
+            {
+              "name": "whatsappId",
+              "stringValue": "={{ $json.sessionId }}"
+            },
+            {
+              "name": "Historico_conversas",
+              "stringValue": "={{ $('Dados').first.json.conversation }}"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "jsonSchemaExample": "{\n  \"nome\": \"\",\n  \"email\": \"\",\n  \"tipo_evento\": \"reagendamento\",\n  \"horario\": \"\",\n  \"conversationStory\": \"\"\n}\n"
+      },
+      "id": "d374e7fc-c8a5-46f4-8e80-94c959f0e023",
+      "name": "reagendamento",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1240,
+        1680
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "assistantId": {
+          "__rl": true,
+          "value": "asst_cev5SvSnQPa426myufijySDd",
+          "mode": "list",
+          "cachedResultName": "LÚCIO SDR"
+        },
+        "prompt": "define",
+        "text": "=Mensagem do Usuário (texto): {{ $('Dados').first().json.conversation }}\nor\nMensagem do Usuário (audio): {{ $('memory2').item.json.propertyName }}\n\nData da mensagem: {{ $now }}\n\n#NOTAS:\n\n-NÃO RETORNE UMA RESPOSTA EM MARKDOWN\n-NÃO RETORNE RESPOSTAS COM CARACTERES ESPECIAIS.",
+        "options": {
+          "preserveOriginalTools": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1360,
+        1420
+      ],
+      "id": "9a092c21-1186-48c3-80cf-cb48e25b1125",
+      "name": "SDR.IA"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "dfedefa7-3092-41bc-aaa2-a6233a9ff7be",
+              "leftValue": "={{ $json.isMeetSchedule }}",
+              "rightValue": "false",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "e6470749-19c7-4f69-9058-36d45969bdb5",
+              "leftValue": "={{ $json.isMeetSchedule }}",
+              "rightValue": "false",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1900,
+        3280
+      ],
+      "id": "25007fa5-eeeb-4b02-aafe-c5d461b81e9a",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('Dados').first().json.remoteJid }}"
+      },
+      "id": "cda09c15-ce5c-41a9-977b-b834e8879098",
+      "name": "Redis6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        2640
+      ]
+    },
+    {
+      "parameters": {
+        "name": "dia_semana",
+        "description": "ESSA TOOL É OBRIGATÓRIA A SER A PRIMEIRA EXECUTADA PARA QUALQUER TIPO DE PROCESSO para identificar o dia da semana exato. Use essa tool para consultar o dia da semana.\nForneça como parâmetro uma data no formato dd/mm/yyyy",
+        "jsCode": "const input = query;\n\n//AQUI O CHATGPT PODE SER LIVRE\nconst [day, month, year] = input.split('/').map(Number);\nconst date = new Date(year, month - 1, day);\n// ATÉ AQUI\nreturn date.toLocaleDateString('pt-BR', { weekday: 'long' });"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        1680
+      ],
+      "id": "d2a5850c-5066-456d-aaa5-a401298d978b",
+      "name": "dia_semana"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        1680
+      ],
+      "id": "8f800828-4a96-4002-9e25-25789a5e49c1",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "name": "disponibilidade",
+        "description": "=CHAME ESTA TOOL PARA sempre que precisar conferir a DISPONIBILIDADE na agenda antes de agendar qualquer cliente e encontrar horários disponíveis.\n\nRegras:\nTraga apenas os horários disponíveis entre 09:00 e 18:00.\n\nConsidere os horários já ocupados e não marque nenhum agendamento nesses intervalos.\n\nRetorne exatamente 2 horários disponíveis por dia, considerando 3 dias diferentes.",
+        "workflowId": {
+          "__rl": true,
+          "value": "pEmfDrdbeB16KG0V",
+          "mode": "list",
+          "cachedResultName": "AGENDAMENTO"
+        },
+        "fields": {
+          "values": [
+            {
+              "name": "Evento",
+              "stringValue": "disponibilidade"
+            },
+            {
+              "name": "Historico_conversas",
+              "stringValue": "={{ $('Dados').first().json.conversation }}"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "jsonSchemaExample": "{\n  \"nome\": \"\",\n  \"email\": \"\",\n  \"tipo_evento\": \"disponibilidade\",\n  \"horario\": \"\",\n  \"conversationStory\": \"\"\n}\n"
+      },
+      "id": "a1cae6b6-130a-4241-aaac-a00da839ccc1",
+      "name": "disponibilidade",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        1680
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Dados').first().json.remoteJid }}",
+        "tableName": "agentesdr",
+        "contextWindowLength": 6
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        1760,
+        1680
+      ],
+      "id": "4d136de1-c435-4733-8a54-b6d6d73c87a2",
+      "name": "Postgres Chat Memory"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obter os arrays de mensagens dos nós \"Get Memory 1\" e \"Get Memory 2\"\nconst messages1 = $('memory').item?.json?.propertyName || [];\nconst messages2 = $('memory2').item?.json?.propertyName || [];\n\n// Garantir que messages1 e messages2 são arrays antes de chamar join\nconst combinedText1 = Array.isArray(messages1) ? messages1.join(' ') : '';\nconst combinedText2 = Array.isArray(messages2) ? messages2.join(' ') : '';\n\n// Retornar os dois textos combinados como variáveis separadas\nreturn {\n    combinedText1,\n    combinedText2\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -460,
+        2400
+      ],
+      "id": "295ea119-afeb-4d94-84ac-cce5ccc85296",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "name": "cancelamento",
+        "description": "=Chame esta TOOL após o usuário informar que dedeseja cancelar, peça nome e email e data do agendamento. \n\nNa variável \"nome\", você vai preencher o nome do usuário\n\nNa variável \"email\" você vai preencher o email do usuário\n\nNa variável \"dia\" você vai preencher o dia desejado que ele tem mais facilidade em fazer a call\n\n\nA data do agendamento você vai transformar para seguinte formato, exemplo: dd/mm/yyyy HH:MM:SS -03:00\n\nEm seguida você vai inserir uma hora a mais depois no horario de agendamento e na variavel \"end\" você vai prencher com o horario no mesmo formato da variavel start",
+        "workflowId": {
+          "__rl": true,
+          "value": "pEmfDrdbeB16KG0V",
+          "mode": "list",
+          "cachedResultName": "AGENDAMENTO"
+        },
+        "fields": {
+          "values": [
+            {
+              "name": "Email",
+              "stringValue": "={{ $fromAI(\"email_cliente\",\"email do cliente para fazer agendamento\",\"string\",\"\")}}"
+            },
+            {
+              "name": "Nome",
+              "stringValue": "={{ $fromAI(\"nome_cliente\",\"nome do cliente para fazer agendamento\",\"string\",\"\")}}"
+            },
+            {
+              "name": "evento",
+              "stringValue": "cancelamento"
+            },
+            {
+              "name": "whatsappID",
+              "stringValue": "={{ $json.sessionId }}"
+            },
+            {
+              "name": "historico_conversas",
+              "stringValue": "={{ $('Dados').item.json.conversation }}"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "jsonSchemaExample": "{\n  \"nome\": \"\",\n  \"email\": \"\",\n  \"tipo_evento\": \"cancelamento\",\n  \"horario\": \"\",\n  \"conversationStory\": \"\"\n}\n"
+      },
+      "id": "b5686a56-b682-4459-9af9-6b3f6e83bd61",
+      "name": "cancelamento",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        1680
+      ]
+    },
+    {
+      "parameters": {
+        "content": "- **Webhook - Recebendo Mensagens do WhatsApp**\n    \n    ### Nome: `Webhook`\n    \n    - **O que faz?**\n        - Captura **todas as mensagens recebidas** no WhatsApp e inicia o fluxo.\n    - **Por que existe?**\n        - O Webhook é um \"gatilho\", ou seja, um sensor que recebe a mensagem e dispara a automação.\n    - **Como funciona?**\n        - Ele recebe informações como:\n            - `remoteJid` → Número do cliente.\n            - `conversation` → Texto da mensagem.\n            - `messageType` → Se é **texto, áudio ou imagem**.\n    - **O que acontece depois?**\n        - Assim que recebe a mensagem, o fluxo segue para **organizar os dados**.\n    - **Exemplo real:**\n        - O cliente manda \"Oi\" no WhatsApp → O webhook recebe essa mensagem → O fluxo começa.",
+        "height": 560,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -6800,
+        1860
+      ],
+      "id": "ee01aa1f-295a-4ec4-8c30-4b6f6c4f0771",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Set - Dados`\n\n- **O que faz?**\n    - Guarda e organiza apenas as informações úteis da mensagem recebida.\n- **Por que existe?**\n    - O Webhook recebe muitos dados, mas nem todos são necessários para o fluxo.\n- **Como funciona?**\n    - Ele cria variáveis organizadas para os próximos passos:\n        - `remoteJid` → Número do cliente.\n        - `fromMe` → Indica se foi o próprio bot que enviou a mensagem.\n        - `conversation` → O conteúdo da mensagem.\n        - `messageType` → Tipo de mensagem (texto, áudio ou imagem).\n        - `time_out` → Tempo limite de espera caso um atendente humano assuma.\n- **O que acontece depois?**\n    - Agora que os dados estão organizados, o fluxo segue para **prevenir mensagens duplicadas**.",
+        "height": 560,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -6360,
+        1860
+      ],
+      "id": "a6c14c04-ee09-41a1-98d3-9acb29facb75",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Limitador de Número`\n\n- **O que faz?**\n    - Impede que o mesmo número seja processado várias vezes ao mesmo tempo.\n- **Por que existe?**\n    - Se um cliente mandar muitas mensagens rapidamente, o bot pode acabar respondendo mais de uma vez.\n- **Como funciona?**\n    - Ele verifica se `$json.remoteJid` já está sendo processado.\n- **O que acontece depois?**\n    - Se a mensagem for **única**, o fluxo segue.\n    - Se a mensagem **já está em processamento**, o fluxo **interrompe aqui**.\n- **Exemplo real:**\n    - O cliente manda \"Oi\" e depois \"Tudo bem?\" rapidamente.\n    - Esse filtro impede que o bot processe **as duas mensagens ao mesmo tempo**.",
+        "height": 560,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -5940,
+        1860
+      ],
+      "id": "6df0c4f9-119c-4724-b191-b015a81e178d",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `If`\n\n- **O que faz?**\n    - Verifica se a mensagem foi enviada pelo próprio bot.\n- **Por que existe?**\n    - Para evitar que o bot fique respondendo a si mesmo, criando um **loop infinito**.\n- **Como funciona?**\n    - Se `$json.fromMe === true`, significa que a mensagem foi enviada pelo bot e **não deve ser processada**.\n- **O que acontece depois?**\n    - Se a mensagem **foi enviada pelo bot**, o fluxo **interrompe aqui**.\n    - Se foi enviada **por um cliente**, o fluxo **continua** para atualizar o tempo de atendimento.\n- **Exemplo real:**\n    - O bot manda \"Oi\" para o cliente e, sem esse filtro, poderia responder a si mesmo infinitamente.",
+        "height": 500,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -5660,
+        1180
+      ],
+      "id": "c25d4c42-de09-4db3-9832-10856c7c0041",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Supabase`\n\n- **O que faz?**\n    - Atualiza o **tempo limite** que o cliente pode ser atendido automaticamente.\n- **Por que existe?**\n    - Se um atendente humano assumir a conversa, o bot deve **parar de responder** até o tempo limite expirar.\n- **Como funciona?**\n    - Se o cliente interagir, o tempo limite é estendido por **15 minutos**.\n    - Se um humano assumir o atendimento, a automação **pausa** até o tempo expirar.\n- **O que acontece depois?**\n    - Agora o fluxo verifica **se o cliente já está registrado** no banco de dados.\n- **Exemplo real:**\n    - O cliente manda uma mensagem, e o tempo limite é atualizado para que ele possa continuar recebendo respostas automáticas.",
+        "height": 500,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -5220,
+        780
+      ],
+      "id": "0161f36a-9ebd-48fc-b59a-b8c2cce17eb8",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Supabase - Verificar se o número já existe`\n\n- **O que faz?**\n    - Verifica se o número do cliente já está cadastrado no banco de dados.\n- **Por que existe?**\n    - Se for um **cliente novo**, ele precisa ser **registrado** antes de seguir o atendimento.\n- **Como funciona?**\n    - O nó consulta o Supabase e verifica se já existe um registro para `$json.remoteJid`.\n- **O que acontece depois?**\n    - Se o cliente **já estiver cadastrado**, o fluxo segue para verificar se ele está em atendimento humano.\n    - Se **não estiver cadastrado**, o fluxo cria um novo registro.\n- **Exemplo real:**\n    - Um cliente novo manda \"Oi\" → O bot verifica e percebe que ele **ainda não está no banco** → Cria um cadastro para ele.",
+        "height": 560,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -4840,
+        720
+      ],
+      "id": "a67ee2d0-1197-4e56-8fc4-606c67be2b7d",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `If - Número Existe?`\n\n- **O que faz?**\n    - Decide se o cliente deve ser **cadastrado no banco** ou se já pode seguir o atendimento.\n- **Por que existe?**\n    - Para garantir que **novos clientes sejam cadastrados corretamente** antes de continuar.\n- **Como funciona?**\n    - Se o resultado da consulta no Supabase estiver **vazio**, significa que o cliente **ainda não foi registrado**.\n- **O que acontece depois?**\n    - Se o cliente **não existir**, ele segue para **cadastrar um novo lead**.\n    - Se o cliente **já existir**, ele segue para verificar se está em atendimento humano.\n- **Exemplo real:**\n    - O cliente João nunca conversou com o bot antes.\n    - Como ele não está no banco, o fluxo segue para cadastrá-lo.",
+        "height": 560,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -4280,
+        460
+      ],
+      "id": "83b8f0a7-f13b-4975-a231-15f35624f110",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Supabase - Criar Novo Lead`\n\n- **O que faz?**\n    - Adiciona o novo cliente ao banco de dados.\n- **Por que existe?**\n    - Se um número novo entrar em contato, ele precisa ser registrado para que o bot possa interagir com ele no futuro.\n- **Como funciona?**\n    - Ele cria um novo registro com:\n        - `remoteJid` (número do cliente).\n        - `date_time` (data da primeira interação).\n- **O que acontece depois?**\n    - Agora que o cliente está no banco, ele pode seguir para o atendimento automático.\n- **Exemplo real:**\n    - O cliente João envia \"Oi\" pela primeira vez.\n    - O fluxo cria um novo registro dele no banco de dados.",
+        "height": 520,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3960,
+        1240
+      ],
+      "id": "3e2ed03f-fa28-4604-bd8f-8231b34cc4c7",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Supabase 2`\n\n- **O que faz?**\n    - Pega o o cliente pode ser atendido automaticamente.\n- **Por que existe?**\n    - Se um atendente humano assumir a conversa, o bot deve **parar de responder** até o tempo limite expirar.\n- **Como funciona?**\n    - Se o cliente interagir, o tempo limite é estendido por **15 minutos**.\n    - Se um humano assumir o atendimento, a automação **pausa** até o tempo expirar.\n- **O que acontece depois?**\n    - Agora o fluxo verifica **se o cliente já está registrado** no banco de dados.\n- **Exemplo real:**\n    - O cliente manda uma mensagem, e o tempo limite é atualizado para que ele possa continuar recebendo respostas automáticas.",
+        "height": 500,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -5260,
+        2340
+      ],
+      "id": "1c0f4fb5-7f8a-49c4-999a-de5eed4442d2",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Supabase - Verificar se o número já existe`\n\n- **O que faz?**\n    - Verifica se o número do cliente já está cadastrado no banco de dados.\n- **Por que existe?**\n    - Se for um **cliente novo**, ele precisa ser **registrado** antes de seguir o atendimento.\n- **Como funciona?**\n    - O nó consulta o Supabase e verifica se já existe um registro para `$json.remoteJid`.\n- **O que acontece depois?**\n    - Se o cliente **já estiver cadastrado**, o fluxo segue para verificar se ele está em atendimento humano.\n    - Se **não estiver cadastrado**, o fluxo cria um novo registro.\n- **Exemplo real:**\n    - Um cliente novo manda \"Oi\" → O bot verifica e percebe que ele **ainda não está no banco** → Cria um cadastro para ele.",
+        "height": 560,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -4860,
+        2340
+      ],
+      "id": "d9ce9950-125b-4ad8-bd67-69f6725711c0",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Filter - Está em atendimento manual?`\n\n- **O que faz?**\n    - Verifica se o atendimento já está sendo feito manualmente por um humano.\n- **Por que existe?**\n    - Se um atendente humano estiver falando com o cliente, o bot **deve parar de responder**.\n- **Como funciona?**\n    - Ele consulta o banco de dados e verifica o campo `time_out`:\n        - **Se o tempo de espera ainda estiver ativo**, o bot **não responde**.\n        - **Se o tempo já expirou**, o bot **continua normalmente**.\n- **O que acontece depois?**\n    - Se o cliente **está em atendimento humano**, o fluxo para aqui.\n    - Se o cliente **não está sendo atendido por um humano**, o fluxo continua para processar a mensagem.\n- **Exemplo real:**\n    - Um atendente humano respondeu o cliente há 2 minutos.\n    - O fluxo verifica que o tempo de 15 minutos **ainda não expirou** e **pausa a automaçã**",
+        "height": 660,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -4400,
+        1600
+      ],
+      "id": "b3bac386-67f3-4031-a3b0-01efe9de5761",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Supabase - Criar Novo Lead`\n\n- **O que faz?**\n    - Adiciona o novo cliente ao banco de dados.\n- **Por que existe?**\n    - Se um número novo entrar em contato, ele precisa ser registrado para que o bot possa interagir com ele no futuro.\n- **Como funciona?**\n    - Ele cria um novo registro com:\n        - `remoteJid` (número do cliente).\n        - `date_time` (data da primeira interação).\n- **O que acontece depois?**\n    - Agora que o cliente está no banco, ele pode seguir para o atendimento automático.\n- **Exemplo real:**\n    - O cliente João envia \"Oi\" pela primeira vez.\n    - O fluxo cria um novo registro dele no banco de dados.",
+        "height": 520,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -4400,
+        2700
+      ],
+      "id": "52a3c99d-882d-4c7c-8228-8d56c9aeaddf",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Switch - Tipo de Mensagem`\n\n- **O que faz?**\n    - Descobre **se a mensagem recebida é texto, áudio ou imagem**.\n- **Por que existe?**\n    - Para que o bot processe **cada tipo de mensagem corretamente**.\n- **Como funciona?**\n    - O nó verifica o `messageType`:\n        - **Se for texto** → Segue para processar mensagens escritas.\n        - **Se for áudio** → Segue para converter áudio em texto.\n        - **Se for imagem** → Segue para interpretar a imagem com IA.\n- **O que acontece depois?**\n    - Cada tipo de mensagem segue um caminho diferente no fluxo.\n- **Exemplo real:**\n    - O cliente manda um áudio → O fluxo detecta e **envia o áudio para transcrição**.",
+        "height": 520,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -4000,
+        2380
+      ],
+      "id": "5b4eafa4-a1b8-4668-bfac-4735e9d4622e",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Base64 Audio` e `Base64 to Audio`\n\n- **O que fazem?**\n    - Convertem o **áudio recebido** do WhatsApp de Base64 para um arquivo de áudio `.ogg`.\n- **Por que existem?**\n    - O WhatsApp envia áudios no formato Base64, que precisa ser convertido antes de ser analisado.\n- **Como funcionam?**\n    - Eles pegam o áudio codificado e transformam em um **arquivo físico** que pode ser processado.\n- **O que acontece depois?**\n    - O áudio convertido é enviado para o **OpenAI Whisper**, que faz a transcrição para texto.\n- **Exemplo real:**\n    - O cliente envia um áudio perguntando \"Quais são os planos disponíveis?\".\n    - Esse áudio é convertido e enviado para a IA transcrever.",
+        "height": 440,
+        "width": 620,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3180,
+        2620
+      ],
+      "id": "73c7f00e-ffa4-4941-89a2-c9373c91343a",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Base64 Image` e `Base64 to Image`\n\n- **O que fazem?**\n    - Convertem **imagens enviadas** do WhatsApp de Base64 para arquivos `.jpeg`.\n- **Por que existem?**\n    - O WhatsApp envia imagens como código Base64, e precisamos converter para analisá-las.\n- **Como funcionam?**\n    - Pegam a imagem codificada e geram um **arquivo físico** para que possa ser interpretado.\n- **O que acontece depois?**\n    - A imagem convertida é enviada para a IA descrever seu conteúdo.\n- **Exemplo real:**\n    - O cliente envia a foto de um contrato.\n    - A imagem é convertida para `.jpeg`, permitindo que o bot interprete seu conteúdo.",
+        "height": 400,
+        "width": 620,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3180,
+        3360
+      ],
+      "id": "a0ab3a35-e277-40a7-9569-0e83711d0a12",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "content": "## Pega mensagem e salva no banco de memória \n",
+        "height": 80,
+        "width": 620,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3200,
+        2120
+      ],
+      "id": "f73d4c50-577c-4feb-bc37-548c8b323030",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Memória de Texto`\n\n- **O que faz?**\n    - Armazena mensagens de texto recebidas para referência futura.\n- **Por que existe?**\n    - Para que o bot possa lembrar do que o cliente já disse e usar essa informação nas próximas respostas.\n- **Como funciona?**\n    - Ele salva a mensagem no banco de dados Redis.\n- **O que acontece depois?**\n    - O fluxo continua para combinar essa mensagem com outras interações anteriores.\n- **Exemplo real:**\n    - O cliente envia \"Oi, quero um orçamento\".\n    - O bot salva essa mensagem para analisar depois.",
+        "height": 520,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2060,
+        1600
+      ],
+      "id": "e8600572-6d21-487b-b82b-5f2b36ea966d",
+      "name": "Sticky Note16"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Delay - Espera do Usuário`\n\n- **O que faz?**\n    - Aguarda alguns segundos antes de continuar o fluxo.\n- **Por que existe?**\n    - Muitas pessoas enviam mensagens em partes, como \"Oi\" → \"Tudo bem?\" → \"Quero um orçamento\".\n    - Esse delay permite esperar **caso o usuário ainda esteja digitando**.\n- **Como funciona?**\n    - O tempo de espera pode ser ajustado (padrão: **5 segundos**).\n- **O que acontece depois?**\n    - Se o usuário mandar outra mensagem nesse intervalo, o fluxo adiciona essa nova mensagem à memória.\n- **Exemplo real:**\n    - O cliente envia \"Oi\" e depois \"Quero um orçamento\".\n    - O bot aguarda 5 segundos para evitar responder antes da mensagem final.",
+        "height": 520,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1620,
+        1580
+      ],
+      "id": "ab4d38b6-cac7-485b-adee-0eef0672df30",
+      "name": "Sticky Note17"
+    },
+    {
+      "parameters": {
+        "content": "## **Redis - Recuperando Memória da Conversa**\n\n### **Nome do Nó:** `Redis - Recuperar Memória`\n\n- **O que faz?**\n    - Busca **as mensagens anteriores do cliente** armazenadas no banco de dados Redis.\n- **Por que existe?**\n    - Para permitir que o bot **lembre do que foi falado antes**, tornando as respostas mais naturais.\n- **Como funciona?**\n    - O nó acessa o banco de dados Redis e recupera **as últimas mensagens enviadas pelo cliente**.\n- **O que acontece depois?**\n    - A conversa recuperada é enviada para o nó de **processamento da IA**.",
+        "height": 540,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1200,
+        1560
+      ],
+      "id": "3ff6f205-c5d3-4d81-9237-1893970b4c35",
+      "name": "Sticky Note18"
+    },
+    {
+      "parameters": {
+        "content": "### Nome: `Verificar Combinação`\n\n- **O que faz?**\n    - Compara as duas últimas mensagens armazenadas para ver se são **iguais ou diferentes**.\n- **Por que existe?**\n    - Para garantir que o bot só responda quando o usuário **terminar de escrever**.\n- **Como funciona?**\n    - Se a **mensagem 1 e a mensagem 2 forem iguais**, significa que o usuário **parou de escrever** e o bot pode responder.\n    - Se forem **diferentes**, significa que o usuário **ainda está digitando**, e o fluxo aguarda mais tempo.\n- **O que acontece depois?**\n    - Se a verificação for **positiva**, o fluxo segue para a IA criar a resposta.\n    - Se for **negativa**, o fluxo volta para o delay para esperar mais tempo.\n- **Exemplo real:**\n    - O cliente manda \"Oi\".\n    - O bot espera, mas o cliente adiciona \"Quero um orçamento\".\n    - O fluxo percebe que a mensagem mudou e espera mais um pouco antes de responder.",
+        "height": 640,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        1460
+      ],
+      "id": "b5683807-c699-48c7-992c-7a7ed0a6a6da",
+      "name": "Sticky Note19"
+    },
+    {
+      "parameters": {
+        "content": "## **Code - Organizando a Resposta da IA**\n\n### **Nome do Nó:** `Code - Formatar Resposta`\n\n- **O que faz?**\n    - Processa o texto gerado pela IA para garantir que ele **esteja bem formatado** antes de ser enviado.\n- **Por que existe?**\n    - Para evitar erros de formatação e garantir que a resposta seja **clara e fácil de ler**.\n- **Como funciona?**\n    - O código ajusta:\n        - ✅ **Quebras de linha** no texto.\n        - ✅ **Correções gramaticais**.\n        - ✅ **Separa mensagens muito longas** para serem enviadas uma de cada vez.\n- **O que acontece depois?**\n    - O texto formatado segue para **o envio ao cliente via WhatsApp**.",
+        "height": 560,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        1340
+      ],
+      "id": "26f6e330-217f-4756-b188-92c44656df98",
+      "name": "Sticky Note20"
+    },
+    {
+      "parameters": {
+        "content": "## **Organizar Dias - Estruturando as Datas**\n\n### **Nome do Nó:** `Organizar Dias`\n\n- **O que faz?**\n    - Gera uma lista organizada com os **próximos 10 dias**, incluindo o nome do dia da semana.\n- **Por que existe?**\n    - Para fornecer um formato padronizado de datas, garantindo que os próximos nós trabalhem corretamente com os dias disponíveis.\n- **Como funciona?**\n    - O nó cria uma lista de **datas formatadas**, facilitando a busca por horários disponíveis.\n- **Exemplo de saída:**\n    \n    ```\n    swift\n    CopyEdit\n    Segunda-feira, 04/03/2025\n    Terça-feira, 05/03/2025\n    Quarta-feira, 06/03/2025\n    \n    ```\n    \n- **O que acontece depois?**\n    - Os dados seguem para o nó **Filter**, onde serão analisados.\n",
+        "height": 720,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        60,
+        1180
+      ],
+      "id": "cac36b85-3cbe-484a-847c-01cc14103d59",
+      "name": "Sticky Note21"
+    },
+    {
+      "parameters": {
+        "content": "## **Filter - Filtrando as Informações Relevantes**\n\n### **Nome do Nó:** `Filter`\n\n- **O que faz?**\n    - Decide se os dados devem ou não ser processados.\n- **Por que existe?**\n    - Para evitar que mensagens irrelevantes entrem no fluxo e ocupem processamento desnecessário.\n- **Como funciona?**\n    - O nó verifica **se a mensagem contém informações necessárias para o fluxo continuar**.\n- **O que acontece depois?**\n    - Se os dados forem válidos, eles seguem para o nó **SDR.IA**.",
+        "height": 480,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        1420
+      ],
+      "id": "9a8c65ef-101d-4f3a-bcf8-504a0e7c67f3",
+      "name": "Sticky Note22"
+    },
+    {
+      "parameters": {
+        "content": "## **dia_semana - Descobrindo o Dia da Semana**\n\n### **Nome do Nó:** `dia_semana`\n\n- **O que faz?**\n    - Converte uma data fornecida pelo cliente no **nome do dia da semana correspondente**.\n- **Por que existe?**\n    - Para garantir que a IA trabalhe com **informações mais precisas**, reconhecendo corretamente o dia da solicitação.\n- **Como funciona?**\n    - O nó recebe uma data no formato **dd/mm/yyyy** e retorna o nome do dia da semana.\n- **Exemplo de saída:**\n    \n    ```\n    makefile\n    CopyEdit\n    Entrada: 06/03/2025\n    Saída: Quinta-feira\n    \n    ```\n    \n- **O que acontece depois?**\n    - A informação segue para outros nós que precisam validar **disponibilidade ou reagendar eventos**.",
+        "height": 740,
+        "width": 340,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        880,
+        280
+      ],
+      "id": "4cc78d1d-874e-4994-83d6-9ab895a3ed45",
+      "name": "Sticky Note23"
+    },
+    {
+      "parameters": {
+        "content": "## **cancelamento - Processando um Pedido de Cancelamento**\n\n### **Nome do Nó:** `cancelamento`\n\n- **O que faz?**\n    - Garante que o cancelamento de um agendamento seja registrado corretamente.\n- **Por que existe?**\n    - Para evitar que o cliente tenha compromissos agendados sem necessidade.\n- **Como funciona?**\n    - O nó recebe os seguintes dados:\n        - **Nome do cliente**\n        - **E-mail**\n        - **Data do agendamento**\n    - Ele então registra o cancelamento na base de dados.\n- **O que acontece depois?**\n    - O cliente recebe uma confirmação do cancelamento.",
+        "height": 600,
+        "width": 340,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        420
+      ],
+      "id": "d0fdb8e6-ca6c-4e49-b8c5-4ab2c9dc110d",
+      "name": "Sticky Note24"
+    },
+    {
+      "parameters": {
+        "content": "## **reagendamento - Reagendando um Horário**\n\n### **Nome do Nó:** `reagendamento`\n\n- **O que faz?**\n    - Permite que o cliente **mude a data e horário de um compromisso já agendado**.\n- **Por que existe?**\n    - Para evitar que clientes precisem cancelar e agendar novamente manualmente.\n- **Como funciona?**\n    - O nó verifica a **disponibilidade de horários**, sugere novas datas e altera o compromisso no sistema.\n- **O que acontece depois?**\n    - O cliente recebe **novas opções de horários** para escolher.",
+        "height": 500,
+        "width": 340,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        520
+      ],
+      "id": "106ab797-d133-4347-9fe8-4775eef70764",
+      "name": "Sticky Note25"
+    },
+    {
+      "parameters": {
+        "content": "## **agendamento - Criando um Novo Agendamento**\n\n### **Nome do Nó:** `agendamento`\n\n- **O que faz?**\n    - Registra um **novo agendamento** no sistema.\n- **Por que existe?**\n    - Para permitir que clientes marquem reuniões de forma automatizada.\n- **Como funciona?**\n    - O nó solicita os seguintes dados:\n        - **Nome do cliente**\n        - **E-mail**\n        - **Data e horário desejado**\n    - Ele então verifica a disponibilidade e confirma o agendamento.\n- **O que acontece depois?**\n    - O cliente recebe **uma confirmação do agendamento** via WhatsApp ou e-mail.",
+        "height": 540,
+        "width": 340,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        900,
+        1940
+      ],
+      "id": "5db811dc-0a8a-4bd6-ae7f-c1b4fe57e43b",
+      "name": "Sticky Note26"
+    },
+    {
+      "parameters": {
+        "content": "## **Calculator - Processando Cálculos**\n\n### **Nome do Nó:** `Calculator`\n\n- **O que faz?**\n    - Realiza cálculos numéricos caso necessário, como **diferença entre datas e horários**.\n- **Por que existe?**\n    - Para auxiliar na **verificação de tempos entre eventos e reagendamentos**.\n- **O que acontece depois?**\n    - Os dados calculados são usados para definir horários de atendimento.",
+        "height": 400,
+        "width": 340,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        1940
+      ],
+      "id": "d5adc7bd-dbde-42d9-83cf-f7df086ff1a8",
+      "name": "Sticky Note28"
+    },
+    {
+      "parameters": {
+        "content": "## **disponibilidade - Conferindo Horários Livres**\n\n### **Nome do Nó:** `disponibilidade`\n\n- **O que faz?**\n    - Busca **horários disponíveis na agenda** antes de sugerir um novo compromisso.\n- **Por que existe?**\n    - Para garantir que **nenhum agendamento entre em conflito com outro compromisso**.\n- **Como funciona?**\n    - O nó verifica os horários disponíveis entre **09:00 e 18:00** e retorna **duas opções por dia** para os próximos três dias.\n- **O que acontece depois?**\n    - Os horários sugeridos são enviados ao cliente para escolha.",
+        "height": 540,
+        "width": 340,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        1940
+      ],
+      "id": "24620d79-6291-41d8-bf4c-16d8ad11abb6",
+      "name": "Sticky Note29"
+    },
+    {
+      "parameters": {
+        "content": "## **Postgres Chat Memory - Memória da Conversa**\n\n### **Nome do Nó:** `Postgres Chat Memory`\n\n- **O que faz?**\n    - Mantém um **registro da conversa do cliente** para futuras interações.\n- **Por que existe?**\n    - Para que o bot **lembre do que foi falado anteriormente**, tornando as respostas mais inteligentes.\n- **O que acontece depois?**\n    - Quando o cliente volta a interagir, o bot recupera o histórico e responde de forma mais precisa.",
+        "height": 420,
+        "width": 340,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2020,
+        1260
+      ],
+      "id": "83d7d389-5721-4d13-be99-e161c63347d6",
+      "name": "Sticky Note30"
+    },
+    {
+      "parameters": {
+        "content": "### `Loop Over Items`\n\n- **O que faz?**\n    - Envia **cada parte da mensagem separadamente**.\n- **Por que existe?**\n    - Para garantir que todas as partes da mensagem sejam enviadas de forma **sequencial e organizada**.\n- **Como funciona?**\n    - O loop percorre todas as partes da mensagem e envia uma de cada vez.\n- **O que acontece depois?**\n    - Agora cada parte da resposta será enviada para o WhatsApp de forma natural.\n- **Exemplo real:**\n    - A IA gerou uma resposta com **3 parágrafos**.\n    - O bot envia o **primeiro parágrafo**, depois o **segundo**, depois o **terceiro**.",
+        "height": 480,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        600,
+        2740
+      ],
+      "id": "3b8bcd4d-886a-487c-b196-7d2aae065976",
+      "name": "Sticky Note31"
+    },
+    {
+      "parameters": {
+        "content": "## **Redis - Gerenciando Memória da Conversa**\n\n### **Nome do Nó:** `Redis6`\n\n- **O que faz?**\n    - Deleta registros antigos da memória de conversação.\n- **Por que existe?**\n    - Para garantir que **dados desnecessários não fiquem ocupando espaço**, evitando conflitos em novas interações.\n- **Como funciona?**\n    - Ele remove **dados de cache do Redis**, apagando registros antigos que não são mais necessários para a conversa.\n- **O que acontece depois?**\n    - O fluxo segue para os próximos nós, agora sem informações desatualizadas na memória.",
+        "height": 520,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2420,
+        1660
+      ],
+      "id": "e6894823-1655-4895-8fb6-e91214fb73c0",
+      "name": "Sticky Note32"
+    },
+    {
+      "parameters": {
+        "content": "## **Edit Fields6 - Organizando Dados**\n\n### **Nome do Nó:** `Edit Fields6`\n\n- **O que faz?**\n    - Ajusta e armazena as informações relevantes antes de serem processadas pelos próximos nós.\n- **Por que existe?**\n    - Para garantir que **os dados estejam no formato correto** antes de serem utilizados.\n- **Como funciona?**\n    - Ele filtra e reestrutura os dados, deixando apenas as informações importantes para os próximos passos do fluxo.\n- **O que acontece depois?**\n    - Os dados seguem para o nó **Split Out2**, que divide as informações para diferentes partes do fluxo.",
+        "height": 520,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2420,
+        2280
+      ],
+      "id": "edc4568b-699d-47a8-b955-d9e243e28b00",
+      "name": "Sticky Note33"
+    },
+    {
+      "parameters": {
+        "content": "## **Split Out2 - Dividindo as Informações**\n\n### **Nome do Nó:** `Split Out2`\n\n- **O que faz?**\n    - Separa os dados processados em múltiplos caminhos, direcionando cada tipo de informação para o nó correto.\n- **Por que existe?**\n    - Para garantir que **cada informação seja enviada para o local apropriado**, evitando erros no processamento.\n- **Como funciona?**\n    - Ele verifica as informações armazenadas e as **envia separadamente para os próximos nós**.\n- **O que acontece depois?**\n    - Cada informação segue para o nó correspondente, dependendo da ação necessária (agendamento, cancelamento, etc.).",
+        "height": 540,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2800,
+        2280
+      ],
+      "id": "ecfeea84-48d7-48bf-bf42-4e15c3f64085",
+      "name": "Sticky Note34"
+    },
+    {
+      "parameters": {
+        "content": "### **Nome do Nó:** `Code`\n\n- **O que faz?**\n    - Verifica se uma mensagem recebida contém um **link do Google Meet** com um **indicador de agendamento**.\n- **Por que existe?**\n    - Para **identificar reuniões agendadas automaticamente** e permitir que o fluxo reaja de forma adequada.\n- **Como funciona?**\n    - O código faz as seguintes verificações:\n        1. **Obtém o conteúdo da mensagem**, verificando diferentes formatos possíveis (`message`, `message.text`, `message.content`, etc.).\n        2. **Procura por um link do Google Meet** (`meet.google.com`).\n        3. **Verifica se há um identificador de agendamento** (`?hs=`, `&hs=` ou um código de data e hora no formato `YYYYMMDDTHHMM`).\n        4. **Adiciona um campo `isMeetSchedule`** à mensagem para indicar se um link de reunião foi encontrado.",
+        "height": 580,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        2860
+      ],
+      "id": "49c8b80c-bebb-44be-aae5-bc3560a8ceac",
+      "name": "Sticky Note35"
+    },
+    {
+      "parameters": {
+        "content": "### **Número Aleatório - Criando um Valor Aleatório**\n\n### **Nome do Nó:** `Número Aleatório`\n\n- **O que faz?**\n    - Gera um número aleatório entre 1 e 4 para definir como a mensagem será enviada, se será por audio ou texto. Se cair: 1,2 ou 3 será texto e se cair 4 será áudio.\n- **Por que existe?**\n    - Para criar variações no fluxo e permitir diferentes tipos de respostas\n        \n- **O que acontece depois?**\n    - O fluxo segue para o nó **Switch**, onde será decidido o tipo de mensagem a ser enviada.",
+        "height": 460,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        3740
+      ],
+      "id": "466f6c88-e135-4c09-9f1c-a25c1f23a7e6",
+      "name": "Sticky Note36"
+    },
+    {
+      "parameters": {
+        "content": "### **Switch - Decidindo o Tipo de Mensagem**\n\n### **Nome do Nó:** `Switch`\n\n- **O que faz?**\n    - Decide **se a mensagem deve ser enviada como texto ou áudio**.\n- **Por que existe?**\n    - Para garantir que cada mensagem seja tratada corretamente, **dependendo do formato escolhido**.\n- **Como funciona?**\n    - Ele verifica o valor do **número aleatório gerado**:\n        - **1 ou 2 → Envia texto**\n        - **3 ou 4 → Envia áudio**\n- **O que acontece depois?**\n    - Se for **texto**, segue para **Contabilizar Cfor **áudio**, segue para **Eleven Labs**.",
+        "height": 460,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2300,
+        3740
+      ],
+      "id": "3b55545a-6632-4fd3-a68c-b5500a5b00f5",
+      "name": "Sticky Note37"
+    },
+    {
+      "parameters": {
+        "content": "### **Contabilizar Caracteres - Analisando o Texto**\n\n### **Nome do Nó:** `Contabilizar Caracteres`\n\n- **O que faz?**\n    - Conta quantos caracteres tem a mensagem antes do envio para dar aquela sensação de digitando..\n- **Por que existe?**\n    - Para evitar que **mensagens muito longas sejam enviadas de uma só vez**, quebrando-as se necessário.\n- **Como funciona?**\n    - O nó verifica **o número total de caracteres** na mensagem .\n- **O que acontece depois?**\n    - Se o tamanho for aceitável, a mensagem segue para **Envio de Text Enviar Texto - Enviando a Mensagem**",
+        "height": 520,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2840,
+        3740
+      ],
+      "id": "f470892d-a995-4bd1-b466-fcd7abafcc9c",
+      "name": "Sticky Note38"
+    },
+    {
+      "parameters": {
+        "content": "### **Nome do Nó:** `Enviar Texto`\n\n- **O que faz?**\n    - Envia a mensagem de texto para o usuário via **API externa**.\n- **Por que existe?**\n    - Para garantir que a mensagem seja entregue corretamente ao usuário.\n- **Como funciona?**\n    - O nó faz uma **requisição POST** para um endpoint externo .\n- **O que acontece depois?**\n    - O cliente recebe a mensagem no WhatsApp.",
+        "height": 340,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3280,
+        3740
+      ],
+      "id": "9b5240c6-9731-4db3-8ae3-c0964bbeb877",
+      "name": "Sticky Note39"
+    },
+    {
+      "parameters": {
+        "content": "### Eleven Labs - Convertendo T **Nome do Nó:** `Eleven Labs`\n\n- **O que faz?**\n    - Converte a mensagem de texto em um **arquivo de áudio** usando IA.\n- **Por que existe?**\n    - Para permitir que a resposta seja enviada **em formato de áudio** .\n- **Como funciona?**\n    - O nó envia o texto para a API da **Eleven Labs**, que **gera um arquivo de áudio baseado no texto**.\n- *O que ac O áudio segue para **Extract from File**.",
+        "height": 360,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        4680
+      ],
+      "id": "06495f99-9906-4998-a92f-83283dc69fbf",
+      "name": "Sticky Note40"
+    },
+    {
+      "parameters": {
+        "content": "### **Extract from File - Convertendo para Base64**\n\n### **Nome do Nó:** `Extract from File`\n\n- **O que faz?**\n    - Converte o arquivo de áudio gerado pela IA para um formato que possa ser enviado via API.\n- **Por que existe?**\n    - Alguns sistemas aceitam apenas áudios em **Base64**, então esse nó garante a conversão correta .\n- **Como funciona?**\n    - Ele transforma o **arquivo de áudio** em uma **string Base64**.\n- **O que acontece depois?**\n    - O áudio formatado é enviado",
+        "height": 460,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        4680
+      ],
+      "id": "4dcf2909-29e4-4e6e-86f9-2889364f49d2",
+      "name": "Sticky Note41"
+    },
+    {
+      "parameters": {
+        "content": "### **Enviar Áudio - Enviando a Resposta**\n\n### **Nome do Nó:** `Enviar Áudio`\n\n- **O que faz?**\n    - Envia o **arquivo de áudio** para o usuário via **API externa**.\n- **Por que existe?**\n    - Para que mensagens possam ser enviadas como **áudio, e não apenas texto** .\n- **Como funciona?**\n    - O nó faz uma **requisição POST** para um endpoint externo.\n- **O que acontece depois?**\n    - O cliente recebe **a mensagem de áudio diretamente no WhatsApo garante **envio eficiente de mensagens de texto e áudio**, tornando o atendimento **mais dinâmico e inteligente**.",
+        "height": 480,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2060,
+        4680
+      ],
+      "id": "1519a92a-4040-42d5-a937-cb33861e94ff",
+      "name": "Sticky Note42"
+    },
+    {
+      "parameters": {
+        "content": "## IMPORTANTE\n**Caso você não queira utilizar respostas em áudio, você só precisa desativar o fluxo que leva até o eleven labs**\n"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1360,
+        4280
+      ],
+      "typeVersion": 1,
+      "id": "a99a71ab-30d9-4c18-8642-737f07fa71b8",
+      "name": "Sticky Note43"
+    },
+    {
+      "parameters": {
+        "content": "## IMPORTANTE\n**Não mexa nas variáveis que não falamos na aula, isso pode gerar erros no fluxo**\n"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -6760,
+        1320
+      ],
+      "typeVersion": 1,
+      "id": "27d4bd2b-6168-4d9e-a181-df46be001a18",
+      "name": "Sticky Note44"
+    },
+    {
+      "parameters": {
+        "content": "## ERRO NO FLUXO\n**Identifique os erros a partir dos nodes VERMELHOS**\n",
+        "height": 120
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -6760,
+        1500
+      ],
+      "typeVersion": 1,
+      "id": "c1690283-8acf-4c01-a995-0a3e7bad947a",
+      "name": "Sticky Note45"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ $('Dados').item.json.remoteJid }}",
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        2400
+      ],
+      "id": "105c3bca-6059-49e4-8fe2-eca0b28903f7",
+      "name": "memory"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ $('Dados').item.json.remoteJid }}",
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        2400
+      ],
+      "id": "5cffdfe8-b69c-4ffd-9e06-7eb47603c997",
+      "name": "memory2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtém a saída do nó \"SDR.IA\"\nconst output = $('SDR.IA').item?.json?.output || '';\n\n// Expressão regular para dividir o texto em frases, mantendo perguntas e períodos completos\nconst splitOutput = output.split(/(?<=[?.!])\\s+(?=[A-Z])/g);\n\n// Formatar e limpar os blocos\nconst formattedOutput = splitOutput.map(part => part.trim()).filter(part => part);\n\n// Retornar cada frase como um item separado para o n8n processar corretamente\nreturn formattedOutput.map(part => ({ json: { result: part } }));\n"
+      },
+      "id": "4a3adec4-cf65-43ea-9abf-c218693c252b",
+      "name": "Code3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2180,
+        2400
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Supabase2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "SDR.IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base64 to Audio": {
+      "main": [
+        [
+          {
+            "node": "Transcreve Áudio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base64 to Image": {
+      "main": [
+        [
+          {
+            "node": "Analisa a Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "main": [
+        [
+          {
+            "node": "Number exist?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase2": {
+      "main": [
+        [
+          {
+            "node": "Number exist?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Number exist?": {
+      "main": [
+        [
+          {
+            "node": "In manual service?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Supabase3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase3": {
+      "main": [
+        [
+          {
+            "node": "Tipo de Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "In manual service?": {
+      "main": [
+        [
+          {
+            "node": "Tipo de Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base64 Audio": {
+      "main": [
+        [
+          {
+            "node": "Base64 to Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base64 Image": {
+      "main": [
+        [
+          {
+            "node": "Base64 to Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Redis6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Number exist?1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Supabase1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delay": {
+      "main": [
+        [
+          {
+            "node": "memory2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memória de Texto": {
+      "main": [
+        [
+          {
+            "node": "memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memória de Áudio": {
+      "main": [
+        [
+          {
+            "node": "memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memória de Imagem": {
+      "main": [
+        [
+          {
+            "node": "memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tipo de Mensagem": {
+      "main": [
+        [
+          {
+            "node": "Memória de Texto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Base64 Audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Base64 Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limitador de Número": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados": {
+      "main": [
+        [
+          {
+            "node": "Limitador de Número",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contabilizar Caracteres": {
+      "main": [
+        [
+          {
+            "node": "Enviar Texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar Texto": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcreve Áudio": {
+      "main": [
+        [
+          {
+            "node": "Memória de Áudio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analisa a Imagem": {
+      "main": [
+        [
+          {
+            "node": "Memória de Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Contabilizar Caracteres",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Contabilizar Caracteres",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Contabilizar Caracteres",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Eleven Labs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eleven Labs": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Enviar Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Número Aleatório": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar Audio": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Organizar Dias": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "agendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "SDR.IA",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reagendamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "SDR.IA",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SDR.IA": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Contabilizar Caracteres",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Número Aleatório",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "dia_semana": {
+      "ai_tool": [
+        [
+          {
+            "node": "SDR.IA",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "SDR.IA",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "disponibilidade": {
+      "ai_tool": [
+        [
+          {
+            "node": "SDR.IA",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "SDR.IA",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Organizar Dias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancelamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "SDR.IA",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "memory": {
+      "main": [
+        [
+          {
+            "node": "Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "memory2": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8bb0686d-1c94-463d-a9db-9fdb867cfa61",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "385c06b6bbed00452a824dd157a142ab661dedbca13fb1106183d4d0295a4f6e"
+  },
+  "id": "8OAElqirM1rh8P8s",
+  "tags": [
+    {
+      "name": "SDR",
+      "id": "YjGcXVdaAbpS5zce",
+      "createdAt": "2025-06-02T22:57:48.371Z",
+      "updatedAt": "2025-06-02T22:57:48.371Z"
+    },
+    {
+      "name": "GOOGLE AGENDA",
+      "id": "NuhYQ0GEv524Audx",
+      "createdAt": "2025-06-02T22:57:48.349Z",
+      "updatedAt": "2025-06-02T22:57:48.349Z"
+    }
+  ]
+}
